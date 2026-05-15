@@ -1,3 +1,4 @@
 node_modules/
 .env
 db/schema.dev.sql
+pnpm-debug.log
