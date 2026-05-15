@@ -1,0 +1,35 @@
+### Registrar usuario
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "codigo_universitario": "EST001",
+  "nombre": "Juan Pérez",
+  "password": "123456",
+  "telefono": "0991234567",
+  "placa": "ABC-1234",
+  "modelo": "Toyota Corolla",
+  "tipo_vehiculo_id": 1
+}
+
+###
+
+### Login usuario
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "codigo_universitario": "EST001",
+  "password": "123456"
+}
+
+###
+
+### Login supervisor
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "codigo_universitario": "SUP001",
+  "password": "cambia_esta_password_segura"
+}
