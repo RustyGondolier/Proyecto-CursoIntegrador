@@ -171,10 +171,12 @@ CREATE TABLE reservas (
   tolerancia_extendida BOOLEAN     DEFAULT false,
   estado               VARCHAR(15) NOT NULL DEFAULT 'activa'
                          CHECK (estado IN ('activa','completada','cancelada','expirada')),
-  creado_en            TIMESTAMP   DEFAULT NOW(),
-  CONSTRAINT una_reserva_activa UNIQUE (usuario_id, estado)
-    DEFERRABLE INITIALLY DEFERRED
+  creado_en            TIMESTAMP   DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX una_reserva_activa
+ON reservas (usuario_id)
+WHERE estado = 'activa';
 
 CREATE TABLE escaneos_qr (
   id         SERIAL      PRIMARY KEY,
