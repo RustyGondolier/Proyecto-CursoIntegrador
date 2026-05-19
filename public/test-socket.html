@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test WebSocket</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    button { margin: 5px; padding: 8px 16px; cursor: pointer; }
+    #log { margin-top: 20px; border: 1px solid #ccc; padding: 10px; min-height: 100px; }
+    .alerta { color: red; }
+    .ok { color: green; }
+  </style>
+</head>
+<body>
+  <h2>Test WebSocket — Simulador ESP32</h2>
+
+  <button onclick="simularOcupado()">🚗 Simular auto SIN reserva</button>
+  <button onclick="simularOcupadoConReserva()">✅ Simular auto CON reserva</button>
+  <button onclick="simularLibre()">🟢 Simular plaza libre</button>
+  <button onclick="limpiarLog()">🗑 Limpiar</button>
+
+  <div id="log"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const log    = document.getElementById('log');
+
+    socket.on('connect', () => {
+      agregar('ok', `✅ Conectado al servidor — ID: ${socket.id}`);
+    });
+
+    socket.on('plaza:actualizada', (data) => {
+      agregar('ok', `📍 plaza:actualizada → ${JSON.stringify(data)}`);
+    });
+
+    socket.on('plaza:alerta', (data) => {
+      agregar('alerta', `🚨 plaza:alerta → ${JSON.stringify(data)}`);
+    });
+
+    function simularOcupado() {
+      socket.emit('sensor:lectura', {
+        plaza_codigo: 'E1-A-A-01',
+        ocupado:      true,
+        valor_raw:    450.5
+      });
+      agregar('', '📤 Enviado: sensor:lectura (ocupado SIN reserva)');
+    }
+
+    function simularOcupadoConReserva() {
+      socket.emit('sensor:lectura', {
+        plaza_codigo: 'E1-A-A-01',
+        ocupado:      true,
+        valor_raw:    448.2
+      });
+      agregar('', '📤 Enviado: sensor:lectura (ocupado CON reserva)');
+    }
+
+    function simularLibre() {
+      socket.emit('sensor:lectura', {
+        plaza_codigo: 'E1-A-A-01',
+        ocupado:      false,
+        valor_raw:    12.3
+      });
+      agregar('', '📤 Enviado: sensor:lectura (libre)');
+    }
+
+    function agregar(clase, texto) {
+      const p = document.createElement('p');
+      p.className = clase;
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${texto}`;
+      log.prepend(p);
+    }
+
+    function limpiarLog() {
+      log.innerHTML = '';
+    }
+  </script>
+</body>
+</html>
