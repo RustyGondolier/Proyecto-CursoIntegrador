@@ -7,7 +7,7 @@ Content-Type: application/json
   "nombre": "Juan Pérez",
   "password": "123456",
   "telefono": "0991234567",
-  "placa": "ABC-1234",
+  "placa": "ABC-123",
   "modelo": "Toyota Corolla",
   "tipo_vehiculo_id": 1
 }
@@ -32,4 +32,83 @@ Content-Type: application/json
 {
   "codigo_universitario": "SUP001",
   "password": "cambia_esta_password_segura"
+}
+
+###
+### Segunda parte de pruebas
+###
+
+### Ver todas las plazas del estacionamiento 1, tipo auto
+GET http://localhost:3000/api/plazas?estacionamiento_id=1&tipo_vehiculo=auto
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+###
+
+### Crear reserva -- abajo hay una correccion de esto
+POST http://localhost:3000/api/reservas
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+{
+  "plaza_id": 1,
+  "vehiculo_id": 1,
+  "hora_inicio": "2026-05-20T08:00:00",
+  "hora_fin": "2026-05-20T10:00:00"
+}
+
+###
+
+### Ver mis reservas
+GET http://localhost:3000/api/reservas/mis-reservas
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+###
+
+### Cancelar reserva
+DELETE http://localhost:3000/api/reservas/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+### Ver mis datos
+GET http://localhost:3000/api/reservas/mis-reservas
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+### Ver vehiculo del usuario
+GET http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "codigo_universitario": "EST001",
+  "password": "123456"
+}
+
+### Ver perfil completo
+GET http://localhost:3000/api/auth/perfil
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+### Ver primera plaza libre
+GET http://localhost:3000/api/plazas?estacionamiento_id=1&tipo_vehiculo=auto&estado=libre
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+### Crear reserva
+POST http://localhost:3000/api/reservas
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+{
+  "plaza_id": 1,
+  "vehiculo_id": 2,
+  "hora_inicio": "2026-05-20T08:00:00",
+  "hora_fin": "2026-05-20T10:00:00"
+}
+
+### Intentar crear otra reserva (debe dar 409 - ya tienes una activa)
+POST http://localhost:3000/api/reservas
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+
+{
+  "plaza_id": 2,
+  "vehiculo_id": 2,
+  "hora_inicio": "2026-05-20T08:00:00",
+  "hora_fin": "2026-05-20T10:00:00"
 }

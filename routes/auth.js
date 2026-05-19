@@ -3,6 +3,7 @@ const bcrypt   = require('bcryptjs');
 const jwt      = require('jsonwebtoken');
 const crypto   = require('crypto');
 const pool     = require('../db/index');
+const { authJWT } = require('../middleware/authJWT');
 const router   = express.Router();
 
 
@@ -142,6 +143,23 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// GET /api/auth/perfil
+router.get('/perfil', authJWT, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `SELECT u.id, u.nombre, u.codigo_universitario, u.rol,
+              v.id AS vehiculo_id, v.placa, v.modelo, v.tipo_vehiculo_id
+       FROM usuarios u
+       LEFT JOIN vehiculos v ON v.usuario_id = u.id AND v.activo = true
+       WHERE u.id = $1`,
+      [req.usuario.id]
+    );
+    res.json(resultado.rows[0]);
+  } catch (err) {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
