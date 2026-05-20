@@ -1,0 +1,144 @@
+const express = require('express');
+const pool    = require('../db/index');
+const { authJWT, soloSupervisor } = require('../middleware/authJWT');
+const router  = express.Router();
+
+// POST /api/reportes
+// Crea un reporte de incidencia (usuario autenticado)
+router.post('/', authJWT, async (req, res) => {
+  const { plaza_id, descripcion, es_prioritario, razon_prioridad } = req.body;
+
+  if (!descripcion) {
+    return res.status(400).json({ error: 'La descripción es obligatoria' });
+  }
+
+  try {
+    const reporte = await pool.query(
+      `INSERT INTO reportes_incidencias
+        (usuario_id, plaza_id, descripcion, es_prioritario, razon_prioridad)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [
+        req.usuario.id,
+        plaza_id || null,
+        descripcion,
+        es_prioritario || false,
+        razon_prioridad || null
+      ]
+    );
+
+    res.status(201).json({
+      mensaje: 'Reporte enviado correctamente',
+      reporte: reporte.rows[0]
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// GET /api/reportes
+// Lista reportes — supervisor ve todos, usuario ve los suyos
+router.get('/', authJWT, async (req, res) => {
+  try {
+    let query = `
+      SELECT
+        r.id,
+        r.descripcion,
+        r.es_prioritario,
+        r.razon_prioridad,
+        r.respuesta_supervisor,
+        r.valoracion,
+        r.creado_en,
+        r.actualizado_en,
+        er.codigo  AS estado,
+        er.label   AS estado_label,
+        u.nombre   AS usuario_nombre,
+        u.codigo_universitario,
+        p.codigo   AS plaza_codigo
+       FROM reportes_incidencias r
+       JOIN estados_reporte er ON er.id = r.estado_id
+       JOIN usuarios         u  ON u.id  = r.usuario_id
+       LEFT JOIN plazas      p  ON p.id  = r.plaza_id
+       WHERE 1=1
+    `;
+
+    const params = [];
+
+    // Supervisor ve todos, usuario solo los suyos
+    if (req.usuario.rol !== 'supervisor') {
+      query += ` AND r.usuario_id = $1`;
+      params.push(req.usuario.id);
+    }
+
+    query += ' ORDER BY r.es_prioritario DESC, r.creado_en DESC';
+
+    const resultado = await pool.query(query, params);
+    res.json(resultado.rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// PATCH /api/reportes/:id
+// Responde un reporte (solo supervisor)
+router.patch('/:id', authJWT, soloSupervisor, async (req, res) => {
+  const { respuesta, estado } = req.body;
+
+  if (!respuesta || !estado) {
+    return res.status(400).json({ error: 'Faltan respuesta y estado' });
+  }
+
+  try {
+    // Buscar el estado_id
+    const estadoRow = await pool.query(
+      `SELECT id FROM estados_reporte WHERE codigo = $1`,
+      [estado]
+    );
+    if (estadoRow.rows.length === 0) {
+      return res.status(400).json({ error: 'Estado no válido' });
+    }
+
+    const reporte = await pool.query(
+      `UPDATE reportes_incidencias
+       SET respuesta_supervisor = $1,
+           estado_id            = $2,
+           supervisor_id        = $3,
+           actualizado_en       = NOW()
+       WHERE id = $4
+       RETURNING *`,
+      [respuesta, estadoRow.rows[0].id, req.usuario.id, req.params.id]
+    );
+
+    if (reporte.rows.length === 0) {
+      return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+
+    // Notificar al usuario que su reporte fue respondido
+    await pool.query(
+      `INSERT INTO notificaciones
+        (usuario_id, tipo_id, titulo, mensaje)
+       VALUES (
+         $1,
+         (SELECT id FROM tipos_notificacion WHERE codigo = 'reporte'),
+         'Tu reporte fue respondido',
+         $2
+       )`,
+      [reporte.rows[0].usuario_id, respuesta]
+    );
+
+    res.json({
+      mensaje: 'Reporte respondido correctamente',
+      reporte: reporte.rows[0]
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+module.exports = router;
