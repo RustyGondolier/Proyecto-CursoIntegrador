@@ -1,5 +1,5 @@
-@tokenUsuario = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkyMzI1ODcsImV4cCI6MTc3OTI2MTM4N30.CcDxq20S18_pH14Z3fzHl-th8e9aq7MeB1lncL5YZTg
-@tokenSupervisor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJTVVAwMDEiLCJub21icmUiOiJTdXBlcnZpc29yIFByaW5jaXBhbCIsInJvbCI6InN1cGVydmlzb3IiLCJpYXQiOjE3NzkyMzI2MTQsImV4cCI6MTc3OTI2MTQxNH0.WKQTJT3IBsD_f9ezBVRypf3ro3QiqDO6oIO3P4IBwDo
+@tokenUsuario = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkyMzc2NTIsImV4cCI6MTc3OTI2NjQ1Mn0.bmEhiA62jlpnGc6s0FKmW2HuhdV5y0KmY4cL9c0e65w
+@tokenSupervisor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJTVVAwMDEiLCJub21icmUiOiJTdXBlcnZpc29yIFByaW5jaXBhbCIsInJvbCI6InN1cGVydmlzb3IiLCJpYXQiOjE3NzkyMzc0MDEsImV4cCI6MTc3OTI2NjIwMX0.bKSgO-M8TASUfEcsS5sAhEJCIfBFKrLotQygbTk2-54
 
 ### Registrar usuario
 POST http://localhost:3000/api/auth/register
@@ -192,7 +192,7 @@ Authorization: Bearer {{tokenSupervisor}}
 ###
 
 ### Responder reporte (supervisor)
-PATCH http://localhost:3000/api/reportes/1
+PATCH http://localhost:3000/api/reportes/3
 Content-Type: application/json
 Authorization: Bearer {{tokenSupervisor}}
 
@@ -214,3 +214,15 @@ PATCH http://localhost:3000/api/notificaciones/3
 Authorization: Bearer {{tokenUsuario}}
 
 
+### Ver tipos de infracción
+GET http://localhost:3000/api/infracciones/tipos
+Authorization: Bearer {{tokenSupervisor}}
+
+### Valorar reporte resuelto
+PATCH http://localhost:3000/api/reportes/3/valorar
+Content-Type: application/json
+Authorization: Bearer {{tokenUsuario}}
+
+{
+  "valoracion": 4
+}
