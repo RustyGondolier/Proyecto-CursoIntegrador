@@ -9,6 +9,7 @@ CREATE TABLE usuarios (
   estado_cuenta        VARCHAR(15)  NOT NULL DEFAULT 'activa'
                          CHECK (estado_cuenta IN ('activa','suspendida','eliminada')),
   motivo_suspension    TEXT,
+  puntos_infraccion    INTEGER      DEFAULT 0,
   qr_token             VARCHAR(64)  UNIQUE NOT NULL,
   preferencia_tema     VARCHAR(10)  DEFAULT 'claro'
                          CHECK (preferencia_tema IN ('claro','oscuro')),

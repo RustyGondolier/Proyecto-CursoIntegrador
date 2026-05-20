@@ -1,3 +1,6 @@
+@tokenUsuario = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkyMzI1ODcsImV4cCI6MTc3OTI2MTM4N30.CcDxq20S18_pH14Z3fzHl-th8e9aq7MeB1lncL5YZTg
+@tokenSupervisor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJTVVAwMDEiLCJub21icmUiOiJTdXBlcnZpc29yIFByaW5jaXBhbCIsInJvbCI6InN1cGVydmlzb3IiLCJpYXQiOjE3NzkyMzI2MTQsImV4cCI6MTc3OTI2MTQxNH0.WKQTJT3IBsD_f9ezBVRypf3ro3QiqDO6oIO3P4IBwDo
+
 ### Registrar usuario
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
@@ -40,18 +43,18 @@ Content-Type: application/json
 
 ### Ver todas las plazas del estacionamiento 1, tipo auto
 GET http://localhost:3000/api/plazas?estacionamiento_id=1&tipo_vehiculo=auto
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 ###
 
 ### Crear reserva -- abajo hay una correccion de esto
 POST http://localhost:3000/api/reservas
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 {
-  "plaza_id": 1,
-  "vehiculo_id": 1,
+  "plaza_id": 2,
+  "vehiculo_id": 2,
   "hora_inicio": "2026-05-20T08:00:00",
   "hora_fin": "2026-05-20T10:00:00"
 }
@@ -60,17 +63,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX
 
 ### Ver mis reservas
 GET http://localhost:3000/api/reservas/mis-reservas
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 ###
 
 ### Cancelar reserva
-DELETE http://localhost:3000/api/reservas/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+DELETE http://localhost:3000/api/reservas/3
+Authorization: Bearer {{tokenUsuario}}
 
 ### Ver mis datos
 GET http://localhost:3000/api/reservas/mis-reservas
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 ### Ver vehiculo del usuario
 GET http://localhost:3000/api/auth/login
@@ -83,16 +86,16 @@ Content-Type: application/json
 
 ### Ver perfil completo
 GET http://localhost:3000/api/auth/perfil
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 ### Ver primera plaza libre
 GET http://localhost:3000/api/plazas?estacionamiento_id=1&tipo_vehiculo=auto&estado=libre
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 ### Crear reserva
 POST http://localhost:3000/api/reservas
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 {
   "plaza_id": 1,
@@ -104,7 +107,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX
 ### Intentar crear otra reserva (debe dar 409 - ya tienes una activa)
 POST http://localhost:3000/api/reservas
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkxNTc4NjYsImV4cCI6MTc3OTE4NjY2Nn0.s82JtgC2MfAySu-WzefAsEaBbj3Bu6Bh3RcBqgGx4to
+Authorization: Bearer {{tokenUsuario}}
 
 {
   "plaza_id": 2,
@@ -112,3 +115,102 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX
   "hora_inicio": "2026-05-20T08:00:00",
   "hora_fin": "2026-05-20T10:00:00"
 }
+
+
+### Login supervisor (para obtener token)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "codigo_universitario": "SUP001",
+  "password": "cambia_esta_password_segura"
+}
+
+###
+
+### Ver todos los usuarios (solo supervisor)
+GET http://localhost:3000/api/usuarios
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Buscar usuario por nombre
+GET http://localhost:3000/api/usuarios?buscar=juan
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Ver detalle de un usuario
+GET http://localhost:3000/api/usuarios/2
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Registrar infracción
+POST http://localhost:3000/api/infracciones
+Content-Type: application/json
+Authorization: Bearer {{tokenSupervisor}}
+
+{
+  "usuario_id": 2,
+  "plaza_id": 1,
+  "tipo_infraccion_id": 1,
+  "descripcion": "Vehículo estacionado sin reserva válida"
+}
+
+###
+
+### Ver todas las infracciones
+GET http://localhost:3000/api/infracciones
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Crear reporte (usuario normal)
+POST http://localhost:3000/api/reportes
+Content-Type: application/json
+Authorization: Bearer {{tokenUsuario}}
+
+{
+  "plaza_id": 1,
+  "descripcion": "La plaza tiene una mancha de aceite grande",
+  "es_prioritario": false
+}
+
+###
+
+### Ver mis reportes (usuario normal)
+GET http://localhost:3000/api/reportes
+Authorization: Bearer {{tokenUsuario}}
+
+###
+
+### Ver todos los reportes (supervisor)
+GET http://localhost:3000/api/reportes
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Responder reporte (supervisor)
+PATCH http://localhost:3000/api/reportes/1
+Content-Type: application/json
+Authorization: Bearer {{tokenSupervisor}}
+
+{
+  "respuesta": "Se enviará personal de mantenimiento a limpiar la plaza.",
+  "estado": "resuelto"
+}
+
+###
+
+### Ver notificaciones (usuario normal)
+GET http://localhost:3000/api/notificaciones
+Authorization: Bearer {{tokenUsuario}}
+
+###
+
+### Marcar notificación como leída
+PATCH http://localhost:3000/api/notificaciones/3
+Authorization: Bearer {{tokenUsuario}}
+
+
