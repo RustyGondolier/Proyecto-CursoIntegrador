@@ -111,4 +111,19 @@ router.get('/', authJWT, soloSupervisor, async (req, res) => {
   }
 });
 
+// GET /api/infracciones/tipos
+// Lista los tipos de infracción disponibles
+// Accesible para supervisor
+router.get('/tipos', authJWT, soloSupervisor, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `SELECT id, codigo, descripcion FROM tipos_infraccion ORDER BY id`
+    );
+    res.json(resultado.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 module.exports = router;

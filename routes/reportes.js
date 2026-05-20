@@ -141,4 +141,50 @@ router.patch('/:id', authJWT, soloSupervisor, async (req, res) => {
   }
 });
 
+// PATCH /api/reportes/:id/valorar
+// El usuario valora la atención una vez el reporte está resuelto
+router.patch('/:id/valorar', authJWT, async (req, res) => {
+  const { valoracion } = req.body;
+
+  if (!valoracion || valoracion < 1 || valoracion > 5) {
+    return res.status(400).json({ error: 'La valoración debe ser un número entre 1 y 5' });
+  }
+
+  try {
+    // Verificar que el reporte pertenece al usuario y está resuelto
+    const reporte = await pool.query(
+      `SELECT r.id, r.valoracion, er.codigo AS estado
+       FROM reportes_incidencias r
+       JOIN estados_reporte er ON er.id = r.estado_id
+       WHERE r.id = $1 AND r.usuario_id = $2`,
+      [req.params.id, req.usuario.id]
+    );
+
+    if (reporte.rows.length === 0) {
+      return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+
+    if (reporte.rows[0].estado !== 'resuelto') {
+      return res.status(409).json({ error: 'Solo puedes valorar reportes resueltos' });
+    }
+
+    if (reporte.rows[0].valoracion !== null) {
+      return res.status(409).json({ error: 'Este reporte ya fue valorado' });
+    }
+
+    await pool.query(
+      `UPDATE reportes_incidencias
+       SET valoracion = $1, actualizado_en = NOW()
+       WHERE id = $2`,
+      [valoracion, req.params.id]
+    );
+
+    res.json({ mensaje: 'Valoración registrada correctamente' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 module.exports = router;
