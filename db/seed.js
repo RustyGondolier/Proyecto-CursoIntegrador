@@ -14,19 +14,21 @@ async function seed() {
       process.exit(0);
     }
 
-    const hash     = await bcrypt.hash(process.env.SUPERVISOR_PASSWORD, 10);
-    const qrToken  = crypto.randomBytes(32).toString('hex');
+    const hash    = await bcrypt.hash(process.env.SUPERVISOR_PASSWORD, 10);
+    const qrToken = crypto.randomBytes(32).toString('hex');
 
     const supervisor = await pool.query(
-      `INSERT INTO usuarios
-        (codigo_universitario, nombre, password_hash, telefono, rol, qr_token)
-       VALUES ($1, $2, $3, $4, 'supervisor', $5)
-       RETURNING id`,
+      `INSERT INTO usuarios (
+        codigo_universitario, nombre, password_hash, telefono,
+        fecha_nacimiento, rol, qr_token
+      ) VALUES ($1, $2, $3, $4, $5, 'supervisor', $6)
+      RETURNING id`,
       [
         process.env.SUPERVISOR_CODIGO,
         process.env.SUPERVISOR_NOMBRE,
         hash,
         process.env.SUPERVISOR_TELEFONO,
+        '1985-01-01',
         qrToken
       ]
     );

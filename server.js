@@ -16,6 +16,8 @@ const infraccionesRoutes  = require('./routes/infracciones');
 const reportesRoutes      = require('./routes/reportes');
 const notificacionesRoutes = require('./routes/notificaciones');
 
+const analyticsRoutes  = require('./routes/analytics');
+
 const app    = express();
 const server = http.createServer(app);
 const io     = new Server(server, {
@@ -36,6 +38,8 @@ app.use('/api/usuarios',       usuariosRoutes);
 app.use('/api/infracciones',   infraccionesRoutes);
 app.use('/api/reportes',       reportesRoutes);
 app.use('/api/notificaciones', notificacionesRoutes);
+
+app.use('/api/analytics', analyticsRoutes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
