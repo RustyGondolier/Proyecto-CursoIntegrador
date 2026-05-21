@@ -4,6 +4,10 @@ function initSockets(io) {
   io.on('connection', (socket) => {
     console.log('Cliente conectado:', socket.id);
 
+    socket.on('join:role', (rol) => {
+      socket.join(rol);
+    });
+
     // Evento enviado por el ESP32 cuando detecta un cambio en una plaza
     // Payload: { plaza_codigo: 'E1-A-C-03', ocupado: true/false }
     socket.on('sensor:lectura', async (data) => {
@@ -29,10 +33,17 @@ function initSockets(io) {
           // Auto detectado SIN reserva → alerta
           nuevoEstado = 'ocupada_sin_reserva';
 
+          const mensaje = `Plaza ${plaza_codigo} ocupada sin reserva`;
+
           // Notificar al supervisor con alerta especial
-          io.emit('plaza:alerta', {
+          io.to('supervisor').emit('plaza:alerta', {
             plaza_codigo,
-            mensaje: `Plaza ${plaza_codigo} ocupada sin reserva`
+            mensaje
+          });
+
+          io.to('directora').emit('plaza:alerta', {
+            plaza_codigo,
+            mensaje
           });
 
         } else if (ocupado && p.reserva_id) {
