@@ -17,6 +17,7 @@ function authJWT(req, res, next) {
   }
 }
 
+// Solo supervisor (gestión operativa)
 function soloSupervisor(req, res, next) {
   if (req.usuario.rol !== 'supervisor') {
     return res.status(403).json({ error: 'Acceso solo para supervisores' });
@@ -24,4 +25,20 @@ function soloSupervisor(req, res, next) {
   next();
 }
 
-module.exports = { authJWT, soloSupervisor };
+// Supervisor o directora (gestión + analytics)
+function supervisorODirectora(req, res, next) {
+  if (!['supervisor','directora'].includes(req.usuario.rol)) {
+    return res.status(403).json({ error: 'Acceso restringido' });
+  }
+  next();
+}
+
+// Roles con privilegios (supervisor, directora, administrativo)
+function rolesPrivilegiados(req, res, next) {
+  if (!['supervisor','directora','administrativo'].includes(req.usuario.rol)) {
+    return res.status(403).json({ error: 'Acceso restringido' });
+  }
+  next();
+}
+
+module.exports = { authJWT, soloSupervisor, supervisorODirectora, rolesPrivilegiados };

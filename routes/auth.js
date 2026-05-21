@@ -6,7 +6,6 @@ const pool     = require('../db/index');
 const { authJWT } = require('../middleware/authJWT');
 const router   = express.Router();
 
-
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   const {
@@ -14,14 +13,41 @@ router.post('/register', async (req, res) => {
     nombre,
     password,
     telefono,
+    dni,
+    fecha_nacimiento,
+    correo_institucional,
+    nro_licencia,
+    licencia_fecha_vencimiento,
+    codigo_conadis,
+    rol,
     placa,
     modelo,
     tipo_vehiculo_id
   } = req.body;
 
-  if (!codigo_universitario || !nombre || !password || !placa) {
+  if (!codigo_universitario || !nombre || !password || !placa || !fecha_nacimiento) {
     return res.status(400).json({ error: 'Faltan campos obligatorios' });
   }
+
+  // Validar mayoría de edad
+  const nacimiento = new Date(fecha_nacimiento);
+  const hoy        = new Date();
+  let   edad       = hoy.getFullYear() - nacimiento.getFullYear();
+  const mes        = hoy.getMonth() - nacimiento.getMonth();
+  if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+  if (edad < 18) {
+    return res.status(400).json({ error: 'Debes ser mayor de edad para registrarte' });
+  }
+
+  // Validar formato de placa peruana (ABC-123 o ABC-1234)
+  const formatoPlaca = /^[A-Z0-9]{3}-\d{3,4}$/;
+  if (!formatoPlaca.test(placa.toUpperCase())) {
+    return res.status(400).json({ error: 'Formato de placa inválido (ej: ABC-1234)' });
+  }
+
+  // Validar rol permitido para registro público
+  const rolesPermitidos = ['estudiante', 'docente', 'administrativo'];
+  const rolFinal = rolesPermitidos.includes(rol) ? rol : 'estudiante';
 
   try {
     const codigoExiste = await pool.query(
@@ -34,7 +60,7 @@ router.post('/register', async (req, res) => {
 
     const placaExiste = await pool.query(
       'SELECT id FROM vehiculos WHERE placa = $1',
-      [placa]
+      [placa.toUpperCase()]
     );
     if (placaExiste.rows.length > 0) {
       return res.status(409).json({ error: 'La placa ya está registrada' });
@@ -44,17 +70,45 @@ router.post('/register', async (req, res) => {
     const qrToken = crypto.randomBytes(32).toString('hex');
 
     const nuevoUsuario = await pool.query(
-      `INSERT INTO usuarios
-        (codigo_universitario, nombre, password_hash, telefono, rol, qr_token)
-       VALUES ($1, $2, $3, $4, 'user', $5)
-       RETURNING id`,
-      [codigo_universitario, nombre, hash, telefono || null, qrToken]
+      `INSERT INTO usuarios (
+        codigo_universitario, nombre, password_hash, telefono,
+        dni, fecha_nacimiento, correo_institucional,
+        nro_licencia, licencia_fecha_vencimiento,
+        codigo_conadis, rol, qr_token
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      RETURNING id`,
+      [
+        codigo_universitario,
+        nombre,
+        hash,
+        telefono                  || null,
+        dni                       || null,
+        fecha_nacimiento,
+        correo_institucional      || null,
+        nro_licencia              || null,
+        licencia_fecha_vencimiento|| null,
+        codigo_conadis            || null,
+        rolFinal,
+        qrToken
+      ]
     );
 
     await pool.query(
       `INSERT INTO vehiculos (usuario_id, tipo_vehiculo_id, placa, modelo)
        VALUES ($1, $2, $3, $4)`,
-      [nuevoUsuario.rows[0].id, tipo_vehiculo_id || 1, placa, modelo || null]
+      [
+        nuevoUsuario.rows[0].id,
+        tipo_vehiculo_id || 1,
+        placa.toUpperCase(),
+        modelo || null
+      ]
+    );
+
+    // Registrar evento analytics
+    await pool.query(
+      `INSERT INTO eventos_sistema (tipo, usuario_id, sede_id, metadata)
+       VALUES ('usuario_registrado', $1, 1, $2)`,
+      [nuevoUsuario.rows[0].id, JSON.stringify({ rol: rolFinal })]
     );
 
     res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
@@ -64,7 +118,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
@@ -76,13 +129,11 @@ router.post('/login', async (req, res) => {
 
   try {
     const resultado = await pool.query(
-      `SELECT u.*, v.placa, v.modelo, v.tipo_vehiculo_id,
-              tv.codigo AS tipo_vehiculo
+      `SELECT u.*, v.id AS vehiculo_id, v.placa, v.modelo,
+              v.tipo_vehiculo_id, tv.codigo AS tipo_vehiculo
        FROM usuarios u
-       LEFT JOIN vehiculos v
-         ON v.usuario_id = u.id AND v.activo = true
-       LEFT JOIN tipos_vehiculo tv
-         ON tv.id = v.tipo_vehiculo_id
+       LEFT JOIN vehiculos      v  ON v.usuario_id = u.id AND v.activo = true
+       LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
        WHERE u.codigo_universitario = $1
        LIMIT 1`,
       [codigo_universitario]
@@ -96,7 +147,7 @@ router.post('/login', async (req, res) => {
 
     if (usuario.estado_cuenta !== 'activa') {
       return res.status(403).json({
-        error: 'Cuenta suspendida',
+        error:  'Cuenta suspendida',
         motivo: usuario.motivo_suspension
       });
     }
@@ -135,6 +186,8 @@ router.post('/login', async (req, res) => {
         codigo_universitario: usuario.codigo_universitario,
         nombre:               usuario.nombre,
         rol:                  usuario.rol,
+        conadis_verificado:   usuario.conadis_verificado,
+        vehiculo_id:          usuario.vehiculo_id,
         placa:                usuario.placa,
         modelo:               usuario.modelo,
         tipo_vehiculo:        usuario.tipo_vehiculo
@@ -151,15 +204,24 @@ router.post('/login', async (req, res) => {
 router.get('/perfil', authJWT, async (req, res) => {
   try {
     const resultado = await pool.query(
-      `SELECT u.id, u.nombre, u.codigo_universitario, u.rol,
-              v.id AS vehiculo_id, v.placa, v.modelo, v.tipo_vehiculo_id
+      `SELECT
+        u.id, u.codigo_universitario, u.nombre, u.telefono,
+        u.dni, u.fecha_nacimiento, u.correo_institucional,
+        u.nro_licencia, u.licencia_fecha_vencimiento,
+        u.codigo_conadis, u.conadis_verificado,
+        u.rol, u.estado_cuenta, u.puntos_infraccion, u.creado_en,
+        v.id    AS vehiculo_id,
+        v.placa, v.modelo,
+        tv.codigo AS tipo_vehiculo
        FROM usuarios u
-       LEFT JOIN vehiculos v ON v.usuario_id = u.id AND v.activo = true
+       LEFT JOIN vehiculos      v  ON v.usuario_id = u.id AND v.activo = true
+       LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
        WHERE u.id = $1`,
       [req.usuario.id]
     );
     res.json(resultado.rows[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

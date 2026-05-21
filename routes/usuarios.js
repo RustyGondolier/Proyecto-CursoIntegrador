@@ -26,7 +26,7 @@ router.get('/', authJWT, soloSupervisor, async (req, res) => {
       FROM usuarios u
       LEFT JOIN vehiculos     v  ON v.usuario_id = u.id AND v.activo = true
       LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
-      WHERE u.rol = 'user'
+      WHERE u.WHERE u.rol IN ('estudiante','docente','administrativo') = 'user'
     `;
 
     const params = [];
@@ -134,7 +134,7 @@ router.patch('/:id/suspender', authJWT, soloSupervisor, async (req, res) => {
 
   try {
     const usuario = await pool.query(
-      `SELECT id, estado_cuenta FROM usuarios WHERE id = $1 AND rol = 'user'`,
+      `SELECT id, estado_cuenta FROM usuarios WHERE id = $1 AND rol IN ('estudiante','docente','administrativo')`,
       [req.params.id]
     );
 
@@ -156,6 +156,57 @@ router.patch('/:id/suspender', authJWT, soloSupervisor, async (req, res) => {
     res.json({
       mensaje: `Cuenta ${nuevoEstado === 'suspendida' ? 'suspendida' : 'reactivada'} correctamente`,
       estado_cuenta: nuevoEstado
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// PATCH /api/usuarios/:id/conadis
+// Verifica o revoca el código CONADIS de un usuario
+// Solo supervisor
+router.patch('/:id/conadis', authJWT, soloSupervisor, async (req, res) => {
+  const { verificado } = req.body;
+
+  try {
+    const usuario = await pool.query(
+      `SELECT id, codigo_conadis FROM usuarios
+       WHERE id = $1 AND rol IN ('estudiante','docente','administrativo')`,
+      [req.params.id]
+    );
+
+    if (usuario.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    if (!usuario.rows[0].codigo_conadis) {
+      return res.status(400).json({ error: 'El usuario no tiene código CONADIS registrado' });
+    }
+
+    await pool.query(
+      `UPDATE usuarios SET conadis_verificado = $1 WHERE id = $2`,
+      [verificado === true, req.params.id]
+    );
+
+    // Notificar al usuario
+    await pool.query(
+      `INSERT INTO notificaciones (usuario_id, tipo_id, titulo, mensaje)
+       VALUES ($1,
+         (SELECT id FROM tipos_notificacion WHERE codigo = 'sistema'),
+         $2, $3)`,
+      [
+        req.params.id,
+        verificado ? 'CONADIS verificado' : 'CONADIS revocado',
+        verificado
+          ? 'Tu código CONADIS fue verificado. Ya puedes reservar plazas para discapacidad.'
+          : 'Tu verificación CONADIS fue revocada. Contacta al supervisor.'
+      ]
+    );
+
+    res.json({
+      mensaje: `CONADIS ${verificado ? 'verificado' : 'revocado'} correctamente`
     });
 
   } catch (err) {

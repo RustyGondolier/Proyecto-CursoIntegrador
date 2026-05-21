@@ -16,7 +16,7 @@ router.post('/', authJWT, soloSupervisor, async (req, res) => {
   try {
     // Verificar que el usuario existe
     const usuario = await pool.query(
-      `SELECT id, puntos_infraccion FROM usuarios WHERE id = $1 AND rol = 'user'`,
+      `SELECT id, puntos_infraccion FROM usuarios WHERE id = $1 AND rol IN ('estudiante','docente','administrativo')`,
       [usuario_id]
     );
     if (usuario.rows.length === 0) {

@@ -1,5 +1,5 @@
-@tokenUsuario = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkyMzc2NTIsImV4cCI6MTc3OTI2NjQ1Mn0.bmEhiA62jlpnGc6s0FKmW2HuhdV5y0KmY4cL9c0e65w
-@tokenSupervisor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJTVVAwMDEiLCJub21icmUiOiJTdXBlcnZpc29yIFByaW5jaXBhbCIsInJvbCI6InN1cGVydmlzb3IiLCJpYXQiOjE3NzkyMzc0MDEsImV4cCI6MTc3OTI2NjIwMX0.bKSgO-M8TASUfEcsS5sAhEJCIfBFKrLotQygbTk2-54
+@tokenUsuario = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJFU1QwMDEiLCJub21icmUiOiJKdWFuIFDDqXJleiIsInJvbCI6InVzZXIiLCJpYXQiOjE3NzkyOTI4ODYsImV4cCI6MTc3OTMyMTY4Nn0.-Bk1VYz1XAUDJmN5U06k6eEI1PCwd12OWZSr0pwjTio
+@tokenSupervisor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29kaWdvX3VuaXZlcnNpdGFyaW8iOiJTVVAwMDEiLCJub21icmUiOiJTdXBlcnZpc29yIFByaW5jaXBhbCIsInJvbCI6InN1cGVydmlzb3IiLCJpYXQiOjE3NzkzMzcyOTAsImV4cCI6MTc3OTM2NjA5MH0.QttWfnXV6yRP494AWl2COYMwVJWAmcLNKRl7c7cIrD4
 
 ### Registrar usuario
 POST http://localhost:3000/api/auth/register
@@ -33,8 +33,8 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "codigo_universitario": "SUP001",
-  "password": "cambia_esta_password_segura"
+  "codigo_institucional": "SUP001",
+  "password": "Sup.UtpSur2026"
 }
 
 ###
@@ -53,10 +53,10 @@ Content-Type: application/json
 Authorization: Bearer {{tokenUsuario}}
 
 {
-  "plaza_id": 2,
+  "plaza_id": 5,
   "vehiculo_id": 2,
-  "hora_inicio": "2026-05-20T08:00:00",
-  "hora_fin": "2026-05-20T10:00:00"
+  "hora_inicio": "2026-05-21T08:00:00",
+  "hora_fin": "2026-05-21T10:00:00"
 }
 
 ###
@@ -68,7 +68,7 @@ Authorization: Bearer {{tokenUsuario}}
 ###
 
 ### Cancelar reserva
-DELETE http://localhost:3000/api/reservas/3
+DELETE http://localhost:3000/api/reservas/4
 Authorization: Bearer {{tokenUsuario}}
 
 ### Ver mis datos
@@ -153,8 +153,8 @@ Authorization: Bearer {{tokenSupervisor}}
 
 {
   "usuario_id": 2,
-  "plaza_id": 1,
-  "tipo_infraccion_id": 1,
+  "plaza_id": 3,
+  "tipo_infraccion_id": 2,
   "descripcion": "Vehículo estacionado sin reserva válida"
 }
 
@@ -172,7 +172,7 @@ Content-Type: application/json
 Authorization: Bearer {{tokenUsuario}}
 
 {
-  "plaza_id": 1,
+  "plaza_id": 3,
   "descripcion": "La plaza tiene una mancha de aceite grande",
   "es_prioritario": false
 }
@@ -226,3 +226,107 @@ Authorization: Bearer {{tokenUsuario}}
 {
   "valoracion": 4
 }
+
+
+
+
+### ----------- Nuevos cambios solicitados por la profesora --------------------------------------------------------
+
+### Registrar estudiante con todos los campos
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "codigo_universitario": "U20230001",
+  "nombre": "María García",
+  "password": "123456",
+  "telefono": "987654321",
+  "dni": "74521896",
+  "fecha_nacimiento": "2000-03-15",
+  "correo_institucional": "u20230001@utp.edu.pe",
+  "nro_licencia": "Q54321678",
+  "rol": "estudiante",
+  "placa": "ABC-1234",
+  "modelo": "Honda Civic",
+  "tipo_vehiculo_id": 1
+}
+
+###
+
+### Registrar estudiante con carné de CONADIS
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "codigo_universitario": "U20230002",
+  "nombre": "Juan Pérez",
+  "password": "123456",
+  "telefono": "912345678",
+  "dni": "45678912",
+  "fecha_nacimiento": "1998-05-20",
+  "correo_institucional": "u20230002@utp.edu.pe",
+  "nro_licencia": "A12345678",
+  "rol": "estudiante",
+  "placa": "XYZ-5678",
+  "modelo": "Toyota Corolla",
+  "tipo_vehiculo_id": 1,
+  "codigo_conadis": "C-987654"
+}
+
+### Intentar registrar menor de edad
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "codigo_universitario": "U20240001",
+  "nombre": "Carlos Menor",
+  "password": "123456",
+  "fecha_nacimiento": "2010-01-01",
+  "placa": "XYZ-9999",
+  "rol": "estudiante"
+}
+
+###
+
+### Login supervisor
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "codigo_universitario": "SUP001",
+  "password": "Sup.UtpSur2026"
+}
+
+### Resumen analytics (directora/supervisor)
+GET http://localhost:3000/api/analytics/resumen
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Ocupación actual
+GET http://localhost:3000/api/analytics/ocupacion
+Authorization: Bearer {{tokenSupervisor}}
+
+###
+
+### Verificar CONADIS de un usuario
+PATCH http://localhost:3000/api/usuarios/3/conadis
+Content-Type: application/json
+Authorization: Bearer {{tokenSupervisor}}
+
+{
+  "verificado": true
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
