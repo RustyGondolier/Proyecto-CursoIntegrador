@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Registro - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/reset.css">
+  <link rel="stylesheet" href="/shared/css/global.css">
+  <link rel="stylesheet" href="/shared/css/components.css">
+  <link rel="stylesheet" href="/shared/css/auth.css">
+
+</head>
+<body>
+
+  <main class="auth-page">
+
+    <div class="auth-card">
+
+			<div class="auth-logo">
+
+        <h1>Crear cuenta</h1>
+
+        <p>
+          Registro de usuario UTP Parking
+        </p>
+
+      </div>
+      <form
+        id="registerForm"
+        class="auth-form"
+      >
+
+        <div class="input-group">
+          <label>
+            Código universitario
+          </label>
+          <input
+            type="text"
+            id="codigo"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Nombre completo</label>
+          <input
+            type="text"
+            id="nombre"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Correo institucional</label>
+          <input
+            type="email"
+            id="correo"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Teléfono</label>
+          <input
+            type="tel"
+            id="telefono"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>DNI</label>
+          <input
+            type="text"
+            id="dni"
+            class="input"
+            required
+          >
+        </div>
+
+				<div class="input-group">
+					<label>Fecha de nacimiento</label>
+					<input
+						type="date"
+						id="fechaNacimiento"
+						class="input"
+						required
+					>
+				</div>
+
+        <div class="input-group">
+          <label>Placa del vehículo</label>
+          <input
+            type="text"
+            id="placa"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Modelo del vehículo</label>
+          <input
+            type="text"
+            id="modelo"
+            class="input"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Tipo de vehículo</label>
+          <select
+            id="tipoVehiculo"
+            class="input"
+            required
+          >
+            <option value="">
+              Seleccionar
+            </option>
+
+            <option value="1">
+              Automóvil
+            </option>
+
+            <option value="2">
+              Motocicleta
+            </option>
+
+						<option value="1">
+							Mototaxi
+						</option>
+          </select>
+
+        </div>
+
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            class="input"
+            required
+          >
+        </div>
+
+				<!-- Pregunta CONADIS -->
+				<div class="input-group">
+					<label>¿Cuenta con carnet o permiso CONADIS?</label>
+					<select id="hasConadis" class="input" onchange="toggleConadisField()">
+						<option value="no">No</option>
+						<option value="si">Sí</option>
+					</select>
+				</div>
+
+				<!-- Campo extra (oculto por defecto) -->
+				<div class="input-group" id="conadisWrapper" style="display: none; margin-top: 10px;">
+				<label>Código de registro CONADIS</label>
+					<input 
+						type="text" 
+						id="codigo_conadis" 
+						class="input" 
+						placeholder="Ej: P000000"
+					>
+				</div>
+
+				<script>
+				function toggleConadisField() {
+					const hasConadis = document.getElementById('hasConadis').value;
+					const wrapper = document.getElementById('conadisWrapper');
+					wrapper.style.display = (hasConadis === 'si') ? 'block' : 'none';
+				}
+				</script>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Registrarse
+        </button>
+
+        <a
+          href="/login.html"
+          class="auth-link"
+        >
+          Ya tengo cuenta
+        </a>
+
+      </form>
+    </div>
+  </main>
+
+  <script src="/shared/js/config.js"></script>
+  <script src="/shared/js/api.js"></script>
+  <script src="/shared/js/register.js"></script>
+
+</body>
+</html>
