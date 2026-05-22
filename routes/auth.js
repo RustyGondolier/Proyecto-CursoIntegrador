@@ -45,6 +45,12 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Formato de placa inválido (ej: ABC-1234)' });
   }
 
+  if(password.length < 6){
+    return res.status(400).json({
+      error:'La contraseña debe tener mínimo 6 caracteres'
+    });
+  }
+
   // Validar rol permitido para registro público
   const rolesPermitidos = ['estudiante', 'docente', 'administrativo'];
   const rolFinal = rolesPermitidos.includes(rol) ? rol : 'estudiante';
