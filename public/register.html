@@ -1,203 +1,113 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro - UTP Parking</title>
-
   <link rel="stylesheet" href="/shared/css/variables.css">
   <link rel="stylesheet" href="/shared/css/reset.css">
   <link rel="stylesheet" href="/shared/css/global.css">
   <link rel="stylesheet" href="/shared/css/components.css">
   <link rel="stylesheet" href="/shared/css/auth.css">
-
 </head>
 <body>
 
   <main class="auth-page">
-
     <div class="auth-card">
-
-			<div class="auth-logo">
-
+      <div class="auth-logo">
         <h1>Crear cuenta</h1>
-
-        <p>
-          Registro de usuario UTP Parking
-        </p>
-
+        <p>Registro de usuario UTP Parking</p>
       </div>
-      <form
-        id="registerForm"
-        class="auth-form"
-      >
 
+      <form id="registerForm" class="auth-form">
         <div class="input-group">
-          <label>
-            Código universitario
-          </label>
-          <input
-            type="text"
-            id="codigo"
-            class="input"
-            required
-          >
+          <label for="codigo">Código universitario</label>
+          <input type="text" id="codigo" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>Nombre completo</label>
-          <input
-            type="text"
-            id="nombre"
-            class="input"
-            required
-          >
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>Correo institucional</label>
-          <input
-            type="email"
-            id="correo"
-            class="input"
-            required
-          >
+          <label for="correo">Correo institucional</label>
+          <input type="email" id="correo" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>Teléfono</label>
-          <input
-            type="tel"
-            id="telefono"
-            class="input"
-            required
-          >
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>DNI</label>
-          <input
-            type="text"
-            id="dni"
-            class="input"
-            required
-          >
-        </div>
-
-				<div class="input-group">
-					<label>Fecha de nacimiento</label>
-					<input
-						type="date"
-						id="fechaNacimiento"
-						class="input"
-						required
-					>
-				</div>
-
-        <div class="input-group">
-          <label>Placa del vehículo</label>
-          <input
-            type="text"
-            id="placa"
-            class="input"
-            required
-          >
+          <label for="dni">DNI</label>
+          <input type="text" id="dni" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>Modelo del vehículo</label>
-          <input
-            type="text"
-            id="modelo"
-            class="input"
-            required
-          >
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input type="date" id="fechaNacimiento" class="input" required>
         </div>
 
         <div class="input-group">
-          <label>Tipo de vehículo</label>
-          <select
-            id="tipoVehiculo"
-            class="input"
-            required
-          >
-            <option value="">
-              Seleccionar
-            </option>
+          <label for="placa">Placa del vehículo</label>
+          <input type="text" id="placa" class="input" required>
+        </div>
 
-            <option value="1">
-              Automóvil
-            </option>
+        <div class="input-group">
+          <label for="modelo">Modelo del vehículo</label>
+          <input type="text" id="modelo" class="input" required>
+        </div>
 
-            <option value="2">
-              Motocicleta
-            </option>
-
-						<option value="1">
-							Mototaxi
-						</option>
+        <div class="input-group">
+          <label for="tipoVehiculo">Tipo de vehículo</label>
+          <select id="tipoVehiculo" class="input" required>
+            <option value="">Seleccionar</option>
+            <option value="1">Automóvil</option>
+            <option value="2">Motocicleta</option>
+            <option value="3">Mototaxi</option>
           </select>
-
         </div>
 
         <div class="input-group">
-          <label>Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            class="input"
-            required
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" class="input" required>
+        </div>
+
+        <div class="input-group">
+          <label>¿Cuenta con carnet o permiso CONADIS?</label>
+          <div class="radio-group" style="display: flex; gap: 20px; margin-top: 8px; margin-bottom: 8px;">
+            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
+              <input 
+                type="radio" 
+                name="hasConadis" 
+                value="si"
+              > Sí
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
+              <input 
+                type="radio" 
+                name="hasConadis" 
+                value="no" 
+                checked
+              > No
+            </label>
+          </div>
+        </div>
+
+        <div class="input-group" id="conadisWrapper" style="display: none; margin-top: 10px;">
+          <label for="codigo_conadis">Código de registro CONADIS:</label>
+          <input 
+            type="text" 
+            id="codigo_conadis" 
+            class="input" 
+            placeholder="Ej: P-000000"
           >
         </div>
 
-				<!-- Pregunta CONADIS -->
-				<div class="input-group">
-					<label>¿Cuenta con carnet o permiso CONADIS?</label>
-					<select id="hasConadis" class="input" onchange="toggleConadisField()">
-						<option value="no">No</option>
-						<option value="si">Sí</option>
-					</select>
-				</div>
-
-				<!-- Campo extra (oculto por defecto) -->
-				<div class="input-group" id="conadisWrapper" style="display: none; margin-top: 10px;">
-				<label>Código de registro CONADIS</label>
-					<input 
-						type="text" 
-						id="codigo_conadis" 
-						class="input" 
-						placeholder="Ej: P000000"
-					>
-				</div>
-
-				<script>
-				function toggleConadisField() {
-					const hasConadis = document.getElementById('hasConadis').value;
-					const wrapper = document.getElementById('conadisWrapper');
-					wrapper.style.display = (hasConadis === 'si') ? 'block' : 'none';
-				}
-				</script>
-
-        <button
-          type="submit"
-          class="btn btn-primary"
-        >
-          Registrarse
-        </button>
-
-        <a
-          href="/login.html"
-          class="auth-link"
-        >
-          Ya tengo cuenta
-        </a>
-
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+        <a href="/login.html" class="auth-link">Ya tengo cuenta</a>
       </form>
     </div>
   </main>

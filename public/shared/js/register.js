@@ -1,5 +1,21 @@
-const registerForm =
-  document.getElementById('registerForm');
+const registerForm = document.getElementById('registerForm');
+
+const conadisRadios = document.querySelectorAll('input[name="hasConadis"]');
+const wrapper = document.getElementById('conadisWrapper');
+const inputConadis = document.getElementById('codigo_conadis');
+
+conadisRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        if (radio.value === 'si' && radio.checked) {
+            wrapper.style.display = 'block';
+            inputConadis.setAttribute('required', 'required');
+        } else if (radio.value === 'no' && radio.checked) {
+            wrapper.style.display = 'none';
+            inputConadis.removeAttribute('required');
+            inputConadis.value = ''; // Limpia el campo si cambian a "No"
+        }
+    });
+});
 
 registerForm.addEventListener(
   'submit',
@@ -9,20 +25,18 @@ registerForm.addEventListener(
 
     try{
 
-      const password =
-        document
-          .getElementById('password')
-          .value;
+      const password = document.getElementById('password').value;
 
       if(password.length < 6){
-
         return alert(
           'La contraseña debe tener mínimo 6 caracteres'
         );
       }
 
-			const hasConadis = document.getElementById('hasConadis').value;
-			const conadisValue = document.getElementById('codigo_conadis').value.trim();
+			const conadisRadioSelected = document.querySelector('input[name="hasConadis"]:checked');
+      const hasConadis = conadisRadioSelected ? conadisRadioSelected.value : 'no';
+
+      const conadisValue = inputConadis.value.trim();
 
       const payload = {
 
@@ -88,20 +102,14 @@ registerForm.addEventListener(
         '/auth/register',
         {
           method:'POST',
-
           body:JSON.stringify(payload)
         }
       );
 
-      alert(
-        'Cuenta creada correctamente'
-      );
-
-      window.location.href =
-        '/login.html';
+      alert('Cuenta creada correctamente');
+      window.location.href = '/login.html';
 
     }catch(err){
-
       alert(err.message);
     }
 
