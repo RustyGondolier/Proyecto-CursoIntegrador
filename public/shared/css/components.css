@@ -1,0 +1,46 @@
+.btn{
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px 18px;
+
+  cursor:pointer;
+
+  transition:var(--transition);
+
+  font-weight:600;
+}
+
+.btn-primary{
+
+  background:var(--primary);
+
+  color:var(--white);
+}
+
+.btn-primary:hover{
+  background:var(--primary-dark);
+}
+
+.input-group{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.input{
+
+  border:1px solid var(--border);
+
+  border-radius:12px;
+
+  padding:14px;
+
+  outline:none;
+}
+
+.input:focus{
+  border-color:var(--primary);
+}
