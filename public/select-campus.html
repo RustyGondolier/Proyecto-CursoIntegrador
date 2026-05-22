@@ -49,8 +49,6 @@
 	</style>
 </head>
 
-<script src="/shared/js/select-campus.js"></script>
-
 <body>
 	<div class="campus-container">
 
@@ -59,37 +57,26 @@
     </h1>
 
     <div class="campus-grid">
-
-      <div
-        class="campus-card"
-        data-id="1"
-				data-name="Lima Norte"
-      >
-        <h2>Lima Norte</h2>
-        <p>Acceder estacionamientos</p>
+  
+      <div class="campus-card" data-id="1" data-name="Lima Sur">
+        <h2>UTP - Lima Sur</h2>
+        <p>Campus disponible</p>
       </div>
-
-      <div
-        class="campus-card"
-        data-id="2"
-				data-name="Lima Centro"
-      >
-        <h2>Lima Centro</h2>
-        <p>Acceder estacionamientos</p>
+    
+      <div class="campus-card disabled" data-id="2" data-name="Lima Centro" style="opacity: 0.5; cursor: not-allowed;">
+        <h2>UTP - Lima Centro</h2>
+        <p>No disponible actualmente</p>
       </div>
-
-      <div
-        class="campus-card"
-        data-id="3"
-				data-name="Lima Sur"
-      >
-        <h2>Lima Sur</h2>
-        <p>Acceder estacionamientos</p>
+    
+      <div class="campus-card disabled" data-id="3" data-name="Lima Norte" style="opacity: 0.5; cursor: not-allowed;">
+        <h2>UTP - Lima norte</h2>
+        <p>No disponible actualmente</p>
       </div>
-
+    
     </div>
 
   </div>
 
+<script src="/shared/js/select-campus.js"></script>
 </body>
 </html>
