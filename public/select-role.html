@@ -1,100 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seleccionar acceso</title>
-
   <link rel="stylesheet" href="/shared/css/variables.css">
   <link rel="stylesheet" href="/shared/css/reset.css">
   <link rel="stylesheet" href="/shared/css/global.css">
   <link rel="stylesheet" href="/shared/css/components.css">
   <link rel="stylesheet" href="/shared/css/auth.css">
-
 </head>
 <body>
-
   <main class="auth-page">
-
     <div class="auth-card">
-
       <div class="auth-logo">
-
         <h1>Modo de acceso</h1>
-
-        <p>
-          Selecciona cómo deseas ingresar
-        </p>
-
+        <p>Selecciona cómo deseas ingresar</p>
       </div>
-
-      <div class="role-grid">
-
-        <div
-          class="role-card"
-          data-role="usuario"
-        >
-
-          <h2>Usuario</h2>
-
-          <p>
-            Reservas y estacionamiento
-          </p>
-
-        </div>
-
-        <div
-          class="role-card"
-          data-role="administrativo"
-        >
-
-          <h2>Administrativo</h2>
-
-          <p>
-            Gestión y validaciones
-          </p>
-
-        </div>
-
-        <div
-          class="role-card"
-          data-role="supervisor"
-        >
-
-          <h2>Supervisor</h2>
-
-          <p>
-            Monitoreo e infracciones
-          </p>
-
-        </div>
-
-        <div
-          class="role-card"
-          data-role="directora"
-        >
-
-          <h2>Directora</h2>
-
-          <p>
-            Analíticas y reportes
-          </p>
-
-        </div>
-
-      </div>
-
+      <div class="role-grid" id="roleGridContainer"></div>
     </div>
-
   </main>
-
   <script src="/shared/js/select-role.js"></script>
-
 </body>
 </html>
