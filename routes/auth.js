@@ -233,4 +233,54 @@ router.get('/perfil', authJWT, async (req, res) => {
   }
 });
 
+// PUT /api/auth/perfil
+router.put(
+  '/perfil',
+  authJWT,
+  async (req, res) => {
+
+    const {
+      nombre,
+      telefono,
+      correo_institucional,
+      licencia_fecha_vencimiento
+    } = req.body;
+
+    try{
+
+      await pool.query(
+        `
+        UPDATE usuarios
+        SET
+          nombre = $1,
+          telefono = $2,
+          correo_institucional = $3,
+          licencia_fecha_vencimiento = $4
+        WHERE id = $5
+        `,
+        [
+          nombre,
+          telefono,
+          correo_institucional,
+          licencia_fecha_vencimiento,
+          req.usuario.id
+        ]
+      );
+
+      res.json({
+        mensaje:'Perfil actualizado'
+      });
+
+    }catch(err){
+
+      console.error(err);
+
+      res.status(500).json({
+        error:'Error interno del servidor'
+      });
+    }
+
+  }
+);
+
 module.exports = router;

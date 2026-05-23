@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Perfil - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/reset.css">
+  <link rel="stylesheet" href="/shared/css/global.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+
+  <link rel="stylesheet" href="/shared/css/modal.css">
+
+  <link rel="stylesheet" href="/user/css/profile.css">
+
+</head>
+
+<!-- MODAL EDITAR PERFIL -->
+<div
+  class="modal"
+  id="editProfileModal"
+>
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+
+      <h2 class="modal-title">
+        Editar perfil
+      </h2>
+
+      <button
+        class="modal-close"
+        id="closeEditProfileModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <form
+      class="modal-form"
+      id="editProfileForm"
+    >
+
+      <input
+        type="text"
+        class="input"
+        placeholder="Nombre"
+        id="editNombre"
+      >
+
+      <input
+        type="email"
+        class="input"
+        placeholder="Correo"
+        id="editCorreo"
+      >
+
+      <input
+        type="tel"
+        class="input"
+        placeholder="Teléfono"
+        id="editTelefono"
+      >
+
+      <input
+        type="date"
+        class="input"
+        id="editLicenciaVence"
+      >
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="modal-btn modal-btn-secondary"
+          id="cancelEditProfileModal"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="modal-btn modal-btn-primary"
+        >
+          Guardar
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- MODAL AGREGAR VEHICULO -->
+<div
+  class="modal"
+  id="addVehicleModal"
+>
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+
+      <h2 class="modal-title">
+        Agregar vehículo
+      </h2>
+
+      <button
+        class="modal-close"
+        id="closeAddVehicleModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <form
+      class="modal-form"
+      id="addVehicleForm"
+    >
+
+      <input
+        type="text"
+        class="input"
+        placeholder="Placa"
+        id="vehiclePlate"
+        required
+      >
+
+      <input
+        type="text"
+        class="input"
+        placeholder="Modelo"
+        id="vehicleModel"
+        required
+      >
+
+      <select
+        class="input"
+        id="vehicleType"
+        required
+      >
+
+        <option value="">
+          Tipo de vehículo
+        </option>
+
+        <option value="1">
+          Automóvil
+        </option>
+
+        <option value="2">
+          Motocicleta
+        </option>
+
+        <option value="1">
+          Mototaxi
+        </option>
+
+      </select>
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="modal-btn modal-btn-secondary"
+          id="cancelAddVehicleModal"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="modal-btn modal-btn-primary"
+        >
+          Guardar
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<body>
+
+  <!-- OVERLAY -->
+  <div
+    class="overlay"
+    id="overlay"
+  ></div>
+
+  <!-- SIDEBAR -->
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <div class="sidebar-header">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">
+          U
+        </div>
+
+        <div>
+          <h3 id="sidebarUserName">
+            Usuario
+          </h3>
+          <p id="sidebarUserCode">
+            U00000000
+          </p>
+        </div>
+      </div>
+    </div>
+
+        <nav class="sidebar-menu">
+      <a
+        href="/user/dashboard.html"
+        class="sidebar-item"
+      >
+        Inicio
+      </a>
+
+      <a
+        href="/user/perfil.html"
+        class="sidebar-item active"
+      >
+        Perfil
+      </a>
+
+      <a
+        href="/user/reservas.html"
+        class="sidebar-item"
+      >
+        Reservas
+      </a>
+
+      <a
+        href="/user/reportes.html"
+        class="sidebar-item"
+      >
+        Reportes
+      </a>
+
+      <a
+        href="/user/historial.html"
+        class="sidebar-item"
+      >
+        Historial
+      </a>
+
+      <div class="sidebar-divider"></div>
+
+      <a
+        href="#"
+        class="sidebar-item"
+      >
+        Ayuda
+      </a>
+
+    </nav>
+  </aside>
+
+  <!-- NOTIFICACIONES -->
+
+    <aside
+      class="notifications-panel"
+      id="notificationsPanel"
+    >
+
+      <div class="notifications-header">
+        <h3>
+          Notificaciones
+        </h3>
+      </div>
+
+      <div
+        class="notifications-list"
+        id="notificationsList"
+      >
+
+        <div class="notification-item">
+          <h4>
+            Bienvenido
+          </h4>
+          <p>
+            Sistema iniciado correctamente.
+          </p>
+        </div>
+
+      </div>
+    </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button
+      class="topbar-btn"
+      id="menuBtn"
+    >
+      ☰
+    </button>
+
+    <h1 class="topbar-title">
+      UTP Parking
+    </h1>
+
+    <button
+      class="topbar-btn"
+      id="notificationsBtn"
+    >
+      🔔
+    </button>
+
+  </header>
+
+  <!-- MAIN -->
+  <main class="profile-page">
+    <!-- USER INFO -->
+    <section class="profile-header">
+      <div class="profile-avatar">
+        <span id="profileInitial">
+          U
+        </span>
+      </div>
+
+      <div class="profile-main-info">
+        <h2 id="profileName">
+          Usuario
+        </h2>
+        <p id="profileCode">
+          U00000000
+        </p>
+        <span id="profileRole">
+          Estudiante
+        </span>
+      </div>
+    </section>
+
+    <!-- DATOS PERSONALES -->
+    <section class="profile-card">
+      <div class="card-title">
+        <h3>
+          Datos personales
+        </h3>
+      </div>
+
+      <div class="profile-data">
+        <div class="data-row">
+          <span>Código universitario</span>
+          <strong id="dataCodigo"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>Correo institucional</span>
+          <strong id="dataCorreo"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>DNI</span>
+          <strong id="dataDni"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>Teléfono</span>
+          <strong id="dataTelefono"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>Fecha nacimiento</span>
+          <strong id="dataNacimiento"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>Número de licencia</span>
+          <strong id="dataLicencia"></strong>
+        </div>
+
+        <div class="data-row">
+          <span>Vencimiento licencia</span>
+          <strong id="dataLicenciaVence"></strong>
+        </div>
+
+        <div
+          class="data-row"
+          id="conadisContainer"
+        >
+          <span>CONADIS</span>
+          <strong id="dataConadis"></strong>
+        </div>
+
+      </div>
+
+      <button
+        class="primary-btn"
+        id="editProfileBtn"
+      >
+        Editar perfil
+      </button>
+
+    </section>
+
+    <!-- VEHICULO -->
+    <section class="profile-card">
+
+      <div class="card-title">
+        <h3>
+          Vehículos registrados
+        </h3>
+      </div>
+
+      <div
+        class="vehicles-list"
+        id="vehiclesList"
+      >
+
+      </div>
+
+      <button
+        class="primary-btn"
+        id="addVehicleBtn"
+      >
+        Agregar vehículo
+      </button>
+
+    </section>
+
+    <!-- LOGOUT -->
+    <button
+      class="logout-btn"
+      id="logoutBtn"
+    >
+      Cerrar sesión
+    </button>
+
+  </main>
+
+  <script src="/shared/js/config.js"></script>
+  <script src="/shared/js/api.js"></script>
+
+  <script src="/shared/js/layout.js"></script>
+
+  <script src="/user/js/authGuard.js"></script>
+  <script src="/user/js/profile.js"></script>
+
+
+  <script src="/shared/js/modal.js"></script>
+  <script src="/user/js/profile.js"></script>
+
+</body>
+</html>
