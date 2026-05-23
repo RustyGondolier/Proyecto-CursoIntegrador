@@ -75,6 +75,16 @@ registerForm.addEventListener(
             .getElementById('fechaNacimiento')
             .value,
 
+        nro_licencia:
+          document
+            .getElementById('numLicencia')
+            .value,
+
+        licencia_fecha_vencimiento:
+          document
+            .getElementById('fechaVencimiento')
+            .value,
+
         placa:
           document
             .getElementById('placa')
