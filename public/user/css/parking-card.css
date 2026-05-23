@@ -1,0 +1,40 @@
+.parking-card{
+  background:#FFFFFF;
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.parking-image{
+  width:100%;
+  height:210px;
+
+  object-fit:cover;
+}
+
+.parking-body{
+  padding:20px;
+}
+
+.parking-body h3{
+  margin-bottom:18px;
+}
+
+.parking-stats{
+  display:flex;
+  justify-content:space-between;
+
+  margin-bottom:20px;
+}
+
+.parking-stats span{
+  display:block;
+  color:#666;
+}
+
+.parking-stats strong{
+  font-size:1.4rem;
+}

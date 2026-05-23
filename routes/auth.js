@@ -191,6 +191,7 @@ router.post('/login', async (req, res) => {
         id:                   usuario.id,
         codigo_universitario: usuario.codigo_universitario,
         nombre:               usuario.nombre,
+        correo_institucional: usuario.correo_institucional,
         rol:                  usuario.rol,
         conadis_verificado:   usuario.conadis_verificado,
         vehiculo_id:          usuario.vehiculo_id,

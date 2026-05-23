@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Dashboard - UTP Parking
+  </title>
+  <!-- SHARED -->
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/reset.css">
+  <link rel="stylesheet" href="/shared/css/global.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <!-- USER -->
+  <link rel="stylesheet" href="/user/css/dashboard.css">
+</head>
+
+<body>
+  <!-- OVERLAY -->
+  <div
+    class="overlay"
+    id="overlay"
+  ></div>
+
+  <!-- SIDEBAR -->
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <div class="sidebar-header">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">
+          U
+        </div>
+
+        <div>
+          <h3 id="sidebarUserName">
+            Usuario
+          </h3>
+          <p id="sidebarUserCod">
+            Codigo Universitario
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a
+        href="/user/dashboard.html"
+        class="sidebar-item active"
+      >
+        Inicio
+      </a>
+
+      <a
+        href="/user/perfil.html"
+        class="sidebar-item"
+      >
+        Perfil
+      </a>
+
+      <a
+        href="/user/reservas.html"
+        class="sidebar-item"
+      >
+        Reservas
+      </a>
+
+      <a
+        href="/user/reportes.html"
+        class="sidebar-item"
+      >
+        Reportes
+      </a>
+
+      <a
+        href="/user/historial.html"
+        class="sidebar-item"
+      >
+        Historial
+      </a>
+
+      <div class="sidebar-divider"></div>
+
+      <a
+        href="#"
+        class="sidebar-item"
+      >
+        Ayuda
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- NOTIFICATIONS -->
+
+  <aside
+    class="notifications-panel"
+    id="notificationsPanel"
+  >
+
+    <div class="notifications-header">
+      <h3>
+        Notificaciones
+      </h3>
+    </div>
+
+    <div
+      class="notifications-list"
+      id="notificationsList"
+    >
+
+      <div class="notification-item">
+        <h4>
+          Bienvenido
+        </h4>
+        <p>
+          Sistema iniciado correctamente.
+        </p>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+
+  <main class="layout-main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button
+        class="topbar-btn"
+        id="menuBtn"
+      >
+        ☰
+      </button>
+
+      <h1 class="topbar-title">
+        UTP Parking
+      </h1>
+
+      <button
+        class="topbar-btn"
+        id="notificationsBtn"
+      >
+        🔔
+      </button>
+    </header>
+
+    <!-- DASHBOARD -->
+
+    <section class="dashboard-container">
+      <div class="dashboard-header">
+        <h2>
+          Estado del estacionamiento
+        </h2>
+
+        <p>
+          Disponibilidad en tiempo real
+        </p>
+      </div>
+
+			<div class="parking-grid">
+        <!-- SUBTERRANEO -->
+        <article class="parking-card">
+          <img
+            src="../assets/images/estacionamiento-subterraneo.png"
+            class="parking-image"
+            alt="Subterráneo"
+          >
+
+					<div class="parking-content">
+            <h3>
+              Estacionamiento Subterráneo
+            </h3>
+
+            <div class="stats-grid">
+              <div class="stat-box">
+                <span>
+                  Autos libres
+                </span>
+
+                <strong id="subAutosLibres">
+                  --
+                </strong>
+              </div>
+
+							<div class="stat-box">
+                <span>
+                  Autos ocupados
+                </span>
+
+                <strong id="subAutosOcupados">
+                  --
+                </strong>
+              </div>
+
+              <div class="stat-box">
+                <span>
+                  Motos libres
+                </span>
+
+                <strong id="subMotosLibres">
+                  --
+                </strong>
+              </div>
+
+              <div class="stat-box">
+                <span>
+                  Motos ocupadas
+                </span>
+
+                <strong id="subMotosOcupadas">
+                  --
+                </strong>
+              </div>
+            </div>
+
+            <div class="occupancy-bar">
+              <div
+                class="occupancy-fill"
+                id="subBar"
+              ></div>
+            </div>
+
+            <button class="parking-btn">
+              Ver estacionamiento
+            </button>
+          </div>
+        </article>
+
+        <!-- EXTERIOR -->
+        <article class="parking-card">
+          <img
+            src="../assets/images/estacionamiento-exterior.png"
+            class="parking-image"
+            alt="Exterior"
+          >
+
+					<div class="parking-content">
+            <h3>
+              Estacionamiento Exterior
+            </h3>
+
+            <div class="stats-grid">
+              <div class="stat-box">
+                <span>
+                  Autos libres
+                </span>
+
+                <strong id="extAutosLibres">
+                  --
+                </strong>
+              </div>
+
+              <div class="stat-box">
+                <span>
+                  Autos ocupados
+                </span>
+
+                <strong id="extAutosOcupados">
+                  --
+                </strong>
+              </div>
+
+              <div class="stat-box">
+                <span>
+                  Motos libres
+                </span>
+                <strong id="extMotosLibres">
+                  --
+                </strong>
+
+              </div>
+
+              <div class="stat-box">
+
+                <span>
+                  Motos ocupadas
+                </span>
+
+                <strong id="extMotosOcupadas">
+                  --
+                </strong>
+
+              </div>
+
+            </div>
+
+            <div class="occupancy-bar">
+
+              <div
+                class="occupancy-fill"
+                id="extBar"
+              ></div>
+
+            </div>
+
+            <button class="parking-btn">
+              Ver estacionamiento
+            </button>
+
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script src="/shared/js/config.js"></script>
+  <script src="/shared/js/api.js"></script>
+  <script src="/user/js/authGuard.js"></script>
+  <script src="/shared/js/layout.js"></script>
+
+  <script src="/user/js/dashboard.js"></script>
+
+</body>
+</html>
