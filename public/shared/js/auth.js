@@ -17,6 +17,34 @@ async function login(codigo, password) {
   window.location.href = '/select-campus.html';
 }
 
+function saveSession(data){
+
+  sessionStorage.setItem(
+    'token',
+    data.token
+  );
+
+  sessionStorage.setItem(
+    'usuario',
+    JSON.stringify(data.usuario)
+  );
+}
+
+function getSessionUser(){
+
+  return JSON.parse(
+    sessionStorage.getItem('usuario')
+  );
+}
+
+function logout(){
+
+  sessionStorage.clear();
+
+  window.location.href =
+    '/login.html';
+}
+
 /*
 async function login(codigo, password){
 

@@ -1,0 +1,38 @@
+.notifications-panel{
+  position:fixed;
+
+  top:0;
+  right:-340px;
+
+  width:320px;
+  height:100vh;
+
+  background:#FFFFFF;
+
+  z-index:1200;
+
+  transition:.3s;
+
+  overflow-y:auto;
+}
+
+.notifications-panel.active{
+  right:0;
+}
+
+.notifications-header{
+  background:#B50E30;
+  color:#FFFFFF;
+
+  padding:25px 20px;
+}
+
+.notification-item{
+  padding:20px;
+
+  border-bottom:1px solid #eee;
+}
+
+.notification-item h4{
+  margin-bottom:6px;
+}
