@@ -546,6 +546,8 @@ async function cargarVehiculos(){
 
             ${
               String(vehiculo.activo) === 'true'
+                ||
+                vehiculo.activo === true
                 ? 'Seleccionado'
                 : 'Seleccionar'
             }
@@ -565,5 +567,211 @@ async function cargarVehiculos(){
   }
 
 }
+
+/* =========================
+   CAMBIAR VEHICULO
+========================= */
+
+const changeVehicleBtn =
+  document.getElementById(
+    'changeVehicleBtn'
+  );
+
+const changeVehicleModal =
+  document.getElementById(
+    'changeVehicleModal'
+  );
+
+const closeChangeVehicleModal =
+  document.getElementById(
+    'closeChangeVehicleModal'
+  );
+
+const cancelChangeVehicleModal =
+  document.getElementById(
+    'cancelChangeVehicleModal'
+  );
+
+const confirmChangeVehicleBtn =
+  document.getElementById(
+    'confirmChangeVehicleBtn'
+  );
+
+const vehicleSelectList =
+  document.getElementById(
+    'vehicleSelectList'
+  );
+
+let selectedVehicleId = null;
+
+changeVehicleBtn.addEventListener(
+  'click',
+  async () => {
+
+    try{
+
+      const vehiculos =
+        await apiFetch(
+          '/vehiculos'
+        );
+
+      vehicleSelectList.innerHTML = '';
+
+      vehiculos.forEach(
+        vehiculo => {
+
+          const option =
+            document.createElement('label');
+
+          option.className =
+            `
+            vehicle-option
+            ${
+              vehiculo.activo
+                ? 'active'
+                : ''
+            }
+            `;
+
+          option.innerHTML = `
+            <input
+              type="radio"
+              name="selectedVehicle"
+              value="${vehiculo.id}"
+              ${
+                vehiculo.activo
+                  ? 'checked'
+                  : ''
+              }
+            >
+
+            <div class="vehicle-option-info">
+
+              <h4>
+                ${vehiculo.placa}
+              </h4>
+
+              <p>
+                ${vehiculo.modelo || '-'}
+              </p>
+
+            </div>
+          `;
+
+          vehicleSelectList.appendChild(
+            option
+          );
+
+        }
+      );
+
+      selectedVehicleId =
+        vehiculos.find(
+          v => v.activo
+        )?.id;
+
+      openModal(
+        'changeVehicleModal'
+      );
+
+    }catch(err){
+
+      alert(err.message);
+
+    }
+
+  }
+);
+
+vehicleSelectList.addEventListener(
+  'change',
+  e => {
+
+    if(
+      e.target.name
+      === 'selectedVehicle'
+    ){
+
+      selectedVehicleId =
+        e.target.value;
+
+      document
+        .querySelectorAll(
+          '.vehicle-option'
+        )
+        .forEach(option => {
+
+          option.classList.remove(
+            'active'
+          );
+
+        });
+
+      e.target
+        .closest('.vehicle-option')
+        .classList.add('active');
+
+    }
+
+  }
+);
+
+confirmChangeVehicleBtn.addEventListener(
+  'click',
+  async () => {
+
+    if(!selectedVehicleId){
+      return;
+    }
+
+    try{
+
+      await apiFetch(
+        `/vehiculos/${selectedVehicleId}/seleccionar`,
+        {
+          method:'PUT'
+        }
+      );
+
+      closeModal(
+        'changeVehicleModal'
+      );
+
+      await cargarVehiculos();
+
+      alert(
+        'Vehículo actualizado'
+      );
+
+    }catch(err){
+
+      alert(err.message);
+
+    }
+
+  }
+);
+
+closeChangeVehicleModal.addEventListener(
+  'click',
+  () => {
+
+    closeModal(
+      'changeVehicleModal'
+    );
+
+  }
+);
+
+cancelChangeVehicleModal.addEventListener(
+  'click',
+  () => {
+
+    closeModal(
+      'changeVehicleModal'
+    );
+
+  }
+);
 
 cargarVehiculos();
