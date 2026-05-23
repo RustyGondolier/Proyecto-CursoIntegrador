@@ -195,6 +195,60 @@
 
 </div>
 
+<!-- MODAL CAMBIAR VEHICULO -->
+<div
+  class="modal"
+  id="changeVehicleModal"
+>
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+
+      <h2 class="modal-title">
+        Seleccionar vehículo
+      </h2>
+
+      <button
+        class="modal-close"
+        id="closeChangeVehicleModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div
+      class="vehicle-select-list"
+      id="vehicleSelectList"
+    >
+
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="modal-btn modal-btn-secondary"
+        id="cancelChangeVehicleModal"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="modal-btn modal-btn-primary"
+        id="confirmChangeVehicleBtn"
+      >
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <body>
 
   <!-- OVERLAY -->
@@ -433,6 +487,13 @@
         id="addVehicleBtn"
       >
         Agregar vehículo
+      </button>
+
+      <button
+        class="primary-btn"
+        id="changeVehicleBtn"
+      >
+        Cambiar vehículo seleccionado
       </button>
 
     </section>
