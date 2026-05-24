@@ -132,4 +132,54 @@ router.post(
   }
 );
 
+/* Seleccionar vehiculo*/
+router.put(
+  '/:id/seleccionar',
+  authJWT,
+  async (req, res) => {
+
+    const vehiculoId =
+      req.params.id;
+
+    try{
+
+      await pool.query(
+        `
+        UPDATE vehiculos
+        SET activo = false
+        WHERE usuario_id = $1
+        `,
+        [req.usuario.id]
+      );
+
+      await pool.query(
+        `
+        UPDATE vehiculos
+        SET activo = true
+        WHERE id = $1
+        AND usuario_id = $2
+        `,
+        [
+          vehiculoId,
+          req.usuario.id
+        ]
+      );
+
+      res.json({
+        mensaje:'Vehículo actualizado'
+      });
+
+    }catch(err){
+
+      console.error(err);
+
+      res.status(500).json({
+        error:'Error interno'
+      });
+
+    }
+
+  }
+);
+
 module.exports = router;
