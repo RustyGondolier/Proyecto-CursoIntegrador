@@ -184,4 +184,60 @@ router.delete('/:id', authJWT, async (req, res) => {
   }
 });
 
+/* =========================
+   GET /api/reservas/actual
+   RESERVA ACTIVA DEL USUARIO
+========================= */
+
+router.get(
+  '/actual',
+  authJWT,
+  async (req, res) => {
+    try{
+      const resultado =
+        await pool.query(
+          `
+          SELECT
+            r.id,
+            r.plaza_id,
+            p.codigo AS plaza_codigo,
+            b.codigo AS bloque_codigo,
+            e.nombre AS estacionamiento_nombre
+          FROM reservas r
+          JOIN plazas p
+            ON p.id = r.plaza_id
+          JOIN bloques b
+            ON b.id = p.bloque_id
+          JOIN estacionamientos e
+            ON e.id = b.estacionamiento_id
+          WHERE
+            r.usuario_id = $1
+            AND r.estado = 'activa'
+          ORDER BY r.id DESC
+          LIMIT 1
+          `,
+          [req.usuario.id]
+        );
+
+      if(
+        resultado.rows.length === 0
+      ){
+        return res.json({
+          plaza_id:null,
+          plaza_codigo:null,
+          estacionamiento_nombre:null
+        });
+      }
+      res.json(
+        resultado.rows[0]
+      );
+    }catch(err){
+      console.error(err);
+      res.status(500).json({
+        error:'Error interno'
+      });
+    }
+  }
+);
+
 module.exports = router;

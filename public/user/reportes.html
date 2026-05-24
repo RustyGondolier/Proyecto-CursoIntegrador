@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Reportes - UTP Parking
+  </title>
+
+  <!-- CSS GLOBAL -->
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/reset.css">
+  <link rel="stylesheet" href="/shared/css/global.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/modal.css">
+
+  <!-- CSS PAGE -->
+
+  <link rel="stylesheet" href="/user/css/reportes.css">
+
+</head>
+
+<body>
+
+  <!-- OVERLAY -->
+
+  <div
+    class="overlay"
+    id="overlay"
+  ></div>
+
+  <!-- SIDEBAR -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <div class="sidebar-header">
+
+      <div class="sidebar-user">
+
+        <div class="sidebar-avatar">
+          U
+        </div>
+
+        <div>
+
+          <h3 id="sidebarUserName">
+            Usuario
+          </h3>
+
+          <p id="sidebarUserCode">
+            U00000000
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <nav class="sidebar-menu">
+
+      <a
+        href="/user/dashboard.html"
+        class="sidebar-item"
+      >
+        Inicio
+      </a>
+
+      <a
+        href="/user/perfil.html"
+        class="sidebar-item"
+      >
+        Perfil
+      </a>
+
+      <a
+        href="/user/reservas.html"
+        class="sidebar-item"
+      >
+        Reservas
+      </a>
+
+      <a
+        href="/user/reportes.html"
+        class="sidebar-item active"
+      >
+        Reportes
+      </a>
+
+      <a
+        href="/user/historial.html"
+        class="sidebar-item"
+      >
+        Historial
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- NOTIFICACIONES -->
+
+  <aside
+    class="notifications-panel"
+    id="notificationsPanel"
+  >
+
+    <div class="notifications-header">
+
+      <h3>
+        Notificaciones
+      </h3>
+
+    </div>
+
+    <div
+      class="notifications-list"
+      id="notificationsList"
+    >
+
+      <div class="notification-item">
+
+        <h4>
+          Bienvenido
+        </h4>
+
+        <p>
+          Sistema iniciado correctamente.
+        </p>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- TOPBAR -->
+
+  <header class="topbar">
+
+    <button
+      class="topbar-btn"
+      id="menuBtn"
+    >
+      ☰
+    </button>
+
+    <h1 class="topbar-title">
+      UTP Parking
+    </h1>
+
+    <button
+      class="topbar-btn"
+      id="notificationsBtn"
+    >
+      🔔
+    </button>
+
+  </header>
+
+  <!-- MAIN -->
+
+  <main class="report-page">
+
+    <!-- HEADER -->
+
+    <section class="report-header">
+
+      <h1>
+        Reportar problema
+      </h1>
+
+      <p>
+        Ayúdanos a mantener el estacionamiento seguro y ordenado
+      </p>
+
+    </section>
+
+    <!-- LAYOUT -->
+
+    <div class="report-layout">
+
+      <!-- TIPOS -->
+
+      <section class="report-section">
+
+        <h3 class="report-section-title">
+          ¿Qué tipo de problema quieres reportar?
+        </h3>
+
+        <div class="report-options">
+
+          <!-- OPCION -->
+
+          <div
+            class="report-option"
+            data-tipo="Otra persona ocupa mi lugar"
+          >
+
+            <div class="report-option-icon bg-red">
+              🚗
+            </div>
+
+            <div class="report-option-content">
+
+              <h4>
+                Otra persona ocupa mi lugar
+              </h4>
+
+              <p>
+                El lugar reservado está siendo ocupado por otro vehículo.
+              </p>
+
+            </div>
+
+            <div class="report-option-radio"></div>
+
+          </div>
+
+          <!-- OPCION -->
+
+          <div
+            class="report-option"
+            data-tipo="Obstrucción en el camino"
+          >
+
+            <div class="report-option-icon bg-orange">
+              🚧
+            </div>
+
+            <div class="report-option-content">
+
+              <h4>
+                Obstrucción en el camino
+              </h4>
+
+              <p>
+                Objetos o vehículos bloquean el paso.
+              </p>
+
+            </div>
+
+            <div class="report-option-radio"></div>
+
+          </div>
+
+          <!-- OPCION -->
+
+          <div
+            class="report-option"
+            data-tipo="Vehículo mal estacionado"
+          >
+
+            <div class="report-option-icon bg-purple">
+              🚘
+            </div>
+
+            <div class="report-option-content">
+
+              <h4>
+                Vehículo mal estacionado
+              </h4>
+
+              <p>
+                Un vehículo dificulta el tránsito.
+              </p>
+
+            </div>
+
+            <div class="report-option-radio"></div>
+
+          </div>
+
+          <!-- OPCION -->
+
+          <div
+            class="report-option"
+            data-tipo="Otro problema"
+          >
+
+            <div class="report-option-icon bg-green">
+              🛡️
+            </div>
+
+            <div class="report-option-content">
+
+              <h4>
+                Otro problema
+              </h4>
+
+              <p>
+                Reporta cualquier otra situación.
+              </p>
+
+            </div>
+
+            <div class="report-option-radio"></div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- DETALLES -->
+
+      <section class="report-section">
+
+        <h3 class="report-section-title">
+          Detalles del reporte
+        </h3>
+
+        <!-- DESCRIPCION -->
+
+        <label class="report-label">
+          Descripción
+        </label>
+
+        <textarea
+          id="reportDescription"
+          class="report-textarea"
+          maxlength="300"
+          placeholder="Cuéntanos más sobre lo que sucede..."
+        ></textarea>
+
+        <!-- UBICACION -->
+
+        <label class="report-label">
+          Estacionamiento
+        </label>
+
+        <select
+          id="reportLocation"
+          class="report-select"
+        >
+
+          <option value="">
+            Seleccionar estacionamiento
+          </option>
+
+          <option value="Subterráneo">
+            Estacionamiento Subterráneo
+          </option>
+
+          <option value="Exterior">
+            Estacionamiento Exterior
+          </option>
+
+        </select>
+
+        <!-- PLAZA -->
+
+        <div class="report-user-slot">
+
+          <span>
+            Plaza actual
+          </span>
+
+          <strong id="userSlotCode">
+            Cargando...
+          </strong>
+
+        </div>
+
+        <!-- BOTON -->
+
+        <button
+          class="send-report-btn"
+          id="sendReportBtn"
+        >
+          Enviar reporte
+        </button>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL EXITO -->
+
+  <div
+    class="modal"
+    id="reportSuccessModal"
+  >
+
+    <div class="modal-content success-modal-content">
+
+      <div class="success-icon">
+        ✅
+      </div>
+
+      <h2>
+        Reporte enviado
+      </h2>
+
+      <p id="reportSummary"></p>
+
+      <button
+        class="modal-btn modal-btn-primary"
+        id="closeReportModal"
+      >
+        Entendido
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- JS -->
+
+  <script src="/shared/js/config.js"></script>
+  <script src="/shared/js/api.js"></script>
+
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/modal.js"></script>
+
+  <script src="/user/js/authGuard.js"></script>
+  <script src="/user/js/profile.js"></script>
+
+  <script src="/user/js/reportes.js"></script>
+
+</body>
+</html>
