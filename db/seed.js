@@ -1,51 +1,99 @@
 require('dotenv').config();
+
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const pool   = require('./index');
+const pool = require('./index');
 
 async function seed() {
+
   try {
-    const existe = await pool.query(
-      "SELECT id FROM usuarios WHERE rol = 'supervisor'"
+
+    console.log('Iniciando seed...');
+
+    const passwordHash = await bcrypt.hash(
+      'Admin123*',
+      10
     );
 
-    if (existe.rows.length > 0) {
-      console.log('Ya existe un supervisor, seed omitido.');
-      process.exit(0);
+    const usuarios = [
+      {
+        codigo: 'SUP001',
+        nombre: 'Supervisor General',
+        rol: 'supervisor'
+      },
+      {
+        codigo: 'ADM001',
+        nombre: 'Administrador Sistema',
+        rol: 'administrador'
+      },
+      {
+        codigo: 'DIR001',
+        nombre: 'Dirección Estacionamientos',
+        rol: 'direccion'
+      }
+    ];
+
+    for (const usuario of usuarios) {
+
+      const existe = await pool.query(
+        `
+        SELECT id
+        FROM usuarios
+        WHERE codigo_universitario = $1
+        `,
+        [usuario.codigo]
+      );
+
+      if (existe.rows.length > 0) {
+        console.log(
+          `Usuario ${usuario.codigo} ya existe`
+        );
+        continue;
+      }
+
+      await pool.query(
+        `
+        INSERT INTO usuarios (
+          codigo_universitario,
+          nombre,
+          password_hash,
+          rol,
+          verificado,
+          requiere_reverificacion
+        )
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          true,
+          false
+        )
+        `,
+        [
+          usuario.codigo,
+          usuario.nombre,
+          passwordHash,
+          usuario.rol
+        ]
+      );
+
+      console.log(
+        `Usuario ${usuario.codigo} creado`
+      );
     }
 
-    const hash    = await bcrypt.hash(process.env.SUPERVISOR_PASSWORD, 10);
-    const qrToken = crypto.randomBytes(32).toString('hex');
+    console.log('Seed completado');
 
-    const supervisor = await pool.query(
-      `INSERT INTO usuarios (
-        codigo_universitario, nombre, password_hash, telefono,
-        fecha_nacimiento, rol, qr_token
-      ) VALUES ($1, $2, $3, $4, $5, 'supervisor', $6)
-      RETURNING id`,
-      [
-        process.env.SUPERVISOR_CODIGO,
-        process.env.SUPERVISOR_NOMBRE,
-        hash,
-        process.env.SUPERVISOR_TELEFONO,
-        '1985-01-01',
-        qrToken
-      ]
-    );
-
-    await pool.query(
-      `INSERT INTO vehiculos (usuario_id, tipo_vehiculo_id, placa, modelo)
-       VALUES ($1, 1, $2, 'N/A')`,
-      [supervisor.rows[0].id, process.env.SUPERVISOR_PLACA]
-    );
-
-    console.log('Supervisor creado correctamente.');
     process.exit(0);
 
   } catch (err) {
-    console.error('Error en seed:', err.message);
+
+    console.error(err);
+
     process.exit(1);
+
   }
+
 }
 
 seed();

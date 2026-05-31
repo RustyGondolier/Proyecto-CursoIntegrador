@@ -1,129 +1,302 @@
 const express = require('express');
-const pool    = require('../db/index');
-const { authJWT, soloSupervisor } = require('../middleware/authJWT');
-const router  = express.Router();
 
-// POST /api/infracciones
-// Registra una infracción manualmente (solo supervisor)
-router.post('/', authJWT, soloSupervisor, async (req, res) => {
-  const { usuario_id, plaza_id, tipo_infraccion_id, descripcion } = req.body;
-  const supervisor_id = req.usuario.id;
+const pool = require('../db');
 
-  if (!usuario_id || !plaza_id || !tipo_infraccion_id) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios' });
-  }
+const {
+  authJWT,
+  soloSupervisor
+} = require('../middleware/authJWT');
 
-  try {
-    // Verificar que el usuario existe
-    const usuario = await pool.query(
-      `SELECT id, puntos_infraccion FROM usuarios WHERE id = $1 AND rol IN ('estudiante','docente','administrativo')`,
-      [usuario_id]
-    );
-    if (usuario.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+const router = express.Router();
+
+/*
+=================================
+LISTAR TIPOS
+=================================
+GET /api/infracciones/tipos
+*/
+router.get(
+  '/tipos',
+  authJWT,
+  soloSupervisor,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(
+        `
+        SELECT
+          id,
+          codigo,
+          descripcion
+        FROM tipos_infraccion
+        ORDER BY id
+        `
+      );
+
+      return res.json(
+        resultado.rows
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
     }
 
-    // Buscar vehículo del usuario
-    const vehiculo = await pool.query(
-      `SELECT id FROM vehiculos WHERE usuario_id = $1 AND activo = true LIMIT 1`,
-      [usuario_id]
-    );
+  }
+);
 
-    // Registrar infracción
-    const infraccion = await pool.query(
-      `INSERT INTO infracciones
-        (usuario_id, plaza_id, vehiculo_id, supervisor_id,
-         tipo_infraccion_id, hora_infraccion, descripcion)
-       VALUES ($1, $2, $3, $4, $5, NOW(), $6)
-       RETURNING *`,
-      [
+/*
+=================================
+REGISTRAR INFRACCIÓN
+=================================
+POST /api/infracciones
+*/
+router.post(
+  '/',
+  authJWT,
+  soloSupervisor,
+  async (req, res) => {
+
+    try {
+
+      const {
         usuario_id,
+        vehiculo_id,
         plaza_id,
-        vehiculo.rows[0]?.id || null,
-        supervisor_id,
+        solicitud_id,
         tipo_infraccion_id,
-        descripcion || null
-      ]
-    );
+        descripcion
+      } = req.body;
 
-    // Sumar punto de infracción al usuario
-    await pool.query(
-      `UPDATE usuarios
-       SET puntos_infraccion = puntos_infraccion + 1
-       WHERE id = $1`,
-      [usuario_id]
-    );
+      if (
+        !usuario_id ||
+        !tipo_infraccion_id
+      ) {
+        return res.status(400).json({
+          error: 'Datos incompletos'
+        });
+      }
 
-    // Crear notificación para el usuario
-    await pool.query(
-      `INSERT INTO notificaciones
-        (usuario_id, tipo_id, titulo, mensaje)
-       VALUES ($1,
-         (SELECT id FROM tipos_notificacion WHERE codigo = 'infraccion'),
-         'Nueva infracción registrada',
-         $2)`,
-      [usuario_id, `Se registró una infracción en la plaza ${plaza_id}. ${descripcion || ''}`]
-    );
+      const resultado = await pool.query(
+        `
+        INSERT INTO infracciones (
+          usuario_id,
+          vehiculo_id,
+          plaza_id,
+          solicitud_id,
+          supervisor_id,
+          tipo_infraccion_id,
+          descripcion
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7
+        )
+        RETURNING *
+        `,
+        [
+          usuario_id,
+          vehiculo_id || null,
+          plaza_id || null,
+          solicitud_id || null,
+          req.usuario.id,
+          tipo_infraccion_id,
+          descripcion || null
+        ]
+      );
 
-    res.status(201).json({
-      mensaje:    'Infracción registrada correctamente',
-      infraccion: infraccion.rows[0]
-    });
+      await pool.query(
+        `
+        UPDATE usuarios
+        SET puntos_infraccion =
+            puntos_infraccion + 1
+        WHERE id = $1
+        `,
+        [usuario_id]
+      );
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+      return res.status(201).json({
+        mensaje: 'Infracción registrada',
+        infraccion: resultado.rows[0]
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/infracciones
-// Lista todas las infracciones (solo supervisor)
-router.get('/', authJWT, soloSupervisor, async (req, res) => {
-  try {
-    const resultado = await pool.query(
-      `SELECT
-        i.id,
-        i.hora_infraccion,
-        i.descripcion,
-        i.creado_en,
-        ti.codigo AS tipo_codigo,
-        ti.descripcion AS tipo_descripcion,
-        u.nombre       AS usuario_nombre,
-        u.codigo_universitario,
-        v.placa,
-        p.codigo       AS plaza_codigo,
-        e.nombre       AS estacionamiento
-       FROM infracciones i
-       JOIN tipos_infraccion  ti ON ti.id = i.tipo_infraccion_id
-       JOIN usuarios          u  ON u.id  = i.usuario_id
-       LEFT JOIN vehiculos    v  ON v.id  = i.vehiculo_id
-       JOIN plazas            p  ON p.id  = i.plaza_id
-       JOIN bloques           b  ON b.id  = p.bloque_id
-       JOIN estacionamientos  e  ON e.id  = b.estacionamiento_id
-       ORDER BY i.creado_en DESC`
-    );
+/*
+=================================
+LISTAR INFRACCIONES
+=================================
+GET /api/infracciones
+*/
+router.get(
+  '/',
+  authJWT,
+  soloSupervisor,
+  async (req, res) => {
 
-    res.json(resultado.rows);
+    try {
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+      const resultado = await pool.query(
+        `
+        SELECT
+
+          i.id,
+          i.descripcion,
+          i.creado_en,
+
+          ti.codigo,
+          ti.descripcion AS tipo,
+
+          u.nombre,
+          u.codigo_universitario,
+
+          v.placa
+
+        FROM infracciones i
+
+        JOIN usuarios u
+          ON u.id = i.usuario_id
+
+        LEFT JOIN vehiculos v
+          ON v.id = i.vehiculo_id
+
+        JOIN tipos_infraccion ti
+          ON ti.id = i.tipo_infraccion_id
+
+        ORDER BY i.creado_en DESC
+        `
+      );
+
+      return res.json(
+        resultado.rows
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/infracciones/tipos
-// Lista los tipos de infracción disponibles
-// Accesible para supervisor
-router.get('/tipos', authJWT, soloSupervisor, async (req, res) => {
-  try {
-    const resultado = await pool.query(
-      `SELECT id, codigo, descripcion FROM tipos_infraccion ORDER BY id`
-    );
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+/*
+=================================
+DETALLE
+=================================
+GET /api/infracciones/:id
+*/
+router.get(
+  '/:id',
+  authJWT,
+  soloSupervisor,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(
+        `
+        SELECT *
+        FROM infracciones
+        WHERE id = $1
+        `,
+        [req.params.id]
+      );
+
+      if (resultado.rows.length === 0) {
+        return res.status(404).json({
+          error: 'Infracción no encontrada'
+        });
+      }
+
+      return res.json(
+        resultado.rows[0]
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
+    }
+
   }
-});
+);
+
+/*
+=================================
+MIS INFRACCIONES
+=================================
+GET /api/infracciones/mias
+*/
+router.get(
+  '/mias',
+  authJWT,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(
+        `
+        SELECT
+
+          i.id,
+          i.descripcion,
+          i.creado_en,
+
+          ti.codigo,
+          ti.descripcion AS tipo
+
+        FROM infracciones i
+
+        JOIN tipos_infraccion ti
+          ON ti.id = i.tipo_infraccion_id
+
+        WHERE i.usuario_id = $1
+
+        ORDER BY i.creado_en DESC
+        `,
+        [req.usuario.id]
+      );
+
+      return res.json(
+        resultado.rows
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
+    }
+
+  }
+);
 
 module.exports = router;
