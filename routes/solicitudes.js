@@ -1,21 +1,64 @@
 const express = require('express');
 
 const pool = require('../db');
-
 const {
-  authJWT
+  authJWT,
+  soloSupervisor
 } = require('../middleware/authJWT');
 
 const router = express.Router();
 
 /*
 =================================
-MIS NOTIFICACIONES
+CREAR SOLICITUD
 =================================
-GET /api/notificaciones
+POST /api/solicitudes
+*/
+router.post(
+  '/',
+  authJWT,
+  async (req, res) => {
+
+    try {
+
+      const {
+        estacionamiento_id
+      } = req.body;
+
+      const usuario_id = req.usuario.id;
+
+      // TODO:
+      // validar usuario
+      // validar vehículo
+      // validar ubicación
+      // buscar plaza disponible
+      // crear solicitud
+
+      return res.status(201).json({
+        mensaje: 'Solicitud creada'
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        error: 'Error interno del servidor'
+      });
+
+    }
+
+  }
+);
+
+/*
+=================================
+MIS SOLICITUDES
+=================================
+GET /api/solicitudes/mias
 */
 router.get(
-  '/',
+  '/mias',
   authJWT,
   async (req, res) => {
 
@@ -24,24 +67,16 @@ router.get(
       const resultado = await pool.query(
         `
         SELECT
-          n.id,
-          n.titulo,
-          n.mensaje,
-          n.leida,
-          n.url_destino,
-          n.creado_en,
-
-          tn.codigo,
-          tn.descripcion AS tipo
-
-        FROM notificaciones n
-
-        JOIN tipos_notificacion tn
-          ON tn.id = n.tipo_id
-
-        WHERE n.usuario_id = $1
-
-        ORDER BY n.creado_en DESC
+          s.*,
+          e.nombre AS estacionamiento,
+          p.codigo AS plaza_codigo
+        FROM solicitudes_estacionamiento s
+        JOIN estacionamientos e
+          ON e.id = s.estacionamiento_id
+        LEFT JOIN plazas p
+          ON p.id = s.plaza_asignada_id
+        WHERE s.usuario_id = $1
+        ORDER BY s.creado_en DESC
         `,
         [req.usuario.id]
       );
@@ -65,50 +100,9 @@ router.get(
 
 /*
 =================================
-NO LEÍDAS
+DETALLE SOLICITUD
 =================================
-GET /api/notificaciones/no-leidas
-*/
-router.get(
-  '/no-leidas',
-  authJWT,
-  async (req, res) => {
-
-    try {
-
-      const resultado = await pool.query(
-        `
-        SELECT
-          COUNT(*)::INTEGER AS total
-        FROM notificaciones
-        WHERE usuario_id = $1
-        AND leida = false
-        `,
-        [req.usuario.id]
-      );
-
-      return res.json(
-        resultado.rows[0]
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-      return res.status(500).json({
-        error: 'Error interno del servidor'
-      });
-
-    }
-
-  }
-);
-
-/*
-=================================
-OBTENER UNA
-=================================
-GET /api/notificaciones/:id
+GET /api/solicitudes/:id
 */
 router.get(
   '/:id',
@@ -120,19 +114,15 @@ router.get(
       const resultado = await pool.query(
         `
         SELECT *
-        FROM notificaciones
+        FROM solicitudes_estacionamiento
         WHERE id = $1
-        AND usuario_id = $2
         `,
-        [
-          req.params.id,
-          req.usuario.id
-        ]
+        [req.params.id]
       );
 
       if (resultado.rows.length === 0) {
         return res.status(404).json({
-          error: 'Notificación no encontrada'
+          error: 'Solicitud no encontrada'
         });
       }
 
@@ -155,32 +145,23 @@ router.get(
 
 /*
 =================================
-MARCAR LEÍDA
+CANCELAR SOLICITUD
 =================================
-PATCH /api/notificaciones/:id/leida
+POST /api/solicitudes/:id/cancelar
 */
-router.patch(
-  '/:id/leida',
+router.post(
+  '/:id/cancelar',
   authJWT,
   async (req, res) => {
 
     try {
 
-      await pool.query(
-        `
-        UPDATE notificaciones
-        SET leida = true
-        WHERE id = $1
-        AND usuario_id = $2
-        `,
-        [
-          req.params.id,
-          req.usuario.id
-        ]
-      );
+      // TODO:
+      // cambiar estado a cancelado
+      // liberar plaza
 
       return res.json({
-        mensaje: 'Notificación actualizada'
+        mensaje: 'Solicitud cancelada'
       });
 
     } catch (err) {
@@ -198,28 +179,26 @@ router.patch(
 
 /*
 =================================
-MARCAR TODAS LEÍDAS
+REGISTRAR INGRESO
 =================================
-PATCH /api/notificaciones/leer-todas
+POST /api/solicitudes/:id/ingresar
+=================================
+SUPERVISOR
 */
-router.patch(
-  '/leer-todas',
+router.post(
+  '/:id/ingresar',
   authJWT,
+  soloSupervisor,
   async (req, res) => {
 
     try {
 
-      await pool.query(
-        `
-        UPDATE notificaciones
-        SET leida = true
-        WHERE usuario_id = $1
-        `,
-        [req.usuario.id]
-      );
+      // TODO:
+      // validar solicitud
+      // registrar ingreso
 
       return res.json({
-        mensaje: 'Notificaciones actualizadas'
+        mensaje: 'Ingreso registrado'
       });
 
     } catch (err) {
@@ -237,31 +216,27 @@ router.patch(
 
 /*
 =================================
-ELIMINAR NOTIFICACIÓN
+REGISTRAR SALIDA
 =================================
-DELETE /api/notificaciones/:id
+POST /api/solicitudes/:id/salir
+=================================
+SUPERVISOR
 */
-router.delete(
-  '/:id',
+router.post(
+  '/:id/salir',
   authJWT,
+  soloSupervisor,
   async (req, res) => {
 
     try {
 
-      await pool.query(
-        `
-        DELETE FROM notificaciones
-        WHERE id = $1
-        AND usuario_id = $2
-        `,
-        [
-          req.params.id,
-          req.usuario.id
-        ]
-      );
+      // TODO:
+      // registrar salida
+      // liberar plaza
+      // crear historial
 
       return res.json({
-        mensaje: 'Notificación eliminada'
+        mensaje: 'Salida registrada'
       });
 
     } catch (err) {

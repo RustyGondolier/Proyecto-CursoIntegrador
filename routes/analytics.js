@@ -1,105 +1,267 @@
 const express = require('express');
-const pool    = require('../db/index');
-const { authJWT, supervisorODirectora } = require('../middleware/authJWT');
-const router  = express.Router();
+const pool = require('../db');
 
-// Todas las rutas de analytics requieren supervisor o directora
-router.use(authJWT, supervisorODirectora);
+const {
+  authJWT,
+  rolesGestion
+} = require('../middleware/authJWT');
 
-// GET /api/analytics/ocupacion
-// Estado actual de ocupación por estacionamiento
-router.get('/ocupacion', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT * FROM v_ocupacion_actual');
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+const router = express.Router();
+
+/* =====================================================
+   DASHBOARD GENERAL
+===================================================== */
+
+router.get(
+  '/dashboard',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const [
+        ocupacion,
+        permanencia,
+        reincidentes,
+        reportes
+      ] = await Promise.all([
+
+        pool.query(`
+          SELECT *
+          FROM v_ocupacion_actual
+        `),
+
+        pool.query(`
+          SELECT *
+          FROM v_permanencia_promedio
+        `),
+
+        pool.query(`
+          SELECT *
+          FROM v_usuarios_reincidentes
+          LIMIT 10
+        `),
+
+        pool.query(`
+          SELECT *
+          FROM v_reportes_por_estacionamiento
+        `)
+
+      ]);
+
+      res.json({
+        ocupacion: ocupacion.rows,
+        permanencia: permanencia.rows[0],
+        reincidentes: reincidentes.rows,
+        reportes: reportes.rows
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/analytics/reservas
-// Reservas por día últimos 30 días
-router.get('/reservas', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT * FROM v_reservas_por_dia');
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+/* =====================================================
+   OCUPACIÓN ACTUAL
+===================================================== */
+
+router.get(
+  '/ocupacion',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM v_ocupacion_actual
+      `);
+
+      res.json(resultado.rows);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/analytics/infracciones
-// Infracciones por tipo y mes
-router.get('/infracciones', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT * FROM v_infracciones_por_mes');
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+/* =====================================================
+   FLUJO POR HORA
+===================================================== */
+
+router.get(
+  '/flujo-hora',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM v_flujo_por_hora
+      `);
+
+      res.json(resultado.rows);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/analytics/incumplidos
-// Usuarios que reservan y no cumplen
-router.get('/incumplidos', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT * FROM v_usuarios_incumplidos');
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+/* =====================================================
+   PERMANENCIA PROMEDIO
+===================================================== */
+
+router.get(
+  '/permanencia',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM v_permanencia_promedio
+      `);
+
+      res.json(resultado.rows[0]);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/analytics/flujo-horas
-// Reservas por hora del día
-router.get('/flujo-horas', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT * FROM v_flujo_por_hora');
-    res.json(resultado.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+/* =====================================================
+   USUARIOS REINCIDENTES
+===================================================== */
+
+router.get(
+  '/reincidentes',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM v_usuarios_reincidentes
+      `);
+
+      res.json(resultado.rows);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
 
-// GET /api/analytics/resumen
-// Resumen general para el dashboard de la directora
-router.get('/resumen', async (req, res) => {
-  try {
-    const [ocupacion, reservasHoy, totalUsuarios, totalInfracciones] = await Promise.all([
-      pool.query('SELECT * FROM v_ocupacion_actual'),
-      pool.query(
-        `SELECT COUNT(*) AS total FROM reservas
-         WHERE DATE(creado_en) = CURRENT_DATE`
-      ),
-      pool.query(
-        `SELECT
-           COUNT(*) FILTER (WHERE rol = 'estudiante')     AS estudiantes,
-           COUNT(*) FILTER (WHERE rol = 'docente')        AS docentes,
-           COUNT(*) FILTER (WHERE rol = 'administrativo') AS administrativos
-         FROM usuarios WHERE estado_cuenta = 'activa'`
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS total FROM infracciones
-         WHERE DATE(creado_en) = CURRENT_DATE`
-      )
-    ]);
+/* =====================================================
+   REPORTES POR ESTACIONAMIENTO
+===================================================== */
 
-    res.json({
-      ocupacion:          ocupacion.rows,
-      reservas_hoy:       parseInt(reservasHoy.rows[0].total),
-      usuarios:           totalUsuarios.rows[0],
-      infracciones_hoy:   parseInt(totalInfracciones.rows[0].total)
-    });
+router.get(
+  '/reportes-estacionamiento',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM v_reportes_por_estacionamiento
+      `);
+
+      res.json(resultado.rows);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
   }
-});
+);
+
+/* =====================================================
+   ESTADÍSTICAS DIARIAS
+===================================================== */
+
+router.get(
+  '/estadisticas-diarias',
+  authJWT,
+  rolesGestion,
+  async (req, res) => {
+
+    try {
+
+      const resultado = await pool.query(`
+        SELECT *
+        FROM estadisticas_diarias
+        ORDER BY fecha DESC
+        LIMIT 30
+      `);
+
+      res.json(resultado.rows);
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: 'Error interno'
+      });
+
+    }
+
+  }
+);
 
 module.exports = router;

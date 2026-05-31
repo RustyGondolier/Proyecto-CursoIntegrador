@@ -1,110 +1,216 @@
-const helmet = require('helmet');
-
 require('dotenv').config();
-const express    = require('express');
-const http       = require('http');
-const cors       = require('cors');
-const path       = require('path');
+
+const path = require('path');
+const http = require('http');
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
 
 const rateLimit = require('express-rate-limit');
 
 const { Server } = require('socket.io');
 
-const authRoutes     = require('./routes/auth');
-const plazasRoutes   = require('./routes/plazas');
-const reservasRoutes = require('./routes/reservas');
-const qrRoutes       = require('./routes/qr');
-const initSockets    = require('./sockets');
+/* =====================================================
+   APP
+===================================================== */
 
-const usuariosRoutes      = require('./routes/usuarios');
-const infraccionesRoutes  = require('./routes/infracciones');
-const reportesRoutes      = require('./routes/reportes');
-const notificacionesRoutes = require('./routes/notificaciones');
+const app = express();
 
-const analyticsRoutes  = require('./routes/analytics');
-const vehiculosRoutes = require('./routes/vehiculos');
-
-const app    = express();
 const server = http.createServer(app);
 
-if(process.env.NODE_ENV === 'production'){
-  app.set('trust proxy', 1);
-}
-
-const allowedOrigins = [
-
-  'http://localhost:3000',
-  'http://127.0.0.1:5500',
-
-  'https://utp-parking.onrender.com'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Permitir peticiones sin origen (como apps móviles, Postman o el propio servidor)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('No permitido por la política de CORS'));
-    }
-  },
-  credentials: true
-};
+/* =====================================================
+   SOCKET.IO
+===================================================== */
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    credentials: true
+    origin: '*'
   }
 });
 
 app.set('io', io);
 
-app.use(cors(corsOptions));
+/* =====================================================
+   SEGURIDAD
+===================================================== */
+
 app.use(helmet());
+
+app.use(cors());
 
 app.use(express.json());
 
-const authLimiter = rateLimit({
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
+
+/* =====================================================
+   RATE LIMIT
+===================================================== */
+
+const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
-  message: {
-    error: 'Demasiados intentos, intenta nuevamente más tarde.'
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use(limiter);
+
+/* =====================================================
+   ARCHIVOS PÚBLICOS
+===================================================== */
+
+app.use(
+  express.static(
+    path.join(__dirname, 'public')
+  )
+);
+
+/* =====================================================
+   RUTAS API
+===================================================== */
+
+app.use(
+  '/api/auth',
+  require('./routes/auth')
+);
+
+app.use(
+  '/api/solicitudes',
+  require('./routes/solicitudes')
+);
+
+app.use(
+  '/api/usuarios',
+  require('./routes/usuarios')
+);
+
+app.use(
+  '/api/infracciones',
+  require('./routes/infracciones')
+);
+
+app.use(
+  '/api/reportes',
+  require('./routes/reportes')
+);
+
+app.use(
+  '/api/notificaciones',
+  require('./routes/notificaciones')
+);
+
+app.use(
+  '/api/soporte',
+  require('./routes/soporte')
+);
+
+app.use(
+  '/api/faq',
+  require('./routes/faq')
+);
+
+app.use(
+  '/api/analytics',
+  require('./routes/analytics')
+);
+
+/* =====================================================
+   HEALTH CHECK
+===================================================== */
+
+app.get(
+  '/api/health',
+  (req, res) => {
+
+    res.json({
+      status: 'ok',
+      timestamp: new Date()
+    });
+
   }
-});
+);
 
-app.use('/api/auth',      authLimiter, authRoutes);
-app.use('/api/plazas',    plazasRoutes);
-app.use('/api/reservas',  reservasRoutes);
-app.use('/api/qr',        qrRoutes);
+/* =====================================================
+   SOCKETS
+===================================================== */
 
-app.use('/api/usuarios',       usuariosRoutes);
-app.use('/api/infracciones',   infraccionesRoutes);
-app.use('/api/reportes',       reportesRoutes);
-app.use('/api/notificaciones', notificacionesRoutes);
+io.on(
+  'connection',
+  socket => {
 
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/vehiculos', vehiculosRoutes);
+    console.log(
+      'Cliente conectado:',
+      socket.id
+    );
 
-app.use(express.static(path.join(__dirname, 'public')));
+    socket.on(
+      'disconnect',
+      () => {
 
-initSockets(io);
+        console.log(
+          'Cliente desconectado:',
+          socket.id
+        );
 
-app.get('/{*path}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+      }
+    );
 
-app.use((err, req, res, next) => {
-  if (err.message === 'No permitido por la política de CORS') {
-    res.status(403).json({ error: err.message });
-  } else {
-    next(err);
   }
-});
+);
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+/* =====================================================
+   404 API
+===================================================== */
+
+app.use(
+  '/api/*splat',
+  (req, res) => {
+
+    res.status(404).json({
+      error: 'Endpoint no encontrado'
+    });
+
+  }
+);
+
+/* =====================================================
+   ERROR GLOBAL
+===================================================== */
+
+app.use(
+  (err, req, res, next) => {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: 'Error interno del servidor'
+    });
+
+  }
+);
+
+/* =====================================================
+   START SERVER
+===================================================== */
+
+const PORT =
+  process.env.PORT || 3000;
+
+server.listen(
+  PORT,
+  () => {
+
+    console.log(`
+===================================
+ UTP PARKING API
+ Puerto: ${PORT}
+===================================
+`);
+
+  }
+);

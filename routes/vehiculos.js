@@ -1,5 +1,4 @@
 const express = require('express');
-
 const pool = require('../db/index');
 
 const {
@@ -8,17 +7,11 @@ const {
 
 const router = express.Router();
 
-/* =========================
-   LISTAR VEHICULOS
-========================= */
-
 router.get(
   '/',
   authJWT,
   async (req, res) => {
-
     try{
-
       const resultado = await pool.query(
         `
         SELECT
@@ -32,26 +25,19 @@ router.get(
         LEFT JOIN tipos_vehiculo tv
           ON tv.id = v.tipo_vehiculo_id
         WHERE v.usuario_id = $1
-
         ORDER BY v.id DESC
         `,
         [req.usuario.id]
       );
-
       res.json(
         resultado.rows
       );
-
     }catch(err){
-
       console.error(err);
-
       res.status(500).json({
         error:'Error interno'
       });
-
     }
-
   }
 );
 
@@ -63,15 +49,12 @@ router.post(
   '/',
   authJWT,
   async (req, res) => {
-
     const {
       placa,
       modelo,
       tipo_vehiculo_id
     } = req.body;
-
     try{
-
       const existe = await pool.query(
         `
         SELECT id
@@ -80,13 +63,11 @@ router.post(
         `,
         [placa.toUpperCase()]
       );
-
       if(existe.rows.length > 0){
         return res.status(409).json({
           error:'La placa ya existe'
         });
       }
-
 			await pool.query(
 				`
 				UPDATE vehiculos
@@ -95,7 +76,6 @@ router.post(
 				`,
 				[req.usuario.id]
 			);
-
       await pool.query(
         `
         INSERT INTO vehiculos (
@@ -114,21 +94,15 @@ router.post(
           modelo
         ]
       );
-
       res.status(201).json({
         mensaje:'Vehículo agregado'
       });
-
     }catch(err){
-
       console.error(err);
-
       res.status(500).json({
         error:'Error interno'
       });
-
     }
-
   }
 );
 
@@ -137,12 +111,9 @@ router.put(
   '/:id/seleccionar',
   authJWT,
   async (req, res) => {
-
     const vehiculoId =
       req.params.id;
-
     try{
-
       await pool.query(
         `
         UPDATE vehiculos
@@ -151,7 +122,6 @@ router.put(
         `,
         [req.usuario.id]
       );
-
       await pool.query(
         `
         UPDATE vehiculos
@@ -164,21 +134,15 @@ router.put(
           req.usuario.id
         ]
       );
-
       res.json({
         mensaje:'Vehículo actualizado'
       });
-
     }catch(err){
-
       console.error(err);
-
       res.status(500).json({
         error:'Error interno'
       });
-
     }
-
   }
 );
 
