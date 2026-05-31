@@ -1,25 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seleccionar acceso</title>
-  <link rel="stylesheet" href="/shared/css/variables.css">
-  <link rel="stylesheet" href="/shared/css/reset.css">
-  <link rel="stylesheet" href="/shared/css/global.css">
-  <link rel="stylesheet" href="/shared/css/components.css">
-  <link rel="stylesheet" href="/shared/css/auth.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Seleccionar modo</title>
+
+  <link
+    rel="stylesheet"
+    href="/shared/css/global.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="/css/select-role.css"
+  >
+
 </head>
 <body>
-  <main class="auth-page">
-    <div class="auth-card">
-      <div class="auth-logo">
-        <h1>Modo de acceso</h1>
-        <p>Selecciona cómo deseas ingresar</p>
-      </div>
-      <div class="role-grid" id="roleGridContainer"></div>
-    </div>
+
+  <main class="role-page">
+
+    <h1>¿Cómo deseas ingresar?</h1>
+
+    <div
+      id="rolesContainer"
+      class="roles-container"
+    ></div>
+
   </main>
-  <script src="/shared/js/select-role.js"></script>
+
+  <script src="/js/select-role.js"></script>
+
 </body>
 </html>

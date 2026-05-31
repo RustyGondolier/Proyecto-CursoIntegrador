@@ -2,129 +2,203 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro - UTP Parking</title>
-  <link rel="stylesheet" href="/shared/css/variables.css">
-  <link rel="stylesheet" href="/shared/css/reset.css">
-  <link rel="stylesheet" href="/shared/css/global.css">
-  <link rel="stylesheet" href="/shared/css/components.css">
-  <link rel="stylesheet" href="/shared/css/auth.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Registro | UTP Parking</title>
+
+  <link rel="stylesheet" href="./shared/css/variables.css">
+  <link rel="stylesheet" href="./shared/css/global.css">
+  <link rel="stylesheet" href="./css/register.css">
 </head>
 <body>
 
-  <main class="auth-page">
-    <div class="auth-card">
-      <div class="auth-logo">
-        <h1>Crear cuenta</h1>
-        <p>Registro de usuario UTP Parking</p>
-      </div>
+  <main class="register-container">
 
-      <form id="registerForm" class="auth-form">
-        <div class="input-group">
-          <label for="codigo">Código universitario</label>
-          <input type="text" id="codigo" class="input" required>
-        </div>
+    <div class="register-card">
 
-        <div class="input-group">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" class="input" required>
-        </div>
+      <h1>Crear Cuenta</h1>
 
-        <div class="input-group">
-          <label for="correo">Correo institucional</label>
-          <input type="email" id="correo" class="input" required>
-        </div>
+      <form id="registerForm">
 
-        <div class="input-group">
-          <label for="telefono">Teléfono</label>
-          <input type="tel" id="telefono" class="input" required>
-        </div>
+    <!-- DATOS PERSONALES -->
 
-        <div class="input-group">
-          <label for="dni">DNI o Carnet de extranjeria</label>
-          <input type="text" id="dni" class="input" required>
-        </div>
+    <div class="form-section">
 
-        <div class="input-group">
-          <label for="fechaNacimiento">Fecha de nacimiento</label>
-          <input type="date" id="fechaNacimiento" class="input" required>
-        </div>
+        <h2>Datos personales</h2>
 
-        <div class="input-group">
-          <label for="numLicencia">Numero de licencia</label>
-          <input type="text" id="numLicencia" class="input" required>
-        </div>
+        <input
+            type="text"
+            id="nombre"
+            placeholder="Nombre completo"
+            required
+        >
 
-        <div class="input-group">
-          <label for="fechaVencimiento">Fecha de vencimiento</label>
-          <input type="date" id="fechaVencimiento" class="input" required>
-        </div>
+        <input
+            type="text"
+            id="codigo"
+            placeholder="Código universitario"
+            required
+        >
 
-        <div class="input-group">
-          <label for="placa">Placa del vehículo</label>
-          <input type="text" id="placa" class="input" required>
-        </div>
+        <input
+            type="password"
+            id="password"
+            placeholder="Contraseña"
+            required
+        >
 
-        <div class="input-group">
-          <label for="modelo">Modelo del vehículo</label>
-          <input type="text" id="modelo" class="input" required>
-        </div>
+        <input
+            type="text"
+            id="telefono"
+            placeholder="Teléfono"
+        >
 
-        <div class="input-group">
-          <label for="tipoVehiculo">Tipo de vehículo</label>
-          <select id="tipoVehiculo" class="input" required>
-            <option value="">Seleccionar</option>
-            <option value="1">Automóvil</option>
-            <option value="2">Motocicleta</option>
-            <option value="3">Mototaxi</option>
-          </select>
-        </div>
+        <input
+            type="text"
+            id="dni"
+            placeholder="DNI"
+        >
 
-        <div class="input-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" class="input" required>
-        </div>
+        <label>Fecha de nacimiento</label>
 
-        <div class="input-group">
-          <label>¿Cuenta con carnet o permiso CONADIS?</label>
-          <div class="radio-group" style="display: flex; gap: 20px; margin-top: 8px; margin-bottom: 8px;">
-            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
-              <input 
-                type="radio" 
-                name="hasConadis" 
-                value="si"
-              > Sí
-            </label>
-            <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
-              <input 
-                type="radio" 
-                name="hasConadis" 
-                value="no" 
-                checked
-              > No
-            </label>
-          </div>
-        </div>
+        <input
+            type="date"
+            id="fechaNacimiento"
+            required
+        >
 
-        <div class="input-group" id="conadisWrapper" style="display: none; margin-top: 10px;">
-          <label for="codigo_conadis">Código de registro CONADIS:</label>
-          <input 
-            type="text" 
-            id="codigo_conadis" 
-            class="input" 
-            placeholder="Ej: P-000000"
-          >
-        </div>
+        <input
+            type="email"
+            id="correo"
+            placeholder="Correo institucional"
+        >
 
-        <button type="submit" class="btn btn-primary">Registrarse</button>
-        <a href="/login.html" class="auth-link">Ya tengo cuenta</a>
-      </form>
     </div>
+
+    <!-- LICENCIA -->
+
+    <div class="form-section">
+
+        <h2>Licencia de conducir</h2>
+
+        <input
+            type="text"
+            id="licencia"
+            placeholder="Número de licencia"
+        >
+
+        <label>Fecha de vencimiento</label>
+
+        <input
+            type="date"
+            id="fechaLicencia"
+        >
+
+    </div>
+
+    <!-- CONADIS -->
+
+    <div class="form-section">
+
+        <h2>CONADIS</h2>
+
+        <p>¿Usted cuenta con carnet CONADIS?</p>
+
+        <div class="radio-group">
+
+            <label>
+                <input
+                    type="radio"
+                    name="conadisTiene"
+                    value="si"
+                >
+                Sí
+            </label>
+
+            <label>
+                <input
+                    type="radio"
+                    name="conadisTiene"
+                    value="no"
+                    checked
+                >
+                No
+            </label>
+
+        </div>
+
+        <div
+            id="conadisContainer"
+            style="display:none;"
+        >
+
+            <input
+                type="text"
+                id="conadis"
+                placeholder="Código CONADIS"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- VEHÍCULO -->
+
+    <div class="form-section">
+
+        <h2>Vehículo</h2>
+
+        <select id="tipoVehiculo">
+
+            <option value="1">
+                Automóvil
+            </option>
+
+            <option value="2">
+                Motocicleta
+            </option>
+
+            <option value="3">
+                Mototaxi
+            </option>
+
+        </select>
+
+        <input
+            type="text"
+            id="placa"
+            placeholder="ABC-123"
+            required
+        >
+
+        <input
+            type="text"
+            id="modelo"
+            placeholder="Modelo"
+        >
+
+    </div>
+
+    <button type="submit">
+        Registrarse
+    </button>
+
+</form>
+
+      <p id="mensaje"></p>
+
+      <a href="./login.html">
+        Ya tengo una cuenta
+      </a>
+
+    </div>
+
   </main>
 
-  <script src="/shared/js/config.js"></script>
-  <script src="/shared/js/api.js"></script>
-  <script src="/shared/js/register.js"></script>
+  <script src="./js/register.js"></script>
 
 </body>
 </html>

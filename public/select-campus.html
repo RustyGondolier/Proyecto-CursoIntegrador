@@ -1,82 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Seleccionar sede</title>
 
-	<link rel="stylesheet" href="/shared/css/variables.css">
-  <link rel="stylesheet" href="/shared/css/reset.css">
-  <link rel="stylesheet" href="/shared/css/global.css">
+  <meta charset="UTF-8">
 
-	<style>
-		body{
-      background:var(--background);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:100vh;
-    }
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    .campus-container{
-      width:min(900px,92%);
-    }
+  <title>Seleccionar sede</title>
 
-    .campus-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:18px;
-    }
+  <link
+    rel="stylesheet"
+    href="/shared/css/global.css"
+  >
 
-    .campus-card{
-      background:var(--white);
-      border-radius:20px;
-      padding:24px;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      transition:var(--transition);
-    }
+  <link
+    rel="stylesheet"
+    href="/css/select-campus.css"
+  >
 
-    .campus-card:hover{
-      transform:translateY(-4px);
-    }
-
-    @media(min-width:768px){
-      .campus-grid{
-        grid-template-columns:repeat(3,1fr);
-      }
-    }
-	</style>
 </head>
-
 <body>
-	<div class="campus-container">
 
-    <h1 class="section-title">
-      Selecciona una sede
-    </h1>
+  <main class="campus-page">
 
-    <div class="campus-grid">
-  
-      <div class="campus-card" data-id="1" data-name="Lima Sur">
-        <h2>UTP - Lima Sur</h2>
-        <p>Campus disponible</p>
-      </div>
-    
-      <div class="campus-card disabled" data-id="2" data-name="Lima Centro" style="opacity: 0.5; cursor: not-allowed;">
-        <h2>UTP - Lima Centro</h2>
-        <p>No disponible actualmente</p>
-      </div>
-    
-      <div class="campus-card disabled" data-id="3" data-name="Lima Norte" style="opacity: 0.5; cursor: not-allowed;">
-        <h2>UTP - Lima norte</h2>
-        <p>No disponible actualmente</p>
-      </div>
-    
+    <h1>Selecciona una sede</h1>
+
+    <div class="campus-list">
+
+      <button
+        class="campus-card active"
+        data-id="1"
+        data-nombre="Lima Sur"
+      >
+        Lima Sur
+      </button>
+
+      <button
+        class="campus-card disabled"
+        disabled
+      >
+        Lima Centro
+        <span>Próximamente</span>
+      </button>
+
+      <button
+        class="campus-card disabled"
+        disabled
+      >
+        Lima Norte
+        <span>Próximamente</span>
+      </button>
+
     </div>
 
-  </div>
+  </main>
 
-<script src="/shared/js/select-campus.js"></script>
+  <script src="/js/select-campus.js"></script>
+
 </body>
 </html>
