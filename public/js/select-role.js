@@ -1,6 +1,8 @@
 const usuario =
   JSON.parse(
-    localStorage.getItem('usuario')
+    localStorage.getItem(
+      'usuario'
+    )
   );
 
 if(!usuario){
@@ -23,7 +25,8 @@ SIEMPRE PUEDE ENTRAR COMO USUARIO
 
 crearBoton(
   '👤 Usuario',
-  '/user/dashboard.html'
+  'usuario',
+  '/usuario/dashboard.html'
 );
 
 /*
@@ -32,10 +35,13 @@ SUPERVISOR
 =================================
 */
 
-if(usuario.rol === 'supervisor'){
+if(
+  usuario.rol === 'supervisor'
+){
 
   crearBoton(
     '🛠 Supervisor',
+    'supervisor',
     '/supervisor/dashboard.html'
   );
 
@@ -47,10 +53,13 @@ ADMINISTRADOR
 =================================
 */
 
-if(usuario.rol === 'administrador'){
+if(
+  usuario.rol === 'administrador'
+){
 
   crearBoton(
     '⚙ Administrador',
+    'administrador',
     '/administrador/dashboard.html'
   );
 
@@ -62,10 +71,13 @@ DIRECCIÓN
 =================================
 */
 
-if(usuario.rol === 'direccion'){
+if(
+  usuario.rol === 'direccion'
+){
 
   crearBoton(
     '📊 Dirección',
+    'direccion',
     '/direccion/dashboard.html'
   );
 
@@ -73,6 +85,7 @@ if(usuario.rol === 'direccion'){
 
 function crearBoton(
   texto,
+  rol,
   destino
 ){
 
@@ -93,7 +106,9 @@ function crearBoton(
 
       localStorage.setItem(
         'modoIngreso',
-        texto
+        JSON.stringify({
+          rol
+        })
       );
 
       window.location.href =

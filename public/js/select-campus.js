@@ -1,52 +1,71 @@
-const usuario =
-  JSON.parse(
-    localStorage.getItem('usuario')
-  );
-
-if(!usuario){
-
-  window.location.href =
-    '/login.html';
-
-}
-
 document
-.querySelectorAll('.campus-card.active')
-.forEach(card => {
+.querySelectorAll(
+  '.campus-card.active'
+)
+.forEach(btn => {
 
-  card.addEventListener(
+  btn.addEventListener(
     'click',
     () => {
 
+      const sede = {
+
+        id: Number(
+          btn.dataset.id
+        ),
+
+        nombre:
+          btn.dataset.nombre
+
+      };
+
       localStorage.setItem(
-        'sede',
-        JSON.stringify({
-          id: card.dataset.id,
-          nombre: card.dataset.nombre
-        })
+        'sedeSeleccionada',
+        JSON.stringify(
+          sede
+        )
       );
 
-      const rolesGestion = [
-        'supervisor',
-        'administrador',
-        'direccion'
-      ];
+      const usuario =
+        JSON.parse(
+          localStorage.getItem(
+            'usuario'
+          )
+        );
+
+      /*
+      =================================
+      ESTUDIANTE Y DOCENTE
+      =================================
+      */
 
       if(
-        rolesGestion.includes(
-          usuario.rol
-        )
+        usuario.rol === 'estudiante' ||
+        usuario.rol === 'docente'
       ){
 
-        window.location.href =
-          '/select-role.html';
+        localStorage.setItem(
+          'modoIngreso',
+          JSON.stringify({
+            rol:'usuario'
+          })
+        );
 
-      }else{
-
         window.location.href =
-          '/user/dashboard.html';
+          '/usuario/dashboard.html';
+
+        return;
 
       }
+
+      /*
+      =================================
+      SUPERVISOR / ADMIN / DIRECCIÓN
+      =================================
+      */
+
+      window.location.href =
+        '/select-role.html';
 
     }
   );

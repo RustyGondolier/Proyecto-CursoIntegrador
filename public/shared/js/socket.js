@@ -1,18 +1,41 @@
-const socket = io(SOCKET_URL, {
-  transports:['websocket']
-});
+let socket = null;
 
-const usuario = JSON.parse(
-  sessionStorage.getItem('usuario')
-);
+function connectSocket(){
 
-if(usuario){
+  if(socket){
+    return socket;
+  }
 
-  socket.emit(
-    'join:role',
-    usuario.rol
+  socket = io();
+
+  socket.on(
+    'connect',
+    () => {
+
+      console.log(
+        'Socket conectado'
+      );
+
+    }
   );
+
+  socket.on(
+    'disconnect',
+    () => {
+
+      console.log(
+        'Socket desconectado'
+      );
+
+    }
+  );
+
+  return socket;
+
 }
 
+function getSocket(){
 
-//			<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  return socket;
+
+}
