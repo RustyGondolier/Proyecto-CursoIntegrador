@@ -119,6 +119,16 @@ app.use(
   require('./routes/analytics')
 );
 
+app.use(
+  '/api/dashboard',
+  require('./routes/dashboard')
+);
+
+app.use(
+  '/api/estacionamientos',
+  require('./routes/estacionamientos')
+);
+
 /* =====================================================
    HEALTH CHECK
 ===================================================== */
@@ -139,29 +149,19 @@ app.get(
    SOCKETS
 ===================================================== */
 
-io.on(
-  'connection',
-  socket => {
+io.on('connection', socket => {
 
-    console.log(
-      'Cliente conectado:',
-      socket.id
-    );
+  console.log('Cliente conectado:', socket.id);
 
-    socket.on(
-      'disconnect',
-      () => {
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
 
-        console.log(
-          'Cliente desconectado:',
-          socket.id
-        );
+  socket.on('ocupacion:refresh', async () => {
+    io.emit('ocupacion:update');
+  });
 
-      }
-    );
-
-  }
-);
+});
 
 /* =====================================================
    404 API

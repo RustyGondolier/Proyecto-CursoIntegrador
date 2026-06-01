@@ -1,33 +1,45 @@
+const API_BASE = '/api';
+
 async function apiFetch(
   endpoint,
   options = {}
 ){
 
   const token =
-    sessionStorage.getItem('token');
+    localStorage.getItem(
+      'token'
+    );
 
-  const response = await fetch(
-    `${API_URL}${endpoint}`,
-    {
-      headers:{
-        'Content-Type':'application/json',
-        Authorization:
-          token
-            ? `Bearer ${token}`
-            : ''
-      },
+  const response =
+    await fetch(
+      API_BASE + endpoint,
+      {
+        headers: {
+          'Content-Type':
+            'application/json',
 
-      ...options
-    }
-  );
+          Authorization:
+            token
+              ? `Bearer ${token}`
+              : ''
+        },
 
-  const data = await response.json();
+        ...options
+      }
+    );
+
+  const data =
+    await response.json();
 
   if(!response.ok){
+
     throw new Error(
-      data.error || 'Error servidor'
+      data.error ||
+      'Error servidor'
     );
+
   }
 
   return data;
+
 }

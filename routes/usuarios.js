@@ -361,4 +361,47 @@ router.get(
   }
 );
 
+router.get(
+  '/me/resumen',
+  authJWT,
+  async (req,res) => {
+
+    try{
+
+      const resultado =
+        await pool.query(
+          `
+          SELECT
+            u.nombre,
+            u.codigo_universitario,
+            v.placa
+
+          FROM usuarios u
+
+          LEFT JOIN vehiculos v
+            ON v.usuario_id = u.id
+            AND v.activo = true
+
+          WHERE u.id = $1
+          `,
+          [req.usuario.id]
+        );
+
+      res.json(
+        resultado.rows[0]
+      );
+
+    }catch(err){
+
+      console.error(err);
+
+      res.status(500).json({
+        error:'Error interno'
+      });
+
+    }
+
+  }
+);
+
 module.exports = router;

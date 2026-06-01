@@ -1,0 +1,37 @@
+.sidebar{
+  position:fixed;
+  left:-280px;
+  top:0;
+  width:260px;
+  height:100%;
+  background:#fff;
+  transition:.3s;
+  z-index:1000;
+  padding:12px;
+}
+
+.sidebar.open{
+  left:0;
+}
+
+.sidebar-header{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
+
+.sidebar-nav a,
+.sidebar-nav button{
+  display:block;
+  padding:10px;
+  margin:6px 0;
+  text-decoration:none;
+  border-radius:8px;
+  background:none;
+  width:100%;
+  text-align:left;
+}
+
+.sidebar-nav a.active{
+  background:#B50E30;
+  color:white;
+}

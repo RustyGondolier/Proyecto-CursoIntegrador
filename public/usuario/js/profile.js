@@ -1,6 +1,6 @@
 const usuario =
   JSON.parse(
-    sessionStorage.getItem('usuario')
+    localStorage.getItem('usuario')
   );
 
 if(!usuario){
@@ -144,7 +144,7 @@ document.getElementById(
   'click',
   () => {
 
-    sessionStorage.clear();
+    localStorage.clear();
 
     window.location.href =
       '/login.html';
@@ -307,7 +307,7 @@ editProfileForm.addEventListener(
       usuario.licencia_fecha_vencimiento =
         payload.licencia_fecha_vencimiento;
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         'usuario',
         JSON.stringify(usuario)
       );

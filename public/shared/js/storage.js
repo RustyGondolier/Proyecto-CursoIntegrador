@@ -1,11 +1,11 @@
 function saveSession(data){
 
-  sessionStorage.setItem(
+  localStorage.setItem(
     'token',
     data.token
   );
 
-  sessionStorage.setItem(
+  localStorage.setItem(
     'usuario',
     JSON.stringify(data.usuario)
   );
@@ -14,13 +14,13 @@ function saveSession(data){
 function getUser(){
 
   return JSON.parse(
-    sessionStorage.getItem('usuario')
+    localStorage.getItem('usuario')
   );
 }
 
 function logout(){
 
-  sessionStorage.clear();
+  localStorage.clear();
 
   window.location.href = '/login.html';
 }

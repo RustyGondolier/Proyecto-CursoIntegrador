@@ -1,54 +1,85 @@
-const overlay =
-  document.getElementById('overlay');
+async function loadLayout(){
 
-const sidebar =
-  document.getElementById('sidebar');
+  await loadTopbar();
 
-const menuBtn =
-  document.getElementById('menuBtn');
+  await loadSidebar();
 
-const notificationsBtn =
-  document.getElementById('notificationsBtn');
+  await loadNotifications();
 
-const notificationsPanel =
+}
+
+async function loadTopbar(){
+
+  const response =
+    await fetch(
+      '/shared/components/topbar.html'
+    );
+
   document.getElementById(
-    'notificationsPanel'
-  );
+    'topbar-container'
+  ).innerHTML =
+    await response.text();
 
-/* OPEN SIDEBAR */
+}
 
-menuBtn.addEventListener(
-  'click',
-  () => {
+async function loadSidebar(){
 
-    sidebar.classList.add('active');
+  const response =
+    await fetch(
+      '/shared/components/sidebar.html'
+    );
 
-    overlay.classList.add('active');
+  document.getElementById(
+    'sidebar-container'
+  ).innerHTML =
+    await response.text();
+
+  fillSidebarData();
+
+}
+
+async function loadNotifications(){
+
+  const response =
+    await fetch(
+      '/shared/components/notifications.html'
+    );
+
+  document.getElementById(
+    'notifications-container'
+  ).innerHTML =
+    await response.text();
+
+}
+
+async function fillSidebarData(){
+
+  try{
+
+    const perfil =
+      await apiFetch(
+        '/auth/perfil'
+      );
+
+    document.getElementById(
+      'sidebarNombre'
+    ).textContent =
+      perfil.nombre;
+
+    document.getElementById(
+      'sidebarCodigo'
+    ).textContent =
+      perfil.codigo_universitario;
+
+    document.getElementById(
+      'sidebarPlaca'
+    ).textContent =
+      perfil.placa || '-';
+
+  }catch(err){
+
+    console.error(err);
+
   }
-);
 
-/* OPEN NOTIFICATIONS */
-
-notificationsBtn.addEventListener(
-  'click',
-  () => {
-
-    notificationsPanel.classList.add('active');
-
-    overlay.classList.add('active');
-  }
-);
-
-/* CLOSE ALL */
-
-overlay.addEventListener(
-  'click',
-  () => {
-
-    sidebar.classList.remove('active');
-
-    notificationsPanel.classList.remove('active');
-
-    overlay.classList.remove('active');
-  }
-);
+}
