@@ -18,7 +18,9 @@ async function login(
     const data =
       await authService.login(
         codigo_universitario,
-        password
+        password,
+        req.ip,
+        req.headers['user-agent']
       );
 
     res.json(data);
