@@ -7,6 +7,11 @@ const usuarioRepository =
 const vehiculoRepository =
   require('../repositories/vehiculo.repository');
 
+  const historialRepository =
+  require(
+    '../repositories/historial.repository'
+  );
+
 const {
   generateToken
 } = require('../utils/jwt');
@@ -15,7 +20,9 @@ const {
 
 async function login(
   codigo,
-  password
+  password,
+  ip,
+  userAgent
 ){
 
   const usuario =
@@ -41,6 +48,14 @@ async function login(
 
   if(!valido){
 
+    await historialRepository
+      .registrarAcceso(
+        usuario.id,
+        'fallido',
+        ip,
+        userAgent
+      );
+
     throw new Error(
       'Credenciales incorrectas'
     );
@@ -49,6 +64,14 @@ async function login(
 
   const token =
     generateToken(usuario);
+
+    await historialRepository
+  .registrarAcceso(
+    usuario.id,
+    'exitoso',
+    ip,
+    userAgent
+  );
 
   return {
 
