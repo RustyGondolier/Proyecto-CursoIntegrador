@@ -1,99 +1,118 @@
 const usuario =
-  getUser();
+  JSON.parse(
+    localStorage.getItem(
+      'usuario'
+    )
+  );
 
-const container =
+const roleList =
   document.getElementById(
-    'rolesContainer'
+    'roleList'
   );
 
-crearBoton(
-  'Usuario',
-  'usuario'
-);
+const opciones = [
 
-if(
-  usuario.rol === 'supervisor'
-){
+  {
+    codigo:'usuario',
+    titulo:'Usuario',
+    descripcion:
+      'Utilizar el sistema de estacionamiento.'
+  },
 
-  crearBoton(
-    'Supervisor',
-    'supervisor'
-  );
+  {
+    codigo:usuario.rol,
+    titulo:
+      usuario.rol
+        .charAt(0)
+        .toUpperCase()
+      +
+      usuario.rol
+        .slice(1),
+    descripcion:
+      'Ingresar utilizando tu cargo institucional.'
+  }
 
-}
+];
 
-if(
-  usuario.rol === 'administrador'
-){
+opciones.forEach(
+  opcion => {
 
-  crearBoton(
-    'Administrador',
-    'administrador'
-  );
+    const card =
+      document.createElement(
+        'div'
+      );
 
-}
+    card.className =
+      'role-card';
 
-if(
-  usuario.rol === 'direccion'
-){
+    card.innerHTML = `
+      <h3>
+        ${opcion.titulo}
+      </h3>
 
-  crearBoton(
-    'Dirección',
-    'direccion'
-  );
+      <p>
+        ${opcion.descripcion}
+      </p>
+    `;
 
-}
+    card.addEventListener(
+      'click',
+      () => {
 
-function crearBoton(
-  texto,
-  modo
-){
+        localStorage.setItem(
+          'modoIngreso',
+          JSON.stringify({
+            rol:
+              opcion.codigo
+          })
+        );
 
-  const btn =
-    document.createElement(
-      'button'
-    );
-
-  btn.textContent =
-    texto;
-
-  btn.addEventListener(
-    'click',
-    () => {
-
-      saveMode(modo);
-
-      switch(modo){
-
-        case 'usuario':
-
-          location.href =
-            '/usuario/dashboard/';
-          break;
-
-        case 'supervisor':
-
-          location.href =
-            '/supervisor/dashboard/';
-          break;
-
-        case 'administrador':
-
-          location.href =
-            '/administrador/dashboard/';
-          break;
-
-        case 'direccion':
-
-          location.href =
-            '/direccion/dashboard/';
-          break;
+        redirectByRole(
+          opcion.codigo
+        );
 
       }
+    );
 
-    }
-  );
+    roleList.appendChild(
+      card
+    );
 
-  container.appendChild(btn);
+  }
+);
+
+function redirectByRole(
+  rol
+){
+
+  switch(rol){
+
+    case 'administrador':
+
+      window.location.href =
+        '/administrador/dashboard/index.html';
+
+      break;
+
+    case 'supervisor':
+
+      window.location.href =
+        '/supervisor/dashboard/index.html';
+
+      break;
+
+    case 'direccion':
+
+      window.location.href =
+        '/direccion/dashboard/index.html';
+
+      break;
+
+    default:
+
+      window.location.href =
+        '/usuario/dashboard/index.html';
+
+  }
 
 }
