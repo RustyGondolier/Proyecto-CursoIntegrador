@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Registro
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/shared/css/auth.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="auth-container">
+
+    <div class="auth-card auth-card-large">
+
+      <div class="logo-area">
+
+        <img
+          src="/assets/images/logo-utp-parking.png"
+          alt="UTP Parking"
+          class="logo"
+        >
+
+        <h1>
+          Crear Cuenta
+        </h1>
+
+      </div>
+
+      <form id="registerForm">
+
+        <div class="grid-2">
+
+          <div class="input-group">
+
+            <label>
+              Código universitario
+            </label>
+
+            <input
+              type="text"
+              id="codigo"
+              required
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Nombre completo
+            </label>
+
+            <input
+              type="text"
+              id="nombre"
+              required
+            >
+
+          </div>
+
+        </div>
+
+        <div class="grid-2">
+
+          <div class="input-group">
+
+            <label>
+              Contraseña
+            </label>
+
+            <div class="password-wrapper">
+
+              <input
+                type="password"
+                id="password"
+                required
+              >
+
+              <button
+                type="button"
+                id="togglePassword"
+              >
+                👁
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Fecha nacimiento
+            </label>
+
+            <input
+              type="date"
+              id="fechaNacimiento"
+              required
+            >
+
+          </div>
+
+        </div>
+
+        <div class="grid-2">
+
+          <div class="input-group">
+
+            <label>
+              Correo institucional
+            </label>
+
+            <input
+              type="email"
+              id="correo"
+              required
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Teléfono
+            </label>
+
+            <input
+              type="text"
+              id="telefono"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="grid-2">
+
+          <div class="input-group">
+
+            <label>
+              DNI
+            </label>
+
+            <input
+              type="text"
+              id="dni"
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Código CONADIS
+            </label>
+
+            <input
+              type="text"
+              id="conadis"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="grid-2">
+
+          <div class="input-group">
+
+            <label>
+              Licencia
+            </label>
+
+            <input
+              type="text"
+              id="licencia"
+              required
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Vencimiento licencia
+            </label>
+
+            <input
+              type="date"
+              id="licenciaVence"
+              required
+            >
+
+          </div>
+
+        </div>
+
+        <hr>
+
+        <h3>
+          Vehículo
+        </h3>
+
+        <div class="grid-3">
+
+          <div class="input-group">
+
+            <label>
+              Placa
+            </label>
+
+            <input
+              type="text"
+              id="placa"
+              required
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Modelo
+            </label>
+
+            <input
+              type="text"
+              id="modelo"
+              required
+            >
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Tipo vehículo
+            </label>
+
+            <select
+              id="tipoVehiculo"
+              required
+            >
+
+              <option value="1">
+                Automóvil
+              </option>
+
+              <option value="2">
+                Motocicleta
+              </option>
+
+              <option value="3">
+                Mototaxi
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary"
+        >
+          Registrar cuenta
+        </button>
+
+      </form>
+
+      <p
+        id="mensaje"
+        class="mensaje"
+      ></p>
+
+    </div>
+
+  </div>
+
+  <script src="/auth/js/register.js"></script>
+
+</body>
+
+</html>
