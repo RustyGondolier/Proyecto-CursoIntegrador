@@ -1,0 +1,60 @@
+.sidebar{
+
+  width:260px;
+
+  background:#fff;
+
+  border-right:1px solid #eee;
+
+  padding:20px;
+}
+
+.sidebar-user{
+
+  margin-bottom:20px;
+}
+
+.sidebar-menu{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+}
+
+.sidebar-menu a{
+
+  text-decoration:none;
+
+  color:#333;
+}
+
+.logout-btn{
+
+  margin-top:30px;
+}
+
+@media(max-width:768px){
+
+  .sidebar{
+
+    position:fixed;
+
+    left:-260px;
+
+    top:70px;
+
+    height:100%;
+
+    z-index:1000;
+
+    transition:.3s;
+  }
+
+  .sidebar.open{
+
+    left:0;
+  }
+
+}

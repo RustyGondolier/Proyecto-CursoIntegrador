@@ -35,6 +35,13 @@ app.use(
   require('./routes/auth.routes')
 );
 
+app.use(
+  '/api/estacionamientos',
+  require(
+    './routes/estacionamiento.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

@@ -1,0 +1,41 @@
+.app-header{
+
+  position:fixed;
+
+  top:0;
+
+  left:0;
+
+  right:0;
+
+  height:70px;
+
+  background:#B50E30;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  padding:0 20px;
+
+  border-bottom:
+    1px solid var(--color-border);
+
+  z-index:1000;
+}
+
+.menu-btn,
+.notification-btn{
+
+  background:none;
+
+  border:none;
+
+  color:#fff;
+
+  font-size:24px;
+
+  cursor:pointer;
+}

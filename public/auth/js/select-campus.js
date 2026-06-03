@@ -119,7 +119,7 @@ campus.forEach(
           );
 
           window.location.href =
-            '/usuario/dashboard/index.html';
+            '/usuario/dashboard/dashboard.html';
 
         }
       );
