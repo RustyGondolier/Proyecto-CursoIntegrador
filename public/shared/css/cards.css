@@ -1,0 +1,10 @@
+.card{
+
+  background:white;
+
+  border-radius:16px;
+
+  box-shadow:var(--shadow);
+
+  overflow:hidden;
+}

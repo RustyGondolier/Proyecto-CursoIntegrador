@@ -1,0 +1,45 @@
+.btn{
+
+  border:none;
+
+  cursor:pointer;
+
+  border-radius:12px;
+
+  padding:
+    12px 20px;
+
+  font-size:14px;
+
+  font-weight:600;
+
+  transition:.2s;
+}
+
+.btn-primary{
+
+  background:#B50E30;
+  color:white;
+}
+
+.btn-primary:hover{
+
+  background:#980C28;
+}
+
+.btn-secondary{
+
+  background:#F3F4F6;
+
+  color:#111827;
+}
+
+.btn-secondary:hover{
+
+  background:#E5E7EB;
+}
+
+.btn-block{
+
+  width:100%;
+}
