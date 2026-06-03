@@ -1,77 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | UTP Parking</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    Dashboard | UTP Parking
-  </title>
-
-	<link rel="stylesheet" href="/shared/css/layout.css">
-	<link rel="stylesheet" href="/shared/css/header.css">
-	<link rel="stylesheet" href="/shared/css/sidebar.css">
-
-	<link rel="stylesheet" href="/shared/css/variables.css">
-	<link rel="stylesheet" href="/shared/css/buttons.css">
-	<link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
   <link rel="stylesheet" href="./dashboard.css">
-
 </head>
-
 <body>
-
   <div id="headerContainer"></div>
 
   <div class="app-layout">
-
     <div id="sidebarContainer"></div>
 
     <main class="content">
-
-      <section class="welcome-card">
-
-        <h1 id="welcomeText">
-          Bienvenido
-        </h1>
-
+      <section class="card welcome-card">
+        <h1 id="welcomeText">Bienvenido</h1>
       </section>
 
-      <section
-        id="locationStatus"
-        class="location-card"
-      >
-      </section>
+      <section id="activeRequest" class="card request-card"></section>
 
-      <section
-        id="activeRequest"
-        class="request-card"
-      >
-      </section>
+      <section id="locationStatus" class="card location-card"></section>
 
-      <section
-        id="parkingContainer"
-        class="parking-grid"
-      >
-      </section>
-
+      <section id="parkingContainer" class="parking-grid"></section>
     </main>
-
   </div>
 
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
   <script src="/shared/js/layout.js"></script>
-
   <script src="/shared/js/sidebar.js"></script>
-
   <script src="/shared/js/geolocation.js"></script>
-
   <script src="./dashboard.js"></script>
-
 </body>
 </html>

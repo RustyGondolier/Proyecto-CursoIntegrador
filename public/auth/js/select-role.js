@@ -90,28 +90,28 @@ function redirectByRole(
     case 'administrador':
 
       window.location.href =
-        '/administrador/dashboard/index.html';
+        '/administrador/dashboard/dashboard.html';
 
       break;
 
     case 'supervisor':
 
       window.location.href =
-        '/supervisor/dashboard/index.html';
+        '/supervisor/dashboard/dashboard.html';
 
       break;
 
     case 'direccion':
 
       window.location.href =
-        '/direccion/dashboard/index.html';
+        '/direccion/dashboard/dashboard.html';
 
       break;
 
     default:
 
       window.location.href =
-        '/usuario/dashboard/index.html';
+        '/usuario/dashboard/dashboard.html';
 
   }
 

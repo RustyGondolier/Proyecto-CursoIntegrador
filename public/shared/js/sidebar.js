@@ -1,52 +1,58 @@
 function bindSidebar(){
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
 
-  const menuBtn =
-    document.getElementById(
-      'menuBtn'
-    );
+  if (!sidebar) return;
 
-  const sidebar =
-    document.getElementById(
-      'sidebar'
-    );
+  let overlay = document.getElementById('sidebarOverlay');
 
-  if(menuBtn){
-
-    menuBtn.addEventListener(
-      'click',
-      () => {
-
-        sidebar.classList.toggle(
-          'open'
-        );
-
-      }
-    );
-
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sidebarOverlay';
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
   }
 
-  const logoutBtn =
-    document.getElementById(
-      'logoutBtn'
-    );
-
-  if(logoutBtn){
-
-    logoutBtn.addEventListener(
-      'click',
-      () => {
-
-        localStorage.clear();
-
-        window.location.href =
-          '/auth/login.html';
-
-      }
-    );
-
+  function openSidebar(){
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    document.body.classList.add('sidebar-open');
   }
 
+  function closeSidebar(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.classList.remove('sidebar-open');
+  }
+
+  if (menuBtn) {
+    menuBtn.addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+  }
+
+  overlay.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSidebar();
+  });
+
+  document.querySelectorAll('.sidebar-menu a').forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/auth/login.html';
+    });
+  }
 }
 
-window.bindSidebar =
-  bindSidebar;
+window.bindSidebar = bindSidebar;
