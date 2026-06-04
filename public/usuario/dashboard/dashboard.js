@@ -39,6 +39,7 @@ async function renderActiveRequest() {
     document.getElementById('cancelRequestBtn')?.addEventListener('click', async () => {
       await apiFetch('/api/solicitudes/cancelar', { method: 'POST' });
       renderActiveRequest();
+      updateParkingGrid();
     });
   } catch {
     container.innerHTML = '<p>No tienes una solicitud activa.</p>';
@@ -77,6 +78,32 @@ async function renderParkingGrid() {
       : '<p>No hay estacionamientos disponibles.</p>';
   } catch {
     container.innerHTML = '<p>No se pudieron cargar los estacionamientos. Intenta de nuevo más tarde.</p>';
+  }
+}
+
+async function updateParkingGrid() {
+  try {
+    const response = await apiFetch('/api/estacionamientos/ocupacion');
+    if (!response.ok) return;
+
+    const estacionamientos = await response.json();
+    estacionamientos.forEach(e => {
+      const card = document.querySelector(`.parking-card[data-id="${e.id}"]`);
+      if (!card) return;
+
+      const autosPct = e.autos_total ? Math.round((e.autos_ocupados / e.autos_total) * 100) : 0;
+      const motosPct = e.motos_total ? Math.round((e.motos_ocupadas / e.motos_total) * 100) : 0;
+
+      const parrafos = card.querySelectorAll('.parking-body p');
+      if (parrafos[0]) parrafos[0].textContent = `Autos: ${e.autos_ocupados} / ${e.autos_total}`;
+      if (parrafos[1]) parrafos[1].textContent = `Motos: ${e.motos_ocupadas} / ${e.motos_total}`;
+
+      const fills = card.querySelectorAll('.progress-fill');
+      if (fills[0]) fills[0].style.width = `${autosPct}%`;
+      if (fills[1]) fills[1].style.width = `${motosPct}%`;
+    });
+  } catch {
+    /* silencioso */
   }
 }
 
@@ -125,9 +152,22 @@ document.addEventListener('click', async (e) => {
 
   if (e.target.classList.contains('request-btn')) {
     try {
+      /*
+      ============================================================
+      VALIDACIÓN DE GEOLOCALIZACIÓN
+      Descomentar junto con el bloque en solicitud.service.js
+      ============================================================
+      const position = await getCurrentPosition();
+      */
       const response = await apiFetch('/api/solicitudes/crear', {
         method: 'POST',
-        body: JSON.stringify({ estacionamiento_id: Number(id) })
+        body: JSON.stringify({
+          estacionamiento_id: Number(id),
+          /*
+          lat: position.lat,
+          lng: position.lng
+          */
+        })
       });
 
       if (!response.ok) {
@@ -138,10 +178,13 @@ document.addEventListener('click', async (e) => {
 
       alert('Solicitud creada con éxito');
       renderActiveRequest();
+      updateParkingGrid();
     } catch {
       alert('Error de conexión al solicitar plaza');
     }
   }
 });
+
+window.refreshParkingGrid = updateParkingGrid;
 
 init();

@@ -33,6 +33,16 @@ app.use(
 );
 
 app.use(
+  '/socket.io',
+  express.static(
+    path.join(
+      __dirname,
+      '../node_modules/socket.io/client-dist'
+    )
+  )
+);
+
+app.use(
   '/api/auth',
   require('./routes/auth.routes')
 );
@@ -86,16 +96,22 @@ app.get(
   }
 );
 
+const { initSocket } =
+  require('./config/socket');
+
 const PORT =
   process.env.PORT || 3000;
 
-app.listen(
-  PORT,
-  () => {
+const server =
+  app.listen(
+    PORT,
+    () => {
 
-    console.log(
-      `Servidor iniciado en puerto ${PORT}`
-    );
+      console.log(
+        `Servidor iniciado en puerto ${PORT}`
+      );
 
-  }
-);
+    }
+  );
+
+initSocket(server);
