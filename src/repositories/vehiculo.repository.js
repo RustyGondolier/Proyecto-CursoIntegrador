@@ -5,25 +5,32 @@ async function createVehicle(
   datos
 ){
 
-  await pool.query(
-    `
-    INSERT INTO vehiculos(
-      usuario_id,
-      tipo_vehiculo_id,
-      placa,
-      modelo
-    )
-    VALUES(
-      $1,$2,$3,$4
-    )
-    `,
-    [
-      datos.usuario_id,
-      datos.tipo_vehiculo_id,
-      datos.placa,
-      datos.modelo
-    ]
-  );
+  const resultado =
+    await pool.query(
+      `
+      INSERT INTO vehiculos(
+        usuario_id,
+        tipo_vehiculo_id,
+        placa,
+        modelo
+      )
+      VALUES(
+        $1,
+        (SELECT id FROM tipos_vehiculo WHERE codigo = $2),
+        $3,
+        $4
+      )
+      RETURNING *
+      `,
+      [
+        datos.usuario_id,
+        datos.tipo_vehiculo_id,
+        datos.placa,
+        datos.modelo
+      ]
+    );
+
+  return resultado.rows[0];
 
 }
 
@@ -83,9 +90,115 @@ async function existsByPlate(
 
 }
 
+async function getUserVehicles(
+  usuarioId
+){
+
+  const resultado =
+    await pool.query(
+      `
+      SELECT
+        v.id,
+        v.usuario_id,
+        tv.codigo AS tipo,
+        v.placa,
+        v.modelo,
+        v.activo,
+        v.creado_en
+      FROM vehiculos v
+      JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+      WHERE v.usuario_id = $1
+      ORDER BY v.activo DESC, v.id
+      `,
+      [usuarioId]
+    );
+
+  return resultado.rows;
+
+}
+
+async function updateVehicle(
+  id,
+  datos
+){
+
+  const resultado =
+    await pool.query(
+      `
+      UPDATE vehiculos
+      SET
+        placa = $1,
+        modelo = $2,
+        tipo_vehiculo_id = (
+          SELECT id FROM tipos_vehiculo WHERE codigo = $3
+        )
+      WHERE id = $4
+      RETURNING *
+      `,
+      [
+        datos.placa,
+        datos.modelo,
+        datos.tipo_vehiculo_id,
+        id
+      ]
+    );
+
+  return resultado.rows[0];
+
+}
+
+async function deleteVehicle(
+  id
+){
+
+  await pool.query(
+    `
+    DELETE FROM vehiculos
+    WHERE id = $1
+    `,
+    [id]
+  );
+
+}
+
+async function deactivateAll(
+  usuarioId
+){
+
+  await pool.query(
+    `
+    UPDATE vehiculos
+    SET activo = false
+    WHERE usuario_id = $1
+    `,
+    [usuarioId]
+  );
+
+}
+
+async function setActive(
+  id
+){
+
+  await pool.query(
+    `
+    UPDATE vehiculos
+    SET activo = true
+    WHERE id = $1
+    `,
+    [id]
+  );
+
+}
+
 module.exports = {
   createVehicle,
   getActiveVehicle,
   findByPlaca,
-  existsByPlate
+  existsByPlate,
+  getUserVehicles,
+  updateVehicle,
+  deleteVehicle,
+  deactivateAll,
+  setActive
 };

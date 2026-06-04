@@ -61,6 +61,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/usuarios',
+  require(
+    './routes/usuario.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

@@ -46,6 +46,10 @@
 
           <dl class="info-list">
             <div class="info-row">
+              <dt>Estado</dt>
+              <dd id="infoVerificado">—</dd>
+            </div>
+            <div class="info-row">
               <dt>Nombre</dt>
               <dd id="infoNombre">—</dd>
             </div>
@@ -146,22 +150,9 @@
           <input type="email" name="correo" id="formCorreo" placeholder="usuario@utp.edu.pe">
         </div>
 
-        <div class="form-row form-row-split">
-          <div>
-            <label>Código país</label>
-            <select name="pais" id="formPais">
-              <option value="+51" selected>Perú (+51)</option>
-              <option value="+54">Argentina (+54)</option>
-              <option value="+56">Chile (+56)</option>
-              <option value="+57">Colombia (+57)</option>
-              <option value="+52">México (+52)</option>
-              <option value="+34">España (+34)</option>
-            </select>
-          </div>
-          <div>
-            <label>Teléfono</label>
-            <input type="tel" name="telefono" id="formTelefono" placeholder="987654321" pattern="[0-9]{6,15}">
-          </div>
+        <div class="form-row">
+          <label>Teléfono</label>
+          <input type="tel" name="telefono" id="formTelefono" placeholder="+51 987654321" pattern="[\+0-9\s\-]{6,20}">
         </div>
 
         <div class="form-row">

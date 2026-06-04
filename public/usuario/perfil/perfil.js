@@ -1,13 +1,8 @@
 /* =====================================================
-   PERFIL DE USUARIO - Lógica frontend
-   - Carga datos desde sesión (getSessionUser)
-   - Datos extendidos (teléfono, correo, licencia, vehículos)
-     se persisten en sessionStorage en esta preview.
-   - Cuando exista /api/usuarios/me, reemplazar loadExtendedUser.
+   PERFIL DE USUARIO
+   API: /api/usuarios/me (perfil) y /api/usuarios/me/vehiculos
+   Cache en localStorage con clave 'perfil' para consistencia.
    ===================================================== */
-
-const STORAGE_EXTENDED = 'perfil_extendido';
-const STORAGE_VEHICLES = 'perfil_vehiculos';
 
 const ROL_LABELS = {
   estudiante: 'Estudiante',
@@ -23,7 +18,7 @@ const TIPO_LABELS = {
   mototaxi: 'Mototaxi'
 };
 
-let activeVehicleId = null;
+const PERFIL_CACHE_KEY = 'perfil';
 
 /* =====================================================
    INIT
@@ -35,63 +30,71 @@ async function init() {
   }
 
   await loadLayout();
-  loadSessionHeader();
-  loadExtendedUser();
-  loadVehicles();
+  await loadProfile();
   bindEvents();
 }
 
-function loadSessionHeader() {
-  const user = getSessionUser();
-  if (!user) return;
-
-  document.getElementById('profileName').textContent = user.nombre || 'Usuario';
-  document.getElementById('profileRole').textContent =
-    ROL_LABELS[user.rol] || user.rol || '—';
-  document.getElementById('profileCode').textContent =
-    user.codigo_universitario ? `Código: ${user.codigo_universitario}` : '';
-  document.getElementById('profileAvatar').textContent = getInitials(user.nombre);
-}
-
-function getInitials(nombre = '') {
-  return nombre
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(w => w[0] || '')
-    .join('')
-    .toUpperCase() || '?';
-}
-
 /* =====================================================
-   DATOS EXTENDIDOS (preview: sessionStorage)
-   Reemplazar por GET /api/usuarios/me cuando exista.
+   PERFIL — carga con fallback: API → localStorage → sesión
    ===================================================== */
-function loadExtendedUser() {
-  const data = readExtended();
-  const user = getSessionUser() || {};
+async function loadProfile() {
+  try {
+    const res = await apiFetch('/api/usuarios/me');
+    if (!res.ok) throw new Error('Error al cargar perfil');
 
-  const telefono = data.telefono
-    ? `${data.pais || '+51'} ${data.telefono}`
-    : '—';
+    const perfil = await res.json();
+    localStorage.setItem(PERFIL_CACHE_KEY, JSON.stringify(perfil));
+    renderProfile(perfil);
+    return;
+  } catch {
+    // Fallback 1: cache en localStorage
+    const raw = localStorage.getItem(PERFIL_CACHE_KEY);
+    if (raw) {
+      try {
+        renderProfile(JSON.parse(raw));
+        return;
+      } catch { /* ignorar parse inválido */ }
+    }
 
-  setField('infoNombre', user.nombre || '—');
-  setField('infoCorreo', data.correo || '—');
-  setField('infoTelefono', telefono);
-  setField('infoDni', data.dni || '—');
-
-  setField('licenciaNumero', data.nro_licencia || '—');
-  setLicenciaVence(data.licencia_fecha_vencimiento);
+    // Fallback 2: datos mínimos de sesión
+    const user = getSessionUser();
+    if (user) renderProfile({ nombre: user.nombre, codigo_universitario: user.codigo_universitario, rol: user.rol });
+  }
 }
 
-function setField(id, value) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = value;
-  el.classList.toggle('empty', !value || value === '—');
+function renderProfile(p) {
+  document.getElementById('profileName').textContent = p.nombre || 'Usuario';
+  document.getElementById('profileRole').textContent = ROL_LABELS[p.rol] || p.rol || '—';
+  document.getElementById('profileCode').textContent = p.codigo_universitario ? `Código: ${p.codigo_universitario}` : '';
+  document.getElementById('profileAvatar').textContent = getInitials(p.nombre);
+
+  setField('infoVerificado', null, renderVerificacion(p));
+  setField('infoNombre', p.nombre || '—');
+  setField('infoCorreo', p.correo_institucional || '—');
+  setField('infoTelefono', p.telefono || '—');
+  setField('infoDni', p.dni || '—');
+
+  setField('licenciaNumero', p.nro_licencia || '—');
+  renderLicenciaVence(p.licencia_fecha_vencimiento);
+
+  renderVehicles(p.vehiculos || []);
 }
 
-function setLicenciaVence(fecha) {
+function renderVerificacion(p) {
+  const el = document.createElement('span');
+
+  if (p.verificado) {
+    el.className = 'verificacion-badge ok';
+    el.textContent = 'Verificado';
+  } else {
+    el.className = 'verificacion-badge fail';
+    el.textContent = p.requiere_reverificacion ? 'Requiere verificación' : 'No verificado';
+  }
+
+  return el;
+}
+
+function renderLicenciaVence(fecha) {
   const el = document.getElementById('licenciaVence');
   if (!el) return;
 
@@ -102,13 +105,14 @@ function setLicenciaVence(fecha) {
     return;
   }
 
-  const d = new Date(fecha + 'T00:00:00');
+  const dateStr = fecha.includes('T') ? fecha.split('T')[0] : fecha;
+  const d = new Date(dateStr + 'T00:00:00');
+
   const formatted = d.toLocaleDateString('es-PE', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
 
   const status = getLicenciaStatus(d);
-
   el.innerHTML = `${formatted}<span class="licencia-status ${status.cls}">${status.label}</span>`;
 }
 
@@ -118,60 +122,54 @@ function getLicenciaStatus(date) {
 
   const diffDays = Math.floor((date - hoy) / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) {
-    return { cls: 'expired', label: 'Vencida' };
-  }
-  if (diffDays <= 30) {
-    return { cls: 'warn', label: `Por vencer (${diffDays}d)` };
-  }
+  if (diffDays < 0) return { cls: 'expired', label: 'Vencida' };
+  if (diffDays <= 30) return { cls: 'warn', label: `Por vencer (${diffDays}d)` };
   return { cls: 'ok', label: 'Vigente' };
 }
 
-function readExtended() {
-  try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_EXTENDED)) || {};
-  } catch {
-    return {};
-  }
+function getInitials(nombre) {
+  return (nombre || '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0] || '')
+    .join('')
+    .toUpperCase() || '?';
 }
 
-function writeExtended(data) {
-  sessionStorage.setItem(STORAGE_EXTENDED, JSON.stringify(data));
+function setField(id, value, node) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  if (node) {
+    el.innerHTML = '';
+    el.appendChild(node);
+    return;
+  }
+
+  el.textContent = value;
+  el.classList.toggle('empty', !value || value === '—');
 }
 
 /* =====================================================
-   VEHÍCULOS (preview: sessionStorage)
+   VEHÍCULOS
    ===================================================== */
-function loadVehicles() {
-  const list = readVehicles();
-  activeVehicleId = list.find(v => v.activo)?.id ?? null;
+function renderVehicles(list) {
+  if (!list) list = [];
 
-  renderActiveVehicle();
-  renderVehiclesGrid();
+  renderActiveVehicle(list);
+  renderVehiclesGrid(list);
 }
 
-function readVehicles() {
-  try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_VEHICLES)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function writeVehicles(list) {
-  sessionStorage.setItem(STORAGE_VEHICLES, JSON.stringify(list));
-}
-
-function renderActiveVehicle() {
+function renderActiveVehicle(list) {
   const box = document.getElementById('activeVehicleBox');
   if (!box) return;
 
-  const list = readVehicles();
-  const active = list.find(v => v.id === activeVehicleId);
+  const active = list.find(v => v.activo);
 
   if (!active) {
     box.className = 'active-vehicle empty';
-    box.innerHTML = '<p class="empty-state">No tienes un vehículo asignado. Agrega uno y márcalo como asignado.</p>';
+    box.innerHTML = '<p class="empty-state">No tienes un vehículo asignado.</p>';
     return;
   }
 
@@ -186,24 +184,24 @@ function renderActiveVehicle() {
   `;
 }
 
-function renderVehiclesGrid() {
+function renderVehiclesGrid(list) {
   const grid = document.getElementById('vehiclesGrid');
   if (!grid) return;
 
-  const list = readVehicles();
+  const activeId = list.find(v => v.activo)?.id;
 
   const cards = list.map(v => `
-    <article class="vehicle-card ${v.id === activeVehicleId ? 'vehicle-card-active' : ''}" data-id="${v.id}">
+    <article class="vehicle-card ${v.id === activeId ? 'vehicle-card-active' : ''}" data-id="${v.id}">
       <div class="vehicle-card-head">
         <div class="vehicle-icon">${tipoLetra(v.tipo)}</div>
-        <span class="vehicle-badge ${v.id === activeVehicleId ? '' : 'vehicle-badge-muted'}">
-          ${v.id === activeVehicleId ? 'Asignado' : 'Inactivo'}
+        <span class="vehicle-badge ${v.id === activeId ? '' : 'vehicle-badge-muted'}">
+          ${v.id === activeId ? 'Asignado' : 'Inactivo'}
         </span>
       </div>
       <p class="vehicle-plate">${v.placa}</p>
       <p class="vehicle-detail">${TIPO_LABELS[v.tipo] || v.tipo} · ${v.modelo || '—'}</p>
       <div class="vehicle-actions">
-        ${v.id !== activeVehicleId
+        ${v.id !== activeId
           ? `<button class="btn btn-secondary btn-sm" data-action="assign">Asignar</button>`
           : ''}
         <button class="btn btn-secondary btn-sm" data-action="edit">Editar</button>
@@ -229,34 +227,26 @@ function tipoLetra(tipo) {
    EVENTOS
    ===================================================== */
 function bindEvents() {
-  // Editar perfil
   document.getElementById('editProfileBtn').addEventListener('click', openEditProfileModal);
   document.getElementById('editProfileForm').addEventListener('submit', saveProfile);
 
-  // Licencia
   document.getElementById('editLicenciaBtn').addEventListener('click', openEditProfileModal);
 
-  // Vehículos: agregar
   document.getElementById('addVehicleBtn').addEventListener('click', () => openVehicleModal(null));
   document.getElementById('vehicleForm').addEventListener('submit', saveVehicle);
 
-  // Cambiar vehículo asignado
   document.getElementById('changeVehicleBtn').addEventListener('click', openChangeVehicleModal);
 
-  // Grid de vehículos (delegación)
   document.getElementById('vehiclesGrid').addEventListener('click', handleVehicleGridClick);
 
-  // Cerrar modales
   document.querySelectorAll('[data-close-modal]').forEach(el => {
     el.addEventListener('click', closeAllModals);
   });
 
-  // Logout
   document.getElementById('logoutBtn').addEventListener('click', () => {
     if (confirm('¿Cerrar sesión?')) logout();
   });
 
-  // Esc cierra modales
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeAllModals();
   });
@@ -281,47 +271,66 @@ function closeAllModals() {
 }
 
 /* ----- EDITAR PERFIL ----- */
-function openEditProfileModal() {
-  const user = getSessionUser() || {};
-  const data = readExtended();
+async function openEditProfileModal() {
+  let p = {};
 
-  document.getElementById('formNombre').value = user.nombre || '';
-  document.getElementById('formCorreo').value = data.correo || '';
-  document.getElementById('formPais').value = data.pais || '+51';
-  document.getElementById('formTelefono').value = data.telefono || '';
-  document.getElementById('formDni').value = data.dni || '';
-  document.getElementById('formLicencia').value = data.nro_licencia || '';
-  document.getElementById('formLicenciaVence').value = data.licencia_fecha_vencimiento || '';
+  try {
+    const res = await apiFetch('/api/usuarios/me');
+    if (res.ok) p = await res.json();
+  } catch {
+    // fallback a cache local
+    const raw = localStorage.getItem(PERFIL_CACHE_KEY);
+    if (raw) try { p = JSON.parse(raw); } catch { /* ignorar */ }
+  }
+
+  document.getElementById('formNombre').value = p.nombre || '';
+  document.getElementById('formCorreo').value = p.correo_institucional || '';
+  document.getElementById('formTelefono').value = p.telefono || '';
+  document.getElementById('formDni').value = p.dni || '';
+  document.getElementById('formLicencia').value = p.nro_licencia || '';
+  document.getElementById('formLicenciaVence').value = p.licencia_fecha_vencimiento || '';
 
   openModal('editProfileModal');
 }
 
-function saveProfile(e) {
+async function saveProfile(e) {
   e.preventDefault();
 
-  const user = getSessionUser() || {};
-  const newName = document.getElementById('formNombre').value.trim();
-
-  const data = {
-    correo: document.getElementById('formCorreo').value.trim() || null,
-    pais: document.getElementById('formPais').value,
-    telefono: document.getElementById('formTelefono').value.trim() || null,
-    dni: document.getElementById('formDni').value.trim() || null,
-    nro_licencia: document.getElementById('formLicencia').value.trim() || null,
-    licencia_fecha_vencimiento: document.getElementById('formLicenciaVence').value || null
+  const body = {
+    nombre: document.getElementById('formNombre').value.trim() || undefined,
+    correo_institucional: document.getElementById('formCorreo').value.trim() || undefined,
+    telefono: document.getElementById('formTelefono').value.trim() || undefined,
+    dni: document.getElementById('formDni').value.trim() || undefined,
+    nro_licencia: document.getElementById('formLicencia').value.trim() || undefined,
+    licencia_fecha_vencimiento: document.getElementById('formLicenciaVence').value || undefined
   };
 
-  writeExtended(data);
+  try {
+    const res = await apiFetch('/api/usuarios/me', {
+      method: 'PUT',
+      body: JSON.stringify(body)
+    });
 
-  // Actualizar nombre en sesión si cambió
-  if (newName && newName !== user.nombre) {
-    user.nombre = newName;
-    localStorage.setItem('usuario', JSON.stringify(user));
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Error al guardar');
+      return;
+    }
+
+    // Actualizar nombre en sesión para que sidebar lo refleje
+    if (body.nombre) {
+      const user = getSessionUser();
+      if (user) {
+        user.nombre = body.nombre;
+        localStorage.setItem('usuario', JSON.stringify(user));
+      }
+    }
+
+    closeAllModals();
+    loadProfile();
+  } catch {
+    alert('Error de conexión al guardar el perfil');
   }
-
-  loadSessionHeader();
-  loadExtendedUser();
-  closeAllModals();
 }
 
 /* ----- VEHÍCULOS ----- */
@@ -331,13 +340,20 @@ function openVehicleModal(id) {
   document.getElementById('vehicleId').value = '';
 
   if (id) {
-    const v = readVehicles().find(x => x.id === id);
-    if (!v) return;
+    const v = document.querySelector(`.vehicle-card[data-id="${id}"]`);
+    const plate = v?.querySelector('.vehicle-plate')?.textContent || '';
+    const detail = v?.querySelector('.vehicle-detail')?.textContent || '';
+
     document.getElementById('vehicleModalTitle').textContent = 'Editar vehículo';
-    document.getElementById('vehicleId').value = v.id;
-    document.getElementById('formPlaca').value = v.placa;
-    document.getElementById('formTipo').value = v.tipo;
-    document.getElementById('formModelo').value = v.modelo || '';
+    document.getElementById('vehicleId').value = id;
+    document.getElementById('formPlaca').value = plate;
+
+    // Inferir tipo desde el texto del detalle
+    const tipo = Object.entries(TIPO_LABELS).find(([, label]) => detail.startsWith(label))?.[0] || 'auto';
+    document.getElementById('formTipo').value = tipo;
+
+    const modelo = detail.replace(/^(Auto|Moto|Mototaxi) · /, '');
+    document.getElementById('formModelo').value = modelo;
   } else {
     document.getElementById('vehicleModalTitle').textContent = 'Agregar vehículo';
   }
@@ -345,43 +361,42 @@ function openVehicleModal(id) {
   openModal('vehicleModal');
 }
 
-function saveVehicle(e) {
+async function saveVehicle(e) {
   e.preventDefault();
 
   const id = document.getElementById('vehicleId').value;
-  const data = {
+  const body = {
     placa: document.getElementById('formPlaca').value.trim().toUpperCase(),
-    tipo: document.getElementById('formTipo').value,
+    tipo_vehiculo_id: document.getElementById('formTipo').value,
     modelo: document.getElementById('formModelo').value.trim()
   };
 
-  const list = readVehicles();
+  try {
+    const url = '/api/usuarios/me/vehiculos' + (id ? `/${id}` : '');
+    const method = id ? 'PUT' : 'POST';
 
-  if (id) {
-    const idx = list.findIndex(v => v.id === id);
-    if (idx >= 0) {
-      list[idx] = { ...list[idx], ...data };
-    }
-  } else {
-    list.push({
-      id: crypto.randomUUID(),
-      ...data,
-      activo: false
+    const res = await apiFetch(url, {
+      method,
+      body: JSON.stringify(body)
     });
-  }
 
-  writeVehicles(list);
-  loadVehicles();
-  closeAllModals();
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Error al guardar vehículo');
+      return;
+    }
+
+    closeAllModals();
+    loadProfile();
+  } catch {
+    alert('Error de conexión');
+  }
 }
 
-function handleVehicleGridClick(e) {
+async function handleVehicleGridClick(e) {
   const card = e.target.closest('.vehicle-card');
   const addCard = e.target.closest('#addVehicleCard');
-  if (addCard) {
-    openVehicleModal(null);
-    return;
-  }
+  if (addCard) { openVehicleModal(null); return; }
   if (!card) return;
 
   const id = card.dataset.id;
@@ -390,35 +405,56 @@ function handleVehicleGridClick(e) {
   if (action === 'edit') openVehicleModal(id);
   if (action === 'delete') {
     if (!confirm('¿Eliminar este vehículo?')) return;
-    const list = readVehicles().filter(v => v.id !== id);
-    if (id === activeVehicleId) activeVehicleId = null;
-    writeVehicles(list);
-    loadVehicles();
+
+    try {
+      const res = await apiFetch(`/api/usuarios/me/vehiculos/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || 'Error al eliminar');
+        return;
+      }
+      loadProfile();
+    } catch {
+      alert('Error de conexión');
+    }
   }
   if (action === 'assign') {
-    setActiveVehicle(id);
+    try {
+      const res = await apiFetch(`/api/usuarios/me/vehiculos/${id}/activar`, { method: 'PATCH' });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || 'Error al asignar');
+        return;
+      }
+      loadProfile();
+    } catch {
+      alert('Error de conexión');
+    }
   }
-}
-
-function setActiveVehicle(id) {
-  const list = readVehicles();
-  list.forEach(v => v.activo = v.id === id);
-  activeVehicleId = id;
-  writeVehicles(list);
-  loadVehicles();
 }
 
 /* ----- CAMBIAR VEHÍCULO ASIGNADO ----- */
-function openChangeVehicleModal() {
-  const list = readVehicles();
+async function openChangeVehicleModal() {
+  let list = [];
+
+  try {
+    const res = await apiFetch('/api/usuarios/me/vehiculos');
+    if (res.ok) list = await res.json();
+  } catch {
+    // fallback a cache local
+    const raw = localStorage.getItem(PERFIL_CACHE_KEY);
+    if (raw) try { list = JSON.parse(raw).vehiculos || []; } catch { /* ignorar */ }
+  }
+
   const container = document.getElementById('changeVehicleList');
+  const activeId = list.find(v => v.activo)?.id;
 
   if (list.length === 0) {
     container.innerHTML = '<p class="empty-state">Aún no tienes vehículos. Agrega uno primero.</p>';
   } else {
     container.innerHTML = list.map(v => `
-      <label class="change-vehicle-item ${v.id === activeVehicleId ? 'selected' : ''}">
-        <input type="radio" name="activeVehicle" value="${v.id}" ${v.id === activeVehicleId ? 'checked' : ''}>
+      <label class="change-vehicle-item ${v.id === activeId ? 'selected' : ''}">
+        <input type="radio" name="activeVehicle" value="${v.id}" ${v.id === activeId ? 'checked' : ''}>
         <div class="vehicle-icon">${tipoLetra(v.tipo)}</div>
         <div class="vehicle-info">
           <p class="vehicle-plate">${v.placa}</p>
@@ -431,9 +467,13 @@ function openChangeVehicleModal() {
   openModal('changeVehicleModal');
 
   container.querySelectorAll('input[name="activeVehicle"]').forEach(radio => {
-    radio.addEventListener('change', e => {
-      setActiveVehicle(e.target.value);
-      setTimeout(closeAllModals, 200);
+    radio.addEventListener('change', async e => {
+      try {
+        const res = await apiFetch(`/api/usuarios/me/vehiculos/${e.target.value}/activar`, { method: 'PATCH' });
+        if (!res.ok) return;
+        setTimeout(closeAllModals, 200);
+        loadProfile();
+      } catch { /* ignore */ }
     });
   });
 }

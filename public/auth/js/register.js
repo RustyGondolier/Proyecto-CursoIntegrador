@@ -138,13 +138,11 @@ form.addEventListener(
                   .value,
 
               tipo_vehiculo_id:
-                Number(
                   document
                     .getElementById(
                       'tipoVehiculo'
                     )
                     .value
-                )
 
             })
 
