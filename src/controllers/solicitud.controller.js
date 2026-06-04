@@ -1,0 +1,46 @@
+const solicitudService = require('../services/solicitud.service');
+
+async function crear(req, res) {
+  try {
+    const { estacionamiento_id } = req.body;
+
+    if (!estacionamiento_id || typeof estacionamiento_id !== 'number') {
+      return res.status(400).json({ error: 'estacionamiento_id es requerido y debe ser un número' });
+    }
+
+    const data = await solicitudService.crear(req.usuario.id, estacionamiento_id);
+    res.status(201).json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  }
+}
+
+async function activa(req, res) {
+  try {
+    const data = await solicitudService.obtenerActiva(req.usuario.id);
+    if (!data) {
+      return res.status(404).json({ error: 'No tienes una solicitud activa' });
+    }
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+}
+
+async function cancelar(req, res) {
+  try {
+    const data = await solicitudService.cancelar(req.usuario.id);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  }
+}
+
+module.exports = {
+  crear,
+  activa,
+  cancelar
+};
