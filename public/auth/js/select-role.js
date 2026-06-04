@@ -1,3 +1,5 @@
+requireAuth();
+
 const usuario =
   JSON.parse(
     localStorage.getItem(
