@@ -75,14 +75,6 @@ async function obtenerActiva(usuarioId) {
   const solicitud = await solicitudRepository.findActiveByUser(usuarioId);
   if (!solicitud) return null;
 
-  if (solicitud.hora_limite_ingreso && new Date(solicitud.hora_limite_ingreso) < new Date()) {
-    const expiradas = await solicitudRepository.expireOlderThan(new Date());
-    if (expiradas.length > 0) {
-      try { getIO().emit('ocupacion:updated'); } catch (_) {}
-    }
-    return null;
-  }
-
   return formatearSolicitud(solicitud);
 }
 
