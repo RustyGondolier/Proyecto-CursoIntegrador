@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil | UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./perfil.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+
+      <!-- ENCABEZADO DE PERFIL -->
+      <section class="card profile-header">
+        <div class="profile-header-info">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+          <div class="profile-identity">
+            <h1 id="profileName">Cargando...</h1>
+            <p class="profile-role" id="profileRole">—</p>
+            <p class="profile-code" id="profileCode">—</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="editProfileBtn">
+          Editar perfil
+        </button>
+      </section>
+
+      <div class="profile-grid">
+
+        <!-- INFORMACIÓN PERSONAL -->
+        <section class="card profile-section">
+          <div class="section-head">
+            <h2>Información personal</h2>
+          </div>
+
+          <dl class="info-list">
+            <div class="info-row">
+              <dt>Nombre</dt>
+              <dd id="infoNombre">—</dd>
+            </div>
+            <div class="info-row">
+              <dt>Correo</dt>
+              <dd id="infoCorreo">—</dd>
+            </div>
+            <div class="info-row">
+              <dt>Teléfono</dt>
+              <dd id="infoTelefono">—</dd>
+            </div>
+            <div class="info-row">
+              <dt>DNI</dt>
+              <dd id="infoDni">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- VEHÍCULO ASIGNADO -->
+        <section class="card profile-section">
+          <div class="section-head">
+            <h2>Vehículo asignado</h2>
+            <button class="btn btn-secondary btn-sm" id="changeVehicleBtn">
+              Cambiar
+            </button>
+          </div>
+
+          <div id="activeVehicleBox" class="active-vehicle">
+            <p class="empty-state">No tienes un vehículo asignado.</p>
+          </div>
+        </section>
+
+        <!-- LICENCIA -->
+        <section class="card profile-section">
+          <div class="section-head">
+            <h2>Licencia de conducir</h2>
+            <button class="btn btn-secondary btn-sm" id="editLicenciaBtn">
+              Editar
+            </button>
+          </div>
+
+          <dl class="info-list">
+            <div class="info-row">
+              <dt>Número</dt>
+              <dd id="licenciaNumero">—</dd>
+            </div>
+            <div class="info-row">
+              <dt>Vencimiento</dt>
+              <dd id="licenciaVence">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- MIS VEHÍCULOS -->
+        <section class="card profile-section profile-section-wide">
+          <div class="section-head">
+            <h2>Mis vehículos</h2>
+            <button class="btn btn-primary btn-sm" id="addVehicleBtn">
+              + Agregar vehículo
+            </button>
+          </div>
+
+          <div id="vehiclesGrid" class="vehicles-grid">
+            <!-- se llena con JS -->
+          </div>
+        </section>
+
+        <!-- SESIÓN -->
+        <section class="card profile-section profile-section-danger">
+          <div class="section-head">
+            <h2>Sesión</h2>
+          </div>
+          <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: EDITAR PERFIL -->
+  <div class="modal" id="editProfileModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <h2>Editar perfil</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+
+      <form id="editProfileForm" class="modal-body">
+        <div class="form-row">
+          <label>Nombre completo</label>
+          <input type="text" name="nombre" id="formNombre" required>
+        </div>
+
+        <div class="form-row">
+          <label>Correo institucional</label>
+          <input type="email" name="correo" id="formCorreo" placeholder="usuario@utp.edu.pe">
+        </div>
+
+        <div class="form-row form-row-split">
+          <div>
+            <label>Código país</label>
+            <select name="pais" id="formPais">
+              <option value="+51" selected>Perú (+51)</option>
+              <option value="+54">Argentina (+54)</option>
+              <option value="+56">Chile (+56)</option>
+              <option value="+57">Colombia (+57)</option>
+              <option value="+52">México (+52)</option>
+              <option value="+34">España (+34)</option>
+            </select>
+          </div>
+          <div>
+            <label>Teléfono</label>
+            <input type="tel" name="telefono" id="formTelefono" placeholder="987654321" pattern="[0-9]{6,15}">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>DNI</label>
+          <input type="text" name="dni" id="formDni" maxlength="15" pattern="[0-9]{6,15}">
+        </div>
+
+        <div class="form-row">
+          <label>N° de licencia</label>
+          <input type="text" name="nro_licencia" id="formLicencia" maxlength="20">
+        </div>
+
+        <div class="form-row">
+          <label>Fecha de vencimiento de licencia</label>
+          <input type="date" name="licencia_fecha_vencimiento" id="formLicenciaVence">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR / EDITAR VEHÍCULO -->
+  <div class="modal" id="vehicleModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <h2 id="vehicleModalTitle">Agregar vehículo</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+
+      <form id="vehicleForm" class="modal-body">
+        <input type="hidden" name="id" id="vehicleId">
+
+        <div class="form-row">
+          <label>Placa</label>
+          <input type="text" name="placa" id="formPlaca" maxlength="20" placeholder="ABC-123" required>
+        </div>
+
+        <div class="form-row">
+          <label>Tipo de vehículo</label>
+          <select name="tipo_vehiculo_id" id="formTipo" required>
+            <option value="auto">Automóvil</option>
+            <option value="moto">Motocicleta</option>
+            <option value="mototaxi">Mototaxi</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Modelo (marca y modelo)</label>
+          <input type="text" name="modelo" id="formModelo" maxlength="120" placeholder="Toyota Corolla 2022" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar vehículo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CAMBIAR VEHÍCULO ASIGNADO -->
+  <div class="modal" id="changeVehicleModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog modal-dialog-sm">
+      <div class="modal-head">
+        <h2>Selecciona un vehículo</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+
+      <div id="changeVehicleList" class="modal-body change-vehicle-list">
+        <!-- se llena con JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="./perfil.js"></script>
+</body>
+</html>
