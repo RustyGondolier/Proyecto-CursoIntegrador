@@ -91,20 +91,66 @@ async function updateProfile(
     `
     UPDATE usuarios
     SET
-      nombre = $1,
-      telefono = $2,
-      correo_institucional = $3,
-      licencia_fecha_vencimiento = $4
-    WHERE id = $5
+      nombre = COALESCE($1, nombre),
+      telefono = COALESCE($2, telefono),
+      correo_institucional = COALESCE($3, correo_institucional),
+      licencia_fecha_vencimiento = COALESCE($4, licencia_fecha_vencimiento),
+      dni = COALESCE($5, dni),
+      nro_licencia = COALESCE($6, nro_licencia)
+    WHERE id = $7
     `,
     [
-      datos.nombre,
-      datos.telefono,
-      datos.correo_institucional,
-      datos.licencia_fecha_vencimiento,
+      datos.nombre ?? null,
+      datos.telefono ?? null,
+      datos.correo_institucional ?? null,
+      datos.licencia_fecha_vencimiento ?? null,
+      datos.dni ?? null,
+      datos.nro_licencia ?? null,
       id
     ]
   );
+
+}
+
+async function getProfileWithVehicles(
+  userId
+){
+
+  const resultado =
+    await pool.query(
+      `
+      SELECT
+        u.id,
+        u.codigo_universitario,
+        u.nombre,
+        u.rol,
+        u.telefono,
+        u.dni,
+        u.correo_institucional,
+        u.nro_licencia,
+        u.licencia_fecha_vencimiento,
+        u.verificado,
+        u.requiere_reverificacion,
+        json_agg(
+          json_build_object(
+            'id', v.id,
+            'tipo', tv.codigo,
+            'placa', v.placa,
+            'modelo', v.modelo,
+            'activo', v.activo
+          )
+          ORDER BY v.activo DESC, v.id
+        ) FILTER (WHERE v.id IS NOT NULL) AS vehiculos
+      FROM usuarios u
+      LEFT JOIN vehiculos v ON v.usuario_id = u.id
+      LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+      WHERE u.id = $1
+      GROUP BY u.id
+      `,
+      [userId]
+    );
+
+  return resultado.rows[0] || null;
 
 }
 
@@ -133,5 +179,6 @@ module.exports = {
   findById,
   create,
   updateProfile,
+  getProfileWithVehicles,
   existsByCode
 };
