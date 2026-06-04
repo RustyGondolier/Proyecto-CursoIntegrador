@@ -1,3 +1,5 @@
+let timerInterval = null;
+
 async function init() {
   if (!isAuthenticated()) {
     window.location.href = '/auth/login.html';
@@ -19,6 +21,7 @@ async function init() {
 async function renderActiveRequest() {
   const container = document.getElementById('activeRequest');
   container.innerHTML = '<p>Cargando solicitud activa...</p>';
+  clearInterval(timerInterval);
 
   try {
     const response = await apiFetch('/api/solicitudes/activa');
@@ -32,11 +35,32 @@ async function renderActiveRequest() {
       <h3>Solicitud activa</h3>
       <p><strong>Estacionamiento:</strong> ${data.estacionamiento_nombre}</p>
       <p><strong>Estado:</strong> ${data.estado}</p>
-      <p><strong>Tiempo restante:</strong> ${data.tiempo_restante || '—'}</p>
+      <p><strong>Tiempo restante:</strong> <span id="timeLeft">${data.tiempo_restante || '—'}</span></p>
       <button class="btn btn-secondary" id="cancelRequestBtn">Cancelar solicitud</button>
     `;
 
+    if (data.hora_limite_ingreso) {
+      const fin = new Date(data.hora_limite_ingreso).getTime();
+
+      timerInterval = setInterval(() => {
+        const diff = Math.max(0, Math.floor((fin - Date.now()) / 1000));
+        const el = document.getElementById('timeLeft');
+
+        if (diff <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          if (el) el.textContent = 'Expirado';
+          updateParkingGrid();
+          return;
+        }
+
+        if (el) el.textContent = `${Math.floor(diff / 60)} min ${diff % 60} s`;
+      }, 1000);
+    }
+
     document.getElementById('cancelRequestBtn')?.addEventListener('click', async () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
       await apiFetch('/api/solicitudes/cancelar', { method: 'POST' });
       renderActiveRequest();
       updateParkingGrid();
