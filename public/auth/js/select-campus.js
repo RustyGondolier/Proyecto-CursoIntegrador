@@ -32,6 +32,8 @@ const campus = [
 
 ];
 
+requireAuth();
+
 const container =
   document.getElementById(
     'campusList'

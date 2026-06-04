@@ -99,7 +99,38 @@ AUTENTICADO
 
 function isAuthenticated(){
 
-  return !!getToken();
+  const token = getToken();
+
+  if(!token){
+    return false;
+  }
+
+  try{
+
+    const payload =
+      JSON.parse(
+        atob(
+          token.split('.')[1]
+        )
+      );
+
+    if(
+      payload.exp &&
+      Date.now() >=
+        payload.exp * 1000
+    ){
+      logout();
+      return false;
+    }
+
+    return true;
+
+  }catch(e){
+
+    logout();
+    return false;
+
+  }
 
 }
 
