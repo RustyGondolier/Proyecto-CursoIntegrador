@@ -58,10 +58,19 @@ async function expireOlderThan(timestamp) {
   return result.rows;
 }
 
+async function assignPlaza(id, plazaId) {
+  const result = await pool.query(
+    `UPDATE solicitudes_estacionamiento SET plaza_asignada_id = $1 WHERE id = $2 RETURNING *`,
+    [plazaId, id]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   create,
   findActiveByUser,
   findById,
   cancel,
-  expireOlderThan
+  expireOlderThan,
+  assignPlaza
 };

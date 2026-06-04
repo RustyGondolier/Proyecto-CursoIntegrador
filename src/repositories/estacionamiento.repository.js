@@ -24,7 +24,15 @@ async function getOcupacion(){
             AND p.estado = 'ocupada'
             THEN p.id
           END
-        ) AS autos_ocupados,
+        ) + COALESCE((
+          SELECT COUNT(*)
+          FROM solicitudes_estacionamiento s
+          JOIN vehiculos v ON v.id = s.vehiculo_id
+          JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+          WHERE s.estacionamiento_id = e.id
+            AND s.estado = 'pendiente'
+            AND tv.categoria_plaza = 'auto'
+        ), 0) AS autos_ocupados,
 
         COUNT(
           CASE
@@ -39,7 +47,15 @@ async function getOcupacion(){
             AND p.estado = 'ocupada'
             THEN p.id
           END
-        ) AS motos_ocupadas
+        ) + COALESCE((
+          SELECT COUNT(*)
+          FROM solicitudes_estacionamiento s
+          JOIN vehiculos v ON v.id = s.vehiculo_id
+          JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+          WHERE s.estacionamiento_id = e.id
+            AND s.estado = 'pendiente'
+            AND tv.categoria_plaza = 'moto'
+        ), 0) AS motos_ocupadas
 
       FROM estacionamientos e
 

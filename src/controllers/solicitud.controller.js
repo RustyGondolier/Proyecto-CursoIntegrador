@@ -2,13 +2,13 @@ const solicitudService = require('../services/solicitud.service');
 
 async function crear(req, res) {
   try {
-    const { estacionamiento_id } = req.body;
+    const { estacionamiento_id, lat, lng } = req.body;
 
     if (!estacionamiento_id || typeof estacionamiento_id !== 'number') {
       return res.status(400).json({ error: 'estacionamiento_id es requerido y debe ser un número' });
     }
 
-    const data = await solicitudService.crear(req.usuario.id, estacionamiento_id);
+    const data = await solicitudService.crear(req.usuario.id, estacionamiento_id, { lat, lng });
     res.status(201).json(data);
   } catch (err) {
     console.error(err);
