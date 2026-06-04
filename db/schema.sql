@@ -12,7 +12,7 @@ CREATE TABLE sedes (
     longitud DECIMAL(11,8),
     radio_permitido_metros INTEGER DEFAULT 2500,
     activo BOOLEAN DEFAULT true,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 INSERT INTO sedes (nombre, ubicacion, latitud, longitud, radio_permitido_metros)
@@ -39,9 +39,9 @@ CREATE TABLE usuarios (
     verificado BOOLEAN DEFAULT false,
     requiere_reverificacion BOOLEAN DEFAULT true,
     verificado_por INTEGER REFERENCES usuarios(id),
-    verificado_en TIMESTAMP,
+    verificado_en TIMESTAMPTZ,
     preferencia_tema VARCHAR(10) DEFAULT 'claro' CHECK (preferencia_tema IN ('claro', 'oscuro')),
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 3. TIPOS DE VEHICULO
@@ -64,7 +64,7 @@ CREATE TABLE vehiculos (
     placa VARCHAR(20) UNIQUE NOT NULL,
     modelo VARCHAR(120),
     activo BOOLEAN DEFAULT true,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 5. HISTORIAL DE ACCESOS
@@ -74,7 +74,7 @@ CREATE TABLE historial_accesos (
     estado VARCHAR(15) NOT NULL CHECK (estado IN ('exitoso', 'fallido')),
     ip_origen VARCHAR(45),
     user_agent TEXT,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 6. ESTACIONAMIENTOS
@@ -136,13 +136,13 @@ CREATE TABLE solicitudes_estacionamiento (
     supervisor_ingreso_id INTEGER REFERENCES usuarios(id),
     supervisor_salida_id INTEGER REFERENCES usuarios(id),
     identificador_codigo VARCHAR(20),
-    hora_solicitud TIMESTAMP DEFAULT NOW(),
-    hora_limite_ingreso TIMESTAMP NOT NULL,
-    hora_ingreso TIMESTAMP,
-    hora_salida TIMESTAMP,
+    hora_solicitud TIMESTAMPTZ DEFAULT NOW(),
+    hora_limite_ingreso TIMESTAMPTZ NOT NULL,
+    hora_ingreso TIMESTAMPTZ,
+    hora_salida TIMESTAMPTZ,
     tiempo_permanencia_min INTEGER,
     estado VARCHAR(20) NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'ingresado', 'finalizado', 'cancelado', 'expirado')),
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE UNIQUE INDEX una_solicitud_activa ON solicitudes_estacionamiento(usuario_id) 
@@ -157,7 +157,7 @@ CREATE TABLE verificaciones_ubicacion (
     longitud DECIMAL(11,8),
     distancia_metros INTEGER,
     permitido BOOLEAN,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 12. HISTORIAL DE ESTACIONAMIENTO
@@ -167,10 +167,10 @@ CREATE TABLE historial_estacionamiento (
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
     plaza_id INTEGER REFERENCES plazas(id),
     estacionamiento_id INTEGER REFERENCES estacionamientos(id),
-    hora_ingreso TIMESTAMP,
-    hora_salida TIMESTAMP,
+    hora_ingreso TIMESTAMPTZ,
+    hora_salida TIMESTAMPTZ,
     tiempo_permanencia_min INTEGER,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 13. TIPOS DE INFRACCION
@@ -197,7 +197,7 @@ CREATE TABLE infracciones (
     supervisor_id INTEGER NOT NULL REFERENCES usuarios(id),
     tipo_infraccion_id INTEGER NOT NULL REFERENCES tipos_infraccion(id),
     descripcion TEXT,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 15. ESTADOS DE REPORTE
@@ -224,8 +224,8 @@ CREATE TABLE reportes_incidencias (
     razon_prioridad TEXT,
     respuesta_supervisor TEXT,
     valoracion SMALLINT CHECK (valoracion BETWEEN 1 AND 5),
-    creado_en TIMESTAMP DEFAULT NOW(),
-    actualizado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW(),
+    actualizado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 17. FAQ
@@ -242,7 +242,7 @@ CREATE TABLE faq (
     pregunta TEXT NOT NULL,
     respuesta TEXT NOT NULL,
     activo BOOLEAN DEFAULT true,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 18. MENSAJES SOPORTE
@@ -253,7 +253,7 @@ CREATE TABLE mensajes_soporte (
     descripcion TEXT NOT NULL,
     respondido BOOLEAN DEFAULT false,
     respuesta TEXT,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 19. TIPOS NOTIFICACION
@@ -275,7 +275,7 @@ CREATE TABLE notificaciones (
     mensaje TEXT NOT NULL,
     leida BOOLEAN DEFAULT false,
     url_destino VARCHAR(255),
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 21. ACCIONES ADMINISTRATIVAS
@@ -285,7 +285,7 @@ CREATE TABLE acciones_administrativas (
     usuario_afectado_id INTEGER REFERENCES usuarios(id),
     tipo VARCHAR(30) NOT NULL CHECK (tipo IN ('verificacion', 'suspension', 'reactivacion', 'bloqueo_plaza', 'desbloqueo_plaza')),
     descripcion TEXT,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 22. EVENTOS DEL SISTEMA
@@ -297,7 +297,7 @@ CREATE TABLE eventos_sistema (
     plaza_id INTEGER REFERENCES plazas(id),
     sede_id INTEGER REFERENCES sedes(id),
     metadata JSONB,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_eventos_tipo ON eventos_sistema(tipo);
@@ -315,7 +315,7 @@ CREATE TABLE estadisticas_diarias (
     reportes_totales INTEGER DEFAULT 0,
     tiempo_promedio_permanencia INTEGER DEFAULT 0,
     ocupacion_promedio DECIMAL(5,2) DEFAULT 0,
-    creado_en TIMESTAMP DEFAULT NOW()
+    creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 24. VISTAS ANALYTICS
