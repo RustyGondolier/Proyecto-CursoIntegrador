@@ -44,6 +44,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/solicitudes',
+  require(
+    './routes/solicitud.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(
