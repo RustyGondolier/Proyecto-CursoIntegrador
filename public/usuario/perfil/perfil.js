@@ -322,13 +322,42 @@ async function openEditProfileModal() {
 async function saveProfile(e) {
   e.preventDefault();
 
+  const nombre = document.getElementById('formNombre').value.trim();
+  const correo = document.getElementById('formCorreo').value.trim();
+  const telefono = document.getElementById('formTelefono').value.trim();
+  const dni = document.getElementById('formDni').value.trim();
+  const licencia = document.getElementById('formLicencia').value.trim();
+  const licenciaVence = document.getElementById('formLicenciaVence').value;
+
+  if (!confirm('¿Estás seguro de que deseas guardar los cambios?')) return;
+
+  if (correo && !/^[^\s@]+@utp\.edu\.pe$/i.test(correo)) {
+    alert('El correo debe ser institucional (@utp.edu.pe)');
+    return;
+  }
+
+  if (dni && !/^\d{8}$/.test(dni)) {
+    alert('El DNI debe tener 8 dígitos');
+    return;
+  }
+
+  if (licenciaVence) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaVence = new Date(licenciaVence + 'T00:00:00');
+    if (fechaVence < hoy) {
+      alert('La licencia está vencida');
+      return;
+    }
+  }
+
   const body = {
-    nombre: document.getElementById('formNombre').value.trim() || undefined,
-    correo_institucional: document.getElementById('formCorreo').value.trim() || undefined,
-    telefono: document.getElementById('formTelefono').value.trim() || undefined,
-    dni: document.getElementById('formDni').value.trim() || undefined,
-    nro_licencia: document.getElementById('formLicencia').value.trim() || undefined,
-    licencia_fecha_vencimiento: document.getElementById('formLicenciaVence').value || undefined
+    nombre: nombre || undefined,
+    correo_institucional: correo || undefined,
+    telefono: telefono || undefined,
+    dni: dni || undefined,
+    nro_licencia: licencia || undefined,
+    licencia_fecha_vencimiento: licenciaVence || undefined
   };
 
   try {
@@ -343,7 +372,6 @@ async function saveProfile(e) {
       return;
     }
 
-    // Actualizar nombre en sesión para que sidebar lo refleje
     if (body.nombre) {
       const user = getSessionUser();
       if (user) {
@@ -353,6 +381,7 @@ async function saveProfile(e) {
     }
 
     closeAllModals();
+    alert('Perfil actualizado correctamente. Los cambios están pendientes de verificación.');
     loadProfile();
   } catch {
     alert('Error de conexión al guardar el perfil');

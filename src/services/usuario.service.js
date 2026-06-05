@@ -44,8 +44,13 @@ async function updateProfile(
   if(
     body.nombre !== undefined
   ){
+    if(body.nombre.trim().length < 2){
+      const error = new Error('El nombre debe tener al menos 2 caracteres');
+      error.status = 400;
+      throw error;
+    }
     datos.nombre =
-      body.nombre;
+      body.nombre.trim();
   }
 
   if(
@@ -58,27 +63,51 @@ async function updateProfile(
   if(
     body.correo_institucional !== undefined
   ){
+    const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
+    if(!emailRegex.test(body.correo_institucional.trim())){
+      const error = new Error('El correo debe ser institucional (@utp.edu.pe)');
+      error.status = 400;
+      throw error;
+    }
     datos.correo_institucional =
-      body.correo_institucional;
+      body.correo_institucional.trim();
   }
 
   if(
     body.dni !== undefined
   ){
+    if(!/^\d{8}$/.test(body.dni.trim())){
+      const error = new Error('El DNI debe tener 8 dígitos');
+      error.status = 400;
+      throw error;
+    }
     datos.dni =
-      body.dni;
+      body.dni.trim();
   }
 
   if(
     body.nro_licencia !== undefined
   ){
+    if(body.nro_licencia.trim().length < 3){
+      const error = new Error('El número de licencia no es válido');
+      error.status = 400;
+      throw error;
+    }
     datos.nro_licencia =
-      body.nro_licencia;
+      body.nro_licencia.trim();
   }
 
   if(
     body.licencia_fecha_vencimiento !== undefined
   ){
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaVence = new Date(body.licencia_fecha_vencimiento + 'T00:00:00');
+    if(fechaVence < hoy){
+      const error = new Error('La licencia está vencida');
+      error.status = 400;
+      throw error;
+    }
     datos.licencia_fecha_vencimiento =
       body.licencia_fecha_vencimiento;
   }
