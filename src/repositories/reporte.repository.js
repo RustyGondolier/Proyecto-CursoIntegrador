@@ -28,13 +28,13 @@ async function findByUserId(usuario_id) {
   return result.rows;
 }
 
-async function create({ usuario_id, estacionamiento_id, descripcion }) {
+async function create({ usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion }) {
   const result = await pool.query(
     `INSERT INTO reportes_incidencias
-       (usuario_id, estacionamiento_id, descripcion, estado_id)
-     VALUES ($1, $2, $3, 1)
+       (usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion, estado_id)
+     VALUES ($1, $2, $3, $4, $5, 1)
      RETURNING *`,
-    [usuario_id, estacionamiento_id, descripcion]
+    [usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion]
   );
 
   return result.rows[0];
