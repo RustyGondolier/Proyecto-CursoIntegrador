@@ -35,9 +35,7 @@ async function init() {
   ]);
 }
 
-/* =====================================================
-   CARGA DE DATOS
-   ===================================================== */
+/* CARGA DE DATOS */
 
 async function loadEstacionamientos() {
   const select = document.getElementById('formEstacionamiento');
@@ -72,9 +70,7 @@ async function loadReportes() {
   renderReportes();
 }
 
-/* =====================================================
-   SELECTOR DE TIPO
-   ===================================================== */
+/* SELECTOR DE TIPO */
 
 function bindTipoSelector() {
   const grid = document.getElementById('tiposGrid');
@@ -91,9 +87,7 @@ function bindTipoSelector() {
   });
 }
 
-/* =====================================================
-   FORM: NUEVO REPORTE
-   ===================================================== */
+/* FORM: NUEVO REPORTE */
 
 function bindNewReportForm() {
   const form = document.getElementById('newReportForm');
@@ -177,9 +171,7 @@ function resetForm() {
   document.getElementById('newReportError').style.display = 'none';
 }
 
-/* =====================================================
-   RENDER: LISTA DE REPORTES
-   ===================================================== */
+/* RENDER: LISTA DE REPORTES */
 
 function renderReportes() {
   const list = document.getElementById('reportesList');
@@ -257,9 +249,7 @@ function parseTipoFromDescripcion(desc) {
   };
 }
 
-/* =====================================================
-   MODAL DETALLE
-   ===================================================== */
+/* MODAL DETALLE */
 
 function bindModals() {
   document.querySelectorAll('[data-close-modal]').forEach(el => {
@@ -340,9 +330,7 @@ function openDetailModal(r) {
   document.getElementById('detailModal').classList.add('open');
 }
 
-/* =====================================================
-   TABS MOBILE
-   ===================================================== */
+/* TABS MOBILE */
 
 function bindTabs() {
   const tabs = document.querySelectorAll('.reportes-tab');
@@ -362,9 +350,7 @@ function bindTabs() {
   });
 }
 
-/* =====================================================
-   SCROLL TO FORM
-   ===================================================== */
+/* SCROLL TO FORM */
 
 function bindScrollToForm() {
   const btn = document.getElementById('scrollToFormBtn');
@@ -384,9 +370,7 @@ function bindScrollToForm() {
   });
 }
 
-/* =====================================================
-   UTILIDADES
-   ===================================================== */
+/* UTILIDADES */
 
 function escapeHtml(str) {
   if (str == null) return '';

@@ -4,6 +4,16 @@ const solicitudRepository = require('../repositories/solicitud.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
 
 async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
+  const usuarioResult = await pool.query(
+    `SELECT verificado FROM usuarios WHERE id = $1`,
+    [usuarioId]
+  );
+  if (!usuarioResult.rows[0] || !usuarioResult.rows[0].verificado) {
+    const error = new Error('Tu perfil no está verificado');
+    error.status = 403;
+    throw error;
+  }
+
   const vehiculo = await vehiculoRepository.getActiveVehicle(usuarioId);
   if (!vehiculo) {
     const error = new Error('No tienes un vehículo registrado');
@@ -20,11 +30,6 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     }
   }
 
-  /*
-  ============================================================
-  VALIDACIÓN DE GEOLOCALIZACIÓN
-  Descomentar cuando se quiera activar el control de distancia
-  ============================================================
   const { lat, lng } = ubicacion;
   if (!lat || !lng) {
     const error = new Error('No se pudo obtener tu ubicación');
@@ -45,12 +50,18 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   }
   const { latitud, longitud, radio_permitido_metros } = sedeResult.rows[0];
   const distancia = calcularDistancia(latitud, longitud, lat, lng);
-  if (distancia > radio_permitido_metros) {
+  const permitido = distancia <= radio_permitido_metros;
+  if (!permitido) {
     const error = new Error(`Debes estar dentro del campus (${radio_permitido_metros}m) para solicitar una plaza`);
     error.status = 403;
     throw error;
   }
-  */
+
+  await pool.query(
+    `INSERT INTO verificaciones_ubicacion (usuario_id, latitud, longitud, distancia_metros, permitido)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [usuarioId, lat, lng, Math.round(distancia), permitido]
+  );
 
   const tiempoLimite = parseInt(process.env.TIEMPO_LIMITE_INGRESO_MIN, 10) || 30;
 
@@ -113,11 +124,6 @@ function formatearSolicitud(solicitud) {
   };
 }
 
-/*
-============================================================
-FUNCIÓN AUXILIAR: CÁLCULO DE DISTANCIA HAVERSINE
-Descomentar junto con la validación de geolocalización
-============================================================
 function calcularDistancia(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -128,7 +134,6 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
-*/
 
 module.exports = {
   crear,
