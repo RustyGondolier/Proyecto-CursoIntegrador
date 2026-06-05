@@ -1,4 +1,5 @@
 let timerInterval = null;
+let lastParkingData = null;
 
 async function init() {
   if (!isAuthenticated()) {
@@ -96,12 +97,19 @@ async function renderParkingGrid() {
     const response = await apiFetch('/api/estacionamientos/ocupacion');
     if (!response.ok) throw new Error('Error al cargar');
 
-    const estacionamientos = await response.json();
-    container.innerHTML = estacionamientos.length
-      ? estacionamientos.map(createParkingCard).join('')
+    lastParkingData = await response.json();
+    container.innerHTML = lastParkingData.length
+      ? lastParkingData.map(createParkingCard).join('')
       : '<p>No hay estacionamientos disponibles.</p>';
   } catch {
-    container.innerHTML = '<p>No se pudieron cargar los estacionamientos. Intenta de nuevo más tarde.</p>';
+    if (lastParkingData) {
+      container.innerHTML = `
+        <div class="warning-banner">No se pudieron actualizar los datos. Mostrando información anterior.</div>
+        ${lastParkingData.map(createParkingCard).join('')}
+      `;
+    } else {
+      container.innerHTML = '<p>No se pudieron cargar los estacionamientos. Intenta de nuevo más tarde.</p>';
+    }
   }
 }
 
@@ -110,8 +118,12 @@ async function updateParkingGrid() {
     const response = await apiFetch('/api/estacionamientos/ocupacion');
     if (!response.ok) return;
 
-    const estacionamientos = await response.json();
-    estacionamientos.forEach(e => {
+    lastParkingData = await response.json();
+    const container = document.getElementById('parkingContainer');
+    const warning = container?.querySelector('.warning-banner');
+    if (warning) warning.remove();
+
+    lastParkingData.forEach(e => {
       const card = document.querySelector(`.parking-card[data-id="${e.id}"]`);
       if (!card) return;
 
@@ -127,7 +139,13 @@ async function updateParkingGrid() {
       if (fills[1]) fills[1].style.width = `${motosPct}%`;
     });
   } catch {
-    /* silencioso */
+    const container = document.getElementById('parkingContainer');
+    if (container && !container.querySelector('.warning-banner') && container.querySelector('.parking-card')) {
+      const warning = document.createElement('div');
+      warning.className = 'warning-banner';
+      warning.textContent = 'No se pudieron actualizar los datos. Mostrando información anterior.';
+      container.insertBefore(warning, container.firstChild);
+    }
   }
 }
 
@@ -175,6 +193,14 @@ document.addEventListener('click', async (e) => {
   }
 
   if (e.target.classList.contains('request-btn')) {
+    if (lastParkingData) {
+      const parking = lastParkingData.find(p => String(p.id) === String(id));
+      if (parking && parking.autos_ocupados >= parking.autos_total && parking.motos_ocupadas >= parking.motos_total) {
+        alert('El estacionamiento está lleno en este momento.');
+        return;
+      }
+    }
+
     try {
       const position = await getCurrentPosition();
       const response = await apiFetch('/api/solicitudes/crear', {

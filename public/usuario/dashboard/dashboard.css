@@ -77,3 +77,14 @@
   gap: 10px;
   margin-top: 20px;
 }
+
+.warning-banner {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  grid-column: 1 / -1;
+}
