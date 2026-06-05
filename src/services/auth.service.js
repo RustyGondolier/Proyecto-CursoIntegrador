@@ -40,6 +40,14 @@ async function login(
 
   }
 
+  if(usuario.estado_cuenta === 'suspendida'){
+
+    throw new Error(
+      'Tu cuenta ha sido suspendida. Revisa tu correo institucional para más información.'
+    );
+
+  }
+
   const valido =
     await bcrypt.compare(
       password,
