@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/shared/css/sidebar.css">
   <link rel="stylesheet" href="/shared/css/buttons.css">
   <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="/shared/css/modal.css">
   <link rel="stylesheet" href="./perfil.css">
 </head>
 <body>
@@ -27,8 +28,11 @@
           <div class="profile-avatar" id="profileAvatar">?</div>
           <div class="profile-identity">
             <h1 id="profileName">Cargando...</h1>
-            <p class="profile-role" id="profileRole">—</p>
-            <p class="profile-code" id="profileCode">—</p>
+            <div class="profile-meta">
+              <p class="profile-role" id="profileRole">—</p>
+              <p class="profile-code" id="profileCode">—</p>
+            </div>
+            <span id="headerVerificacionBadge"></span>
           </div>
         </div>
         <button class="btn btn-primary" id="editProfileBtn">
@@ -45,10 +49,6 @@
           </div>
 
           <dl class="info-list">
-            <div class="info-row">
-              <dt>Estado</dt>
-              <dd id="infoVerificado">—</dd>
-            </div>
             <div class="info-row">
               <dt>Nombre</dt>
               <dd id="infoNombre">—</dd>
@@ -103,6 +103,17 @@
           </dl>
         </section>
 
+        <!-- SESIÓN -->
+        <section class="card profile-section profile-section-session">
+          <div class="section-head">
+            <h2>Sesión</h2>
+          </div>
+          <div class="session-actions">
+            <button class="btn btn-secondary" id="passwordBtn">Cambiar contraseña</button>
+            <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
+          </div>
+        </section>
+
         <!-- MIS VEHÍCULOS -->
         <section class="card profile-section profile-section-wide">
           <div class="section-head">
@@ -114,17 +125,6 @@
 
           <div id="vehiclesGrid" class="vehicles-grid">
             <!-- se llena con JS -->
-          </div>
-        </section>
-
-        <!-- SESIÓN -->
-        <section class="card profile-section profile-section-danger">
-          <div class="section-head">
-            <h2>Sesión</h2>
-          </div>
-          <div class="session-actions">
-            <button class="btn btn-secondary" id="passwordBtn">Cambiar contraseña</button>
-            <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
           </div>
         </section>
 

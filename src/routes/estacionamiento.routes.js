@@ -16,6 +16,12 @@ const router =
   express.Router();
 
 router.get(
+  '/',
+  authJWT,
+  controller.listar
+);
+
+router.get(
   '/ocupacion',
   authJWT,
   controller.ocupacion

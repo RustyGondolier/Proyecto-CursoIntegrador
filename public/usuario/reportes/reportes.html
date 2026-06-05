@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes de Incidencias | UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="/shared/css/modal.css">
+  <link rel="stylesheet" href="./reportes.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+
+      <section class="card reportes-header">
+        <div class="reportes-header-left">
+          <span class="reportes-header-icon">📋</span>
+          <div>
+            <h1>Reportes de Incidencias</h1>
+            <p>Cuéntanos qué problema tuviste en el estacionamiento. Un supervisor revisará tu caso.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="scrollToFormBtn">
+          + Nuevo reporte
+        </button>
+      </section>
+
+      <div class="reportes-tabs" id="reportesTabs">
+        <button class="reportes-tab active" data-tab="form">Nuevo reporte</button>
+        <button class="reportes-tab" data-tab="list">Mis reportes</button>
+      </div>
+
+      <section class="reportes-grid">
+
+        <div class="reportes-col-form" id="reportesColForm">
+          <section class="card form-card" id="reportFormCard">
+            <div class="section-head">
+              <h2>Nuevo reporte</h2>
+            </div>
+
+            <form id="newReportForm" class="form-body">
+              <div id="newReportError" class="form-error" style="display:none"></div>
+
+              <div id="formSuccess" class="form-success" style="display:none"></div>
+
+              <div class="form-block">
+                <span class="form-label">¿Qué problema desea reportar? <span class="required">*</span></span>
+                <div class="tipos-grid" id="tiposGrid">
+                  <button type="button" class="tipo-card" data-tipo="lugar_ocupado">
+                    <div class="tipo-icon">🚗</div>
+                    <div class="tipo-title">Otra persona ocupa mi lugar</div>
+                    <div class="tipo-desc">Alguien estacionó en la plaza que me fue asignada.</div>
+                  </button>
+
+                  <button type="button" class="tipo-card" data-tipo="obstruccion">
+                    <div class="tipo-icon">🚧</div>
+                    <div class="tipo-title">Obstrucción en el camino</div>
+                    <div class="tipo-desc">Un vehículo bloquea la vía de entrada, salida o circulación.</div>
+                  </button>
+
+                  <button type="button" class="tipo-card" data-tipo="mal_estacionado">
+                    <div class="tipo-icon">⚠️</div>
+                    <div class="tipo-title">Vehículo mal estacionado</div>
+                    <div class="tipo-desc">Un auto o moto está mal ubicado o no respeta las señales.</div>
+                  </button>
+
+                  <button type="button" class="tipo-card" data-tipo="otro">
+                    <div class="tipo-icon">💬</div>
+                    <div class="tipo-title">Otro problema</div>
+                    <div class="tipo-desc">Cualquier otra situación que quieras reportar.</div>
+                  </button>
+                </div>
+                <input type="hidden" name="tipo_incidencia" id="formTipo" value="">
+              </div>
+
+              <div class="form-block">
+                <label class="form-label" for="formEstacionamiento">Estacionamiento <span class="required">*</span></label>
+                <select name="estacionamiento_id" id="formEstacionamiento" required>
+                  <option value="">Selecciona el estacionamiento</option>
+                </select>
+              </div>
+
+              <div class="form-block">
+                <label class="form-label" for="formDescripcion">Detalles adicionales <span class="required">*</span></label>
+                <textarea name="descripcion" id="formDescripcion" rows="4" required minlength="10" maxlength="1000" placeholder="Describe brevemente lo que ocurrió (mínimo 10 caracteres)..."></textarea>
+                <small class="form-hint">Incluye cualquier información que ayude al supervisor a resolver el caso.</small>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block" id="submitReportBtn">Enviar reporte</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="reportes-col-list" id="reportesColList">
+          <section class="card list-card">
+            <div class="list-head">
+              <h2>Mis reportes</h2>
+              <span class="list-count" id="reportesCount">0</span>
+            </div>
+            <div id="reportesList" class="reportes-list">
+              <p class="empty-state">Cargando reportes...</p>
+            </div>
+          </section>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <div class="modal" id="detailModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="modal-head">
+        <h2>Detalle del reporte</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="./reportes.js"></script>
+</body>
+</html>

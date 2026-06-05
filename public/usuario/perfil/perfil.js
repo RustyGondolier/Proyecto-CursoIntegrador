@@ -68,7 +68,11 @@ function renderProfile(p) {
   document.getElementById('profileCode').textContent = p.codigo_universitario ? `Código: ${p.codigo_universitario}` : '';
   document.getElementById('profileAvatar').textContent = getInitials(p.nombre);
 
-  setField('infoVerificado', null, renderVerificacion(p));
+  const badge = document.getElementById('headerVerificacionBadge');
+  if (badge) {
+    badge.innerHTML = '';
+    badge.appendChild(renderVerificacion(p));
+  }
   setField('infoNombre', p.nombre || '—');
   setField('infoCorreo', p.correo_institucional || '—');
   setField('infoTelefono', p.telefono || '—');
@@ -169,7 +173,15 @@ function renderActiveVehicle(list) {
 
   if (!active) {
     box.className = 'active-vehicle empty';
-    box.innerHTML = '<p class="empty-state">No tienes un vehículo asignado.</p>';
+    box.innerHTML = `
+      <div style="text-align:center; width:100%;">
+        <p style="font-size:28px; margin:0 0 4px; opacity:0.4;">🚗</p>
+        <p class="empty-state">No tienes un vehículo asignado.</p>
+        <p style="font-size:11px; color:var(--color-text-light); margin:4px 0 0;">
+          Agrega uno desde la sección <strong>Mis vehículos</strong>.
+        </p>
+      </div>
+    `;
     return;
   }
 
