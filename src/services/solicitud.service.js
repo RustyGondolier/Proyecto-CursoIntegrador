@@ -10,7 +10,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   );
   if (!usuarioResult.rows[0] || !usuarioResult.rows[0].verificado) {
     const error = new Error('Tu perfil no está verificado');
-    error.status = 403;
+    error.status = 400;
     throw error;
   }
 
@@ -53,7 +53,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   const permitido = distancia <= radio_permitido_metros;
   if (!permitido) {
     const error = new Error(`Debes estar dentro del campus (${radio_permitido_metros}m) para solicitar una plaza`);
-    error.status = 403;
+    error.status = 400;
     throw error;
   }
 
