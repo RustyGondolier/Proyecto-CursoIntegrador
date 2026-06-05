@@ -18,6 +18,28 @@ const passwordInput =
     'password'
   );
 
+const conadisSi =
+  document.getElementById('conadisSi');
+
+const conadisNo =
+  document.getElementById('conadisNo');
+
+const conadisContainer =
+  document.getElementById('conadisContainer');
+
+const conadisInput =
+  document.getElementById('conadis');
+
+function toggleConadis() {
+  const visible = conadisSi.checked;
+  conadisContainer.style.display = visible ? '' : 'none';
+  conadisInput.required = visible;
+  if (!visible) conadisInput.value = '';
+}
+
+conadisSi.addEventListener('change', toggleConadis);
+conadisNo.addEventListener('change', toggleConadis);
+
 togglePassword.addEventListener(
   'click',
   () => {
