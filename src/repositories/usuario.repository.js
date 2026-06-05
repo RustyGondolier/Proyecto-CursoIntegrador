@@ -96,7 +96,9 @@ async function updateProfile(
       correo_institucional = COALESCE($3, correo_institucional),
       licencia_fecha_vencimiento = COALESCE($4, licencia_fecha_vencimiento),
       dni = COALESCE($5, dni),
-      nro_licencia = COALESCE($6, nro_licencia)
+      nro_licencia = COALESCE($6, nro_licencia),
+      verificado = false,
+      requiere_reverificacion = true
     WHERE id = $7
     `,
     [
