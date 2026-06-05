@@ -176,21 +176,13 @@ document.addEventListener('click', async (e) => {
 
   if (e.target.classList.contains('request-btn')) {
     try {
-      /*
-      ============================================================
-      VALIDACIÓN DE GEOLOCALIZACIÓN
-      Descomentar junto con el bloque en solicitud.service.js
-      ============================================================
       const position = await getCurrentPosition();
-      */
       const response = await apiFetch('/api/solicitudes/crear', {
         method: 'POST',
         body: JSON.stringify({
           estacionamiento_id: Number(id),
-          /*
           lat: position.lat,
           lng: position.lng
-          */
         })
       });
 
