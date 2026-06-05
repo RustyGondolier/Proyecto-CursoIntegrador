@@ -420,10 +420,27 @@ async function saveVehicle(e) {
   e.preventDefault();
 
   const id = document.getElementById('vehicleId').value;
+  const placa = document.getElementById('formPlaca').value.trim();
+  const tipo = document.getElementById('formTipo').value;
+  const modelo = document.getElementById('formModelo').value.trim();
+
+  const PLACA_REGEX = {
+    auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+    moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+    mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+  };
+
+  const regex = PLACA_REGEX[tipo];
+  if (!regex.test(placa)) {
+    const formato = tipo === 'auto' ? 'ABC-123' : 'AB-1234';
+    alert(`La placa no tiene un formato válido (ej: ${formato})`);
+    return;
+  }
+
   const body = {
-    placa: document.getElementById('formPlaca').value.trim().toUpperCase(),
-    tipo_vehiculo_id: document.getElementById('formTipo').value,
-    modelo: document.getElementById('formModelo').value.trim()
+    placa: placa.toUpperCase(),
+    tipo_vehiculo_id: tipo,
+    modelo
   };
 
   try {

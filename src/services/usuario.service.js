@@ -126,6 +126,12 @@ async function updateProfile(
    VEHÍCULOS
    ===================================================== */
 
+const PLACA_REGEX = {
+  auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+  moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+  mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+};
+
 async function getVehicles(
   userId
 ){
@@ -139,6 +145,15 @@ async function createVehicle(
   userId,
   body
 ){
+
+  const tipo = body.tipo_vehiculo_id;
+  const regex = PLACA_REGEX[tipo];
+  if (!regex || !regex.test(body.placa.trim())) {
+    const formato = tipo === 'auto' ? 'ABC-123' : 'AB-1234';
+    const error = new Error(`La placa no tiene un formato válido (ej: ${formato})`);
+    error.status = 400;
+    throw error;
+  }
 
   const existente =
     await vehiculoRepository
@@ -158,8 +173,7 @@ async function createVehicle(
 
         usuario_id: userId,
 
-        tipo_vehiculo_id:
-          body.tipo_vehiculo_id,
+        tipo_vehiculo_id: tipo,
 
         placa:
           body.placa.toUpperCase(),
@@ -180,6 +194,9 @@ async function createVehicle(
       .setActive(vehiculo.id);
 
   }
+
+  await usuarioRepository
+    .resetVerification(userId);
 
   return getVehicles(userId);
 
@@ -208,6 +225,22 @@ async function updateVehicle(
 
   }
 
+  if (body.placa !== undefined) {
+    const tipo = body.tipo_vehiculo_id;
+    const regex = PLACA_REGEX[tipo];
+    if (!regex || !regex.test(body.placa.trim())) {
+      const formato = tipo === 'auto' ? 'ABC-123' : 'AB-1234';
+      const error = new Error(`La placa no tiene un formato válido (ej: ${formato})`);
+      error.status = 400;
+      throw error;
+    }
+
+    const duplicado = await vehiculoRepository.findByPlaca(body.placa.toUpperCase());
+    if (duplicado && String(duplicado.id) !== String(vehicleId)) {
+      throw new Error('La placa ya está registrada');
+    }
+  }
+
   await vehiculoRepository
     .updateVehicle(
       vehicleId,
@@ -224,6 +257,9 @@ async function updateVehicle(
 
       }
     );
+
+  await usuarioRepository
+    .resetVerification(userId);
 
   return getVehicles(userId);
 
@@ -253,6 +289,9 @@ async function deleteVehicle(
 
   await vehiculoRepository
     .deleteVehicle(vehicleId);
+
+  await usuarioRepository
+    .resetVerification(userId);
 
   return getVehicles(userId);
 
