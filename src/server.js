@@ -68,6 +68,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/reportes',
+  require(
+    './routes/reporte.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

@@ -11,6 +11,11 @@ async function obtenerOcupacion(){
 
 }
 
+async function listar() {
+  return estacionamientoRepository.getAll();
+}
+
 module.exports = {
-  obtenerOcupacion
+  obtenerOcupacion,
+  listar
 };
