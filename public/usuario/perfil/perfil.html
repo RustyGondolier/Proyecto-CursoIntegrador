@@ -122,7 +122,10 @@
           <div class="section-head">
             <h2>Sesión</h2>
           </div>
-          <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
+          <div class="session-actions">
+            <button class="btn btn-secondary" id="passwordBtn">Cambiar contraseña</button>
+            <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
+          </div>
         </section>
 
       </div>
@@ -229,6 +232,50 @@
       <div id="changeVehicleList" class="modal-body change-vehicle-list">
         <!-- se llena con JS -->
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CAMBIAR CONTRASEÑA -->
+  <div class="modal" id="passwordModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <h2>Cambiar contraseña</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+
+      <form id="passwordForm" class="modal-body">
+        <div class="form-row">
+          <label>Contraseña actual</label>
+          <div class="password-wrapper">
+            <input type="password" name="actual" id="formActual" required autocomplete="current-password">
+            <button type="button" class="toggle-pw" data-target="formActual" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Nueva contraseña</label>
+          <div class="password-wrapper">
+            <input type="password" name="nueva" id="formNueva" required minlength="6" autocomplete="new-password">
+            <button type="button" class="toggle-pw" data-target="formNueva" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Confirmar nueva contraseña</label>
+          <div class="password-wrapper">
+            <input type="password" name="confirmar" id="formConfirmar" required minlength="6" autocomplete="new-password">
+            <button type="button" class="toggle-pw" data-target="formConfirmar" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+
+        <div id="passwordError" class="form-error" style="display:none"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar contraseña</button>
+        </div>
+      </form>
     </div>
   </div>
 

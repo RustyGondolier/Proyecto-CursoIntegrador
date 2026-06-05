@@ -56,5 +56,13 @@ router.patch(
   controller.setActiveVehicle
 );
 
+/* CONTRASEÑA */
+
+router.put(
+  '/me/password',
+  authJWT,
+  controller.changePassword
+);
+
 module.exports =
   router;
