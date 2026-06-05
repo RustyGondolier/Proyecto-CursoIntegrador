@@ -30,6 +30,12 @@ togglePassword.addEventListener(
   }
 );
 
+const PLACA_REGEX = {
+  auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+  moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+  mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+};
+
 form.addEventListener(
   'submit',
   async e => {
@@ -37,6 +43,72 @@ form.addEventListener(
     e.preventDefault();
 
     mensaje.textContent = '';
+    mensaje.className = 'mensaje';
+
+    const codigo =
+      document.getElementById('codigo').value;
+
+    const nombre =
+      document.getElementById('nombre').value;
+
+    const password =
+      document.getElementById('password').value;
+
+    const fechaNacimiento =
+      document.getElementById('fechaNacimiento').value;
+
+    const correo =
+      document.getElementById('correo').value;
+
+    const telefono =
+      document.getElementById('telefono').value;
+
+    const dni =
+      document.getElementById('dni').value;
+
+    const conadis =
+      document.getElementById('conadis').value;
+
+    const licencia =
+      document.getElementById('licencia').value;
+
+    const licenciaVence =
+      document.getElementById('licenciaVence').value;
+
+    const placa =
+      document.getElementById('placa').value;
+
+    const modelo =
+      document.getElementById('modelo').value;
+
+    const tipoVehiculo =
+      document.getElementById('tipoVehiculo').value;
+
+    if (password.length < 6) {
+      mensaje.textContent = 'La contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
+    if (!emailRegex.test(correo.trim())) {
+      mensaje.textContent = 'El correo debe ser institucional (@utp.edu.pe)';
+      return;
+    }
+
+    const regex = PLACA_REGEX[tipoVehiculo];
+    if (!regex.test(placa.trim())) {
+      const formato = tipoVehiculo === 'auto' ? 'ABC-123' : 'AB-1234';
+      mensaje.textContent = `La placa no tiene un formato válido (ej: ${formato})`;
+      return;
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaVence = new Date(licenciaVence + 'T00:00:00');
+    if (fechaVence < hoy) {
+      const continuar = confirm('La licencia está vencida. ¿Deseas continuar con el registro de todas formas?');
+      if (!continuar) return;
+    }
 
     try {
 
@@ -52,98 +124,19 @@ form.addEventListener(
             },
 
             body: JSON.stringify({
-
-              codigo_universitario:
-                document
-                  .getElementById(
-                    'codigo'
-                  )
-                  .value,
-
-              nombre:
-                document
-                  .getElementById(
-                    'nombre'
-                  )
-                  .value,
-
-              password:
-                document
-                  .getElementById(
-                    'password'
-                  )
-                  .value,
-
-              fecha_nacimiento:
-                document
-                  .getElementById(
-                    'fechaNacimiento'
-                  )
-                  .value,
-
-              correo_institucional:
-                document
-                  .getElementById(
-                    'correo'
-                  )
-                  .value,
-
-              telefono:
-                document
-                  .getElementById(
-                    'telefono'
-                  )
-                  .value,
-
-              dni:
-                document
-                  .getElementById(
-                    'dni'
-                  )
-                  .value,
-
-              codigo_conadis:
-                document
-                  .getElementById(
-                    'conadis'
-                  )
-                  .value,
-
-              nro_licencia:
-                document
-                  .getElementById(
-                    'licencia'
-                  )
-                  .value,
-
-              licencia_fecha_vencimiento:
-                document
-                  .getElementById(
-                    'licenciaVence'
-                  )
-                  .value,
-
-              placa:
-                document
-                  .getElementById(
-                    'placa'
-                  )
-                  .value,
-
-              modelo:
-                document
-                  .getElementById(
-                    'modelo'
-                  )
-                  .value,
-
-              tipo_vehiculo_id:
-                  document
-                    .getElementById(
-                      'tipoVehiculo'
-                    )
-                    .value
-
+              codigo_universitario: codigo,
+              nombre,
+              password,
+              fecha_nacimiento: fechaNacimiento,
+              correo_institucional: correo,
+              telefono,
+              dni,
+              codigo_conadis: conadis,
+              nro_licencia: licencia,
+              licencia_fecha_vencimiento: licenciaVence,
+              placa,
+              modelo,
+              tipo_vehiculo_id: tipoVehiculo
             })
 
           }
@@ -156,6 +149,9 @@ form.addEventListener(
 
         mensaje.textContent =
           data.error;
+
+        mensaje.className =
+          'mensaje error';
 
         return;
       }
@@ -171,6 +167,9 @@ form.addEventListener(
 
       mensaje.textContent =
         'Error de conexión';
+
+      mensaje.className =
+        'mensaje error';
 
     }
 

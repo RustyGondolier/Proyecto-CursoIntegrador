@@ -91,9 +91,60 @@ async function login(
 
 /* Register */
 
+const REQUIRED_FIELDS = [
+  { key: 'codigo_universitario', label: 'Código universitario' },
+  { key: 'nombre', label: 'Nombre' },
+  { key: 'password', label: 'Contraseña' },
+  { key: 'fecha_nacimiento', label: 'Fecha de nacimiento' },
+  { key: 'correo_institucional', label: 'Correo institucional' },
+  { key: 'nro_licencia', label: 'Número de licencia' },
+  { key: 'licencia_fecha_vencimiento', label: 'Vencimiento de licencia' },
+  { key: 'placa', label: 'Placa' },
+  { key: 'modelo', label: 'Modelo' },
+  { key: 'tipo_vehiculo_id', label: 'Tipo de vehículo' }
+];
+
+const PLACA_REGEX = {
+  auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+  moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+  mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+};
+
 async function register(
   body
 ){
+
+  for (const { key, label } of REQUIRED_FIELDS) {
+    if (!body[key] || (typeof body[key] === 'string' && body[key].trim() === '')) {
+      throw new Error(`El campo "${label}" es obligatorio`);
+    }
+  }
+
+  if (body.password.length < 6) {
+    throw new Error('La contraseña debe tener al menos 6 caracteres');
+  }
+
+  const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
+  if (!emailRegex.test(body.correo_institucional.trim())) {
+    throw new Error('El correo debe ser institucional (@utp.edu.pe)');
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fechaVence = new Date(body.licencia_fecha_vencimiento + 'T00:00:00');
+  if (fechaVence < hoy) {
+    throw new Error('La licencia está vencida');
+  }
+
+  const tipoVehiculo = body.tipo_vehiculo_id;
+  const regex = PLACA_REGEX[tipoVehiculo];
+  if (!regex) {
+    throw new Error('Tipo de vehículo no válido');
+  }
+  if (!regex.test(body.placa.trim())) {
+    const formato = tipoVehiculo === 'auto' ? 'ABC-123' : 'AB-1234';
+    throw new Error(`La placa no tiene un formato válido (ej: ${formato})`);
+  }
 
   const codigo =
     body.codigo_universitario
@@ -126,6 +177,26 @@ async function register(
 
   }
 
+  const correoExiste =
+    await usuarioRepository
+      .findByEmail(
+        body.correo_institucional.trim()
+      );
+
+  if (correoExiste) {
+    throw new Error('El correo ya está registrado');
+  }
+
+  const licenciaExiste =
+    await usuarioRepository
+      .findByLicense(
+        body.nro_licencia.trim()
+      );
+
+  if (licenciaExiste) {
+    throw new Error('La licencia ya está registrada');
+  }
+
   const vehiculoExiste =
     await vehiculoRepository
       .findByPlaca(
@@ -155,7 +226,7 @@ async function register(
           codigo,
 
         nombre:
-          body.nombre,
+          body.nombre.trim(),
 
         password_hash:
           hash,
@@ -170,10 +241,10 @@ async function register(
           body.fecha_nacimiento,
 
         correo_institucional:
-          body.correo_institucional,
+          body.correo_institucional.trim(),
 
         nro_licencia:
-          body.nro_licencia,
+          body.nro_licencia.trim(),
 
         licencia_fecha_vencimiento:
           body.licencia_fecha_vencimiento,
@@ -199,7 +270,7 @@ async function register(
           .toUpperCase(),
 
       modelo:
-        body.modelo
+        body.modelo.trim()
 
     });
 

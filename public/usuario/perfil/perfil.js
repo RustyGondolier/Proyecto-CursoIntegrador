@@ -258,7 +258,7 @@ function bindEvents() {
   document.getElementById('passwordBtn').addEventListener('click', openPasswordModal);
   document.getElementById('passwordForm').addEventListener('submit', savePassword);
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
+  document.getElementById('profileLogoutBtn').addEventListener('click', () => {
     if (confirm('¿Cerrar sesión?')) logout();
   });
 
@@ -547,7 +547,8 @@ async function savePassword(e) {
     }
 
     closeAllModals();
-    alert('Contraseña actualizada correctamente');
+    alert('Contraseña actualizada correctamente. Vuelve a iniciar sesión.');
+    logout();
   } catch {
     errorEl.textContent = 'Error de conexión';
     errorEl.style.display = 'block';

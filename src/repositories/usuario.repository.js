@@ -174,6 +174,42 @@ async function existsByCode(
 
 }
 
+async function findByEmail(
+  correo
+){
+
+  const resultado =
+    await pool.query(
+      `
+      SELECT id
+      FROM usuarios
+      WHERE correo_institucional = $1
+      `,
+      [correo]
+    );
+
+  return resultado.rows[0] || null;
+
+}
+
+async function findByLicense(
+  licencia
+){
+
+  const resultado =
+    await pool.query(
+      `
+      SELECT id
+      FROM usuarios
+      WHERE nro_licencia = $1
+      `,
+      [licencia]
+    );
+
+  return resultado.rows[0] || null;
+
+}
+
 async function getPasswordHash(
   userId
 ){
@@ -215,6 +251,8 @@ module.exports = {
   updateProfile,
   getProfileWithVehicles,
   existsByCode,
+  findByEmail,
+  findByLicense,
   getPasswordHash,
   updatePassword
 };
