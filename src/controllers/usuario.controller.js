@@ -191,6 +191,32 @@ async function setActiveVehicle(
 
 }
 
+async function changePassword(
+  req,
+  res
+){
+
+  try{
+
+    const data =
+      await usuarioService
+        .changePassword(
+          req.usuario.id,
+          req.body
+        );
+
+    res.json(data);
+
+  }catch(err){
+
+    res.status(400).json({
+      error: err.message
+    });
+
+  }
+
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -198,5 +224,6 @@ module.exports = {
   createVehicle,
   updateVehicle,
   deleteVehicle,
-  setActiveVehicle
+  setActiveVehicle,
+  changePassword
 };

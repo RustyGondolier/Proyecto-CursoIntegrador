@@ -358,6 +358,64 @@
   border-left: 3px solid var(--color-primary);
 }
 
+.session-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ---------- PASSWORD WRAPPER (toggle visibilidad) ---------- */
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.password-wrapper:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(181, 14, 48, 0.12);
+}
+
+.password-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.toggle-pw {
+  background: none;
+  border: none;
+  padding: 0 10px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-pw:hover {
+  color: var(--color-text);
+}
+
+/* ---------- ERROR ---------- */
+.form-error {
+  font-size: 13px;
+  color: #b91c1c;
+  padding: 8px 10px;
+  background: rgba(220, 38, 38, 0.08);
+  border-radius: var(--radius-sm);
+}
+
 /* =====================================================
    MODAL
    ===================================================== */

@@ -174,11 +174,47 @@ async function existsByCode(
 
 }
 
+async function getPasswordHash(
+  userId
+){
+
+  const resultado =
+    await pool.query(
+      `
+      SELECT password_hash
+      FROM usuarios
+      WHERE id = $1
+      `,
+      [userId]
+    );
+
+  return resultado.rows[0]?.password_hash || null;
+
+}
+
+async function updatePassword(
+  userId,
+  passwordHash
+){
+
+  await pool.query(
+    `
+    UPDATE usuarios
+    SET password_hash = $1
+    WHERE id = $2
+    `,
+    [passwordHash, userId]
+  );
+
+}
+
 module.exports = {
   findByCodigo,
   findById,
   create,
   updateProfile,
   getProfileWithVehicles,
-  existsByCode
+  existsByCode,
+  getPasswordHash,
+  updatePassword
 };

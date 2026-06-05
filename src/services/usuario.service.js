@@ -1,3 +1,6 @@
+const bcrypt =
+  require('bcryptjs');
+
 const usuarioRepository =
   require('../repositories/usuario.repository');
 
@@ -258,6 +261,73 @@ async function setActiveVehicle(
 
 }
 
+/* =====================================================
+   CONTRASEÑA
+   ===================================================== */
+
+async function changePassword(
+  userId,
+  body
+){
+
+  const { actual, nueva, confirmar } = body;
+
+  if(!actual || !nueva || !confirmar){
+    throw new Error(
+      'Todos los campos son requeridos'
+    );
+  }
+
+  if(nueva !== confirmar){
+    throw new Error(
+      'La nueva contraseña y la confirmación no coinciden'
+    );
+  }
+
+  if(nueva.length < 6){
+    throw new Error(
+      'La nueva contraseña debe tener al menos 6 caracteres'
+    );
+  }
+
+  const currentHash =
+    await usuarioRepository
+      .getPasswordHash(userId);
+
+  if(!currentHash){
+    throw new Error(
+      'Usuario no encontrado'
+    );
+  }
+
+  const valida =
+    await bcrypt.compare(
+      actual,
+      currentHash
+    );
+
+  if(!valida){
+    throw new Error(
+      'La contraseña actual no es correcta'
+    );
+  }
+
+  const newHash =
+    await bcrypt.hash(nueva, 10);
+
+  await usuarioRepository
+    .updatePassword(
+      userId,
+      newHash
+    );
+
+  return {
+    mensaje:
+      'Contraseña actualizada correctamente'
+  };
+
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -265,5 +335,6 @@ module.exports = {
   createVehicle,
   updateVehicle,
   deleteVehicle,
-  setActiveVehicle
+  setActiveVehicle,
+  changePassword
 };

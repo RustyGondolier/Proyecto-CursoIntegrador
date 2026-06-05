@@ -243,8 +243,22 @@ function bindEvents() {
     el.addEventListener('click', closeAllModals);
   });
 
+  document.getElementById('passwordBtn').addEventListener('click', openPasswordModal);
+  document.getElementById('passwordForm').addEventListener('submit', savePassword);
+
   document.getElementById('logoutBtn').addEventListener('click', () => {
     if (confirm('¿Cerrar sesión?')) logout();
+  });
+
+  // Toggle visibilidad de contraseñas
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? '🙈' : '👁';
+    });
   });
 
   document.addEventListener('keydown', e => {
@@ -476,6 +490,56 @@ async function openChangeVehicleModal() {
       } catch { /* ignore */ }
     });
   });
+}
+
+/* ----- CONTRASEÑA ----- */
+function openPasswordModal() {
+  document.getElementById('passwordForm').reset();
+  document.getElementById('passwordError').style.display = 'none';
+  openModal('passwordModal');
+}
+
+async function savePassword(e) {
+  e.preventDefault();
+
+  const errorEl = document.getElementById('passwordError');
+  errorEl.style.display = 'none';
+
+  const actual = document.getElementById('formActual').value;
+  const nueva = document.getElementById('formNueva').value;
+  const confirmar = document.getElementById('formConfirmar').value;
+
+  if (nueva !== confirmar) {
+    errorEl.textContent = 'La nueva contraseña y la confirmación no coinciden';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (nueva.length < 6) {
+    errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await apiFetch('/api/usuarios/me/password', {
+      method: 'PUT',
+      body: JSON.stringify({ actual, nueva, confirmar })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      errorEl.textContent = err.error || 'Error al cambiar contraseña';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    closeAllModals();
+    alert('Contraseña actualizada correctamente');
+  } catch {
+    errorEl.textContent = 'Error de conexión';
+    errorEl.style.display = 'block';
+  }
 }
 
 init();
