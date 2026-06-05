@@ -212,6 +212,21 @@ async function findByLicense(
 
 }
 
+async function resetVerification(
+  userId
+){
+
+  await pool.query(
+    `
+    UPDATE usuarios
+    SET verificado = false, requiere_reverificacion = true
+    WHERE id = $1
+    `,
+    [userId]
+  );
+
+}
+
 async function getPasswordHash(
   userId
 ){
@@ -255,6 +270,7 @@ module.exports = {
   existsByCode,
   findByEmail,
   findByLicense,
+  resetVerification,
   getPasswordHash,
   updatePassword
 };
