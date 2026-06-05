@@ -63,6 +63,40 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     [usuarioId, lat, lng, Math.round(distancia), permitido]
   );
 
+  const tipoResult = await pool.query(
+    `SELECT tv.categoria_plaza FROM tipos_vehiculo tv WHERE tv.id = $1`,
+    [vehiculo.tipo_vehiculo_id]
+  );
+  const categoria = tipoResult.rows[0]?.categoria_plaza;
+  if (!categoria) {
+    const error = new Error('Tipo de vehículo no válido');
+    error.status = 400;
+    throw error;
+  }
+
+  const dispResult = await pool.query(
+    `SELECT (
+       SELECT COUNT(*) FROM plazas p
+       JOIN bloques b ON b.id = p.bloque_id
+       WHERE b.estacionamiento_id = $1 AND b.tipo_vehiculo = $2
+     ) - (
+       SELECT COUNT(*) FROM plazas p
+       JOIN bloques b ON b.id = p.bloque_id
+       WHERE b.estacionamiento_id = $1 AND b.tipo_vehiculo = $2 AND p.estado = 'ocupada'
+     ) - (
+       SELECT COUNT(*) FROM solicitudes_estacionamiento s
+       JOIN vehiculos v ON v.id = s.vehiculo_id
+       JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+       WHERE s.estacionamiento_id = $1 AND s.estado = 'pendiente' AND tv.categoria_plaza = $2
+     ) AS disponibles`,
+    [estacionamientoId, categoria]
+  );
+  if (dispResult.rows[0].disponibles <= 0) {
+    const error = new Error('No hay plazas disponibles en este estacionamiento');
+    error.status = 409;
+    throw error;
+  }
+
   const tiempoLimite = parseInt(process.env.TIEMPO_LIMITE_INGRESO_MIN, 10) || 30;
 
   const solicitud = await solicitudRepository.create({
