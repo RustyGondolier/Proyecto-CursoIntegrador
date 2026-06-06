@@ -107,6 +107,39 @@
   color: var(--color-text-light, #6B7280);
 }
 
+.controls-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  justify-content: flex-end;
+}
+
+.btn-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border: 2px solid var(--color-border, #E5E7EB);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #1F2937);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+.btn-toggle.active {
+  border-color: #22c55e;
+  background: #22c55e;
+  color: #fff;
+}
+
+.btn-toggle:not(.active) {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
 #toggleRouteBtn {
   margin-left: auto;
 }
