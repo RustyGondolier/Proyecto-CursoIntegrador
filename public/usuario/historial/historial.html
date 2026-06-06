@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Accesos | UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./historial.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <h1>Historial de Accesos</h1>
+
+      <div id="historialError" class="card form-error" style="display:none">
+        <p id="historialErrorText">Error al cargar el historial.</p>
+        <button class="btn btn-primary" onclick="cargarHistorial()">Reintentar</button>
+      </div>
+
+      <section class="card">
+        <div class="historial-count" id="historialCount">Cargando...</div>
+        <div id="historialContent">
+          <p class="historial-empty">Cargando historial...</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="./historial.js"></script>
+</body>
+</html>

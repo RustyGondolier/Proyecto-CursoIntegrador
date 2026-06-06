@@ -7,5 +7,6 @@ const router = express.Router();
 router.post('/crear', authJWT, controller.crear);
 router.get('/activa', authJWT, controller.activa);
 router.post('/cancelar', authJWT, controller.cancelar);
+router.get('/historial', authJWT, controller.getHistorial);
 
 module.exports = router;
