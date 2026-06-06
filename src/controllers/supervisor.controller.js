@@ -14,4 +14,14 @@ async function asignarPlaza(req, res) {
   }
 }
 
-module.exports = { asignarPlaza };
+async function dashboard(req, res) {
+  try {
+    const data = await supervisorService.getDashboard();
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cargar dashboard' });
+  }
+}
+
+module.exports = { asignarPlaza, dashboard };
