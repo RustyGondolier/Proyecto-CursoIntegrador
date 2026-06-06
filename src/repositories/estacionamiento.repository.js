@@ -84,7 +84,21 @@ async function getAll() {
   return result.rows;
 }
 
+async function getPlazasByEstacionamiento(estacionamientoId) {
+  const result = await pool.query(
+    `SELECT p.id, p.codigo, p.numero_plaza, p.estado,
+            b.letra_bloque, b.tipo_vehiculo, b.codigo AS bloque_codigo
+     FROM plazas p
+     JOIN bloques b ON b.id = p.bloque_id
+     WHERE b.estacionamiento_id = $1
+     ORDER BY b.id, p.numero_plaza`,
+    [estacionamientoId]
+  );
+  return result.rows;
+}
+
 module.exports = {
   getOcupacion,
-  getAll
+  getAll,
+  getPlazasByEstacionamiento
 };

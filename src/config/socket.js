@@ -19,6 +19,16 @@ function initSocket(server){
         socket.id
       );
 
+      const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+      if (token) {
+        try {
+          const jwt = require('jsonwebtoken');
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          socket.join(`user:${decoded.id}`);
+          console.log(`Socket ${socket.id} unido a sala user:${decoded.id}`);
+        } catch (_) {}
+      }
+
       socket.on(
         'disconnect',
         () => {
