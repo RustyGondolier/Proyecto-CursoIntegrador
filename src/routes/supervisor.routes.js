@@ -11,5 +11,6 @@ router.get('/buscar', authJWT, requireRole('supervisor', 'administrador'), contr
 router.get('/solicitud/:id', authJWT, requireRole('supervisor', 'administrador'), controller.buscarSolicitud);
 router.get('/plazas-disponibles', authJWT, requireRole('supervisor', 'administrador'), controller.plazasDisponibles);
 router.post('/confirmar-ingreso', authJWT, requireRole('supervisor', 'administrador'), controller.confirmarIngreso);
+router.post('/registrar-salida', authJWT, requireRole('supervisor', 'administrador'), controller.registrarSalida);
 
 module.exports = router;

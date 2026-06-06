@@ -80,4 +80,18 @@ async function confirmarIngreso(req, res) {
   }
 }
 
-module.exports = { asignarPlaza, dashboard, buscar, buscarSolicitud, plazasDisponibles, confirmarIngreso };
+async function registrarSalida(req, res) {
+  try {
+    const { solicitud_id } = req.body;
+    if (!solicitud_id) {
+      return res.status(400).json({ error: 'solicitud_id es requerido' });
+    }
+    const data = await supervisorService.registrarSalida(solicitud_id, req.usuario.id);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  }
+}
+
+module.exports = { asignarPlaza, dashboard, buscar, buscarSolicitud, plazasDisponibles, confirmarIngreso, registrarSalida };
