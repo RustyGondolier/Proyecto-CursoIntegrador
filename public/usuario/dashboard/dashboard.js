@@ -32,6 +32,17 @@ async function renderActiveRequest() {
     }
 
     const data = await response.json();
+
+    if (data.estado === 'ingresado') {
+      container.innerHTML = `
+        <h3>Solicitud activa</h3>
+        <p><strong>Estacionamiento:</strong> ${data.estacionamiento_nombre}</p>
+        <p><strong>Estado:</strong> ${data.estado}</p>
+        <p><strong>Plaza asignada:</strong> ${data.plaza_codigo || '—'}</p>
+      `;
+      return;
+    }
+
     container.innerHTML = `
       <h3>Solicitud activa</h3>
       <p><strong>Estacionamiento:</strong> ${data.estacionamiento_nombre}</p>
@@ -77,6 +88,12 @@ async function renderActiveRequest() {
     container.innerHTML = '<p>No tienes una solicitud activa.</p>';
   }
 }
+
+window.onPlazaAsignada = function () {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  renderActiveRequest();
+};
 
 async function renderLocationStatus() {
   const container = document.getElementById('locationStatus');

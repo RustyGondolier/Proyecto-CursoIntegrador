@@ -159,6 +159,7 @@ function formatearSolicitud(solicitud) {
     estacionamiento_nombre: solicitud.estacionamiento_nombre,
     estado: solicitud.estado,
     tiempo_restante,
+    plaza_codigo: solicitud.plaza_codigo || null,
     hora_solicitud: solicitud.hora_solicitud,
     hora_limite_ingreso: solicitud.hora_limite_ingreso
   };
