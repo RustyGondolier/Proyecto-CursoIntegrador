@@ -14,9 +14,11 @@ async function create({ usuario_id, vehiculo_id, estacionamiento_id, tiempo_limi
 async function findActiveByUser(usuario_id) {
   const result = await pool.query(
     `SELECT s.*, e.nombre AS estacionamiento_nombre,
+       p.codigo AS plaza_codigo,
        EXTRACT(EPOCH FROM (s.hora_limite_ingreso - NOW()))::INTEGER AS tiempo_restante_segundos
      FROM solicitudes_estacionamiento s
      JOIN estacionamientos e ON e.id = s.estacionamiento_id
+     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
      WHERE s.usuario_id = $1 AND s.estado IN ('pendiente', 'ingresado')
      ORDER BY s.creado_en DESC
      LIMIT 1`,
