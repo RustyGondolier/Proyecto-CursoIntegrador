@@ -1,3 +1,18 @@
+const COCHERAS = {
+  1: {
+    svg: 'EstacionamientoSubterraneo',
+    layerParking: 'layer11',
+    layerRutas: 'layer9',
+    matchPlaza: null
+  },
+  2: {
+    svg: 'EstacionamientoExterior',
+    layerParking: 'layer5',
+    layerRutas: 'layer3',
+    matchPlaza: (rect, plazas) => plazas.find(p => p.codigo === rect.id)
+  }
+};
+
 let estacionamientoId = 1;
 let plazasData = [];
 let rectsPlaza = [];
@@ -5,9 +20,6 @@ let plazaAsignadaId = null;
 let rutaVisible = true;
 let svgActual = null;
 let autoMarcadoActivo = true;
-
-const PARKING_LAYER_ID = { 1: 'layer11', 2: 'layer5' };
-const SVG_FILENAME = { 1: 'EstacionamientoSubterraneo', 2: 'EstacionamientoExterior' };
 
 async function init() {
   if (!isAuthenticated()) {
@@ -31,7 +43,6 @@ async function init() {
   document.getElementById('autoMarkerBtn')?.addEventListener('click', toggleAutoMarcado);
 
   window.onPlazaAsignada = async (data) => {
-    console.log('[Mapa] Plaza asignada recibida:', data);
     await cargarMapa(estacionamientoId);
   };
 
@@ -60,8 +71,10 @@ async function cargarMapa(id) {
       plazaAsignadaId = activa.plaza_asignada_id || null;
     }
 
-    const filename = SVG_FILENAME[id];
-    const svgResp = await fetch(`/assets/svg/${filename}.svg`);
+    const cfg = COCHERAS[id];
+    if (!cfg) throw new Error(`Cochera ${id} no configurada`);
+
+    const svgResp = await fetch(`/assets/svg/${cfg.svg}.svg`);
     if (!svgResp.ok) throw new Error('Error al cargar SVG');
     const svgText = await svgResp.text();
 
@@ -85,68 +98,75 @@ async function cargarMapa(id) {
 }
 
 function asignarPlazas(svg) {
-  const layerId = PARKING_LAYER_ID[estacionamientoId];
-  let candidatos;
-
-  if (layerId) {
-    const layer = svg.querySelector(`#${layerId}`);
-    candidatos = layer ? Array.from(layer.querySelectorAll('rect')) : [];
-  } else {
-    candidatos = Array.from(svg.querySelectorAll('rect'));
-  }
-
-  const autoRects = candidatos.filter(r => {
-    const w = parseFloat(r.getAttribute('width'));
-    const h = parseFloat(r.getAttribute('height'));
-    return w >= 8 && h >= 15;
-  });
-
-  const motoRects = candidatos.filter(r => {
-    const w = parseFloat(r.getAttribute('width'));
-    const h = parseFloat(r.getAttribute('height'));
-    return (w >= 5 && w < 8) || (h >= 3 && h < 15);
-  });
+  const cfg = COCHERAS[estacionamientoId];
+  const layer = svg.querySelector(`#${cfg.layerParking}`);
+  const candidatos = layer ? Array.from(layer.querySelectorAll('rect')) : [];
 
   const autoPlazas = plazasData.filter(p => p.tipo_vehiculo === 'auto' || p.codigo?.includes('-A-'));
   const motoPlazas = plazasData.filter(p => p.tipo_vehiculo === 'moto' || p.codigo?.includes('-M-'));
 
   rectsPlaza = [];
 
-  function mapearRects(rects, plazas) {
-    rects.forEach((rect, i) => {
-      if (i >= plazas.length) return;
-      const plaza = plazas[i];
-      rect.id = plaza.codigo;
-      rect.dataset.plazaCodigo = plaza.codigo;
-      rect.dataset.plazaEstado = plaza.estado;
-      rect.dataset.plazaId = plaza.id;
-      rect.dataset.bloqueLetra = plaza.letra_bloque;
-      rect.dataset.numeroPlaza = plaza.numero_plaza;
-      rect.plazaData = plaza;
-      rect.style.cursor = 'pointer';
-      rect.addEventListener('click', () => onPlazaClick(rect.plazaData || plaza, rect));
-      rectsPlaza.push(rect);
-    });
+  if (cfg.matchPlaza) {
+    mapearPorCodigo(candidatos, cfg.matchPlaza);
+  } else {
+    const autoRects = filtrarPorDimension(candidatos, 'auto');
+    const motoRects = filtrarPorDimension(candidatos, 'moto');
+    mapearPosicional(autoRects, autoPlazas);
+    mapearPosicional(motoRects, motoPlazas);
   }
 
-  mapearRects(autoRects, autoPlazas);
-  mapearRects(motoRects, motoPlazas);
+  enlazarRutas(svg);
+}
 
-  // Set dynamic path IDs for direct lookup
-  svg.querySelectorAll('path[id^="ruta"]').forEach(path => {
-    const match = path.id.match(/ruta([A-Z])(\d+)/i);
-    if (!match) return;
-    const letra = match[1].toUpperCase();
-    const num = parseInt(match[2], 10);
-    const plaza = plazasData.find(p => {
-      const bloque = p.codigo?.split('-').slice(-2, -1)[0];
-      const numero = parseInt(p.codigo?.split('-').pop(), 10);
-      return bloque === letra && numero === num;
-    });
-    if (plaza) path.id = `ruta-${plaza.codigo}`;
+function filtrarPorDimension(rects, tipo) {
+  return rects.filter(r => {
+    const w = parseFloat(r.getAttribute('width'));
+    const h = parseFloat(r.getAttribute('height'));
+    if (tipo === 'auto') return w >= 8 && h >= 15;
+    if (tipo === 'moto') return (w >= 5 && w < 8) || (h >= 3 && h < 15);
+    return false;
   });
+}
 
-  console.log(`[Mapa] ${rectsPlaza.length} rects mapeados (${autoPlazas.length} autos, ${motoPlazas.length} motos)`);
+function mapearPorCodigo(rects, matcher) {
+  rects.forEach(rect => {
+    if (!rect.id) return;
+    const plaza = matcher(rect, plazasData);
+    if (!plaza) return;
+    asignarRect(rect, plaza);
+  });
+}
+
+function mapearPosicional(rects, plazas) {
+  rects.forEach((rect, i) => {
+    if (i >= plazas.length) return;
+    asignarRect(rect, plazas[i]);
+  });
+}
+
+function asignarRect(rect, plaza) {
+  rect.dataset.plazaCodigo = plaza.codigo;
+  rect.dataset.plazaEstado = plaza.estado;
+  rect.dataset.plazaId = plaza.id;
+  rect.dataset.bloqueLetra = plaza.letra_bloque;
+  rect.dataset.numeroPlaza = plaza.numero_plaza;
+  rect.plazaData = plaza;
+  rect.style.cursor = 'pointer';
+  rect.addEventListener('click', () => onPlazaClick(rect.plazaData || plaza, rect));
+  rectsPlaza.push(rect);
+}
+
+function enlazarRutas(svg) {
+  const cfg = COCHERAS[estacionamientoId];
+
+  const layerRutas = svg.querySelector(`#${cfg.layerRutas}`);
+  if (!layerRutas) return;
+
+  layerRutas.style.display = '';
+  layerRutas.querySelectorAll('path').forEach(p => {
+    p.style.display = 'inline';
+  });
 }
 
 function colorearPlazas() {
@@ -171,14 +191,17 @@ async function marcarPlazaAsignada() {
   const infoEl = document.getElementById('activeRequestInfo');
   const plazaInfoEl = document.getElementById('plazaInfo');
   const toggleBtn = document.getElementById('toggleRouteBtn');
+  const autoBtn = document.getElementById('autoMarkerBtn');
 
   if (!plazaAsignadaId) {
-    infoEl.innerHTML = '<p>No tienes una plaza asignada.</p>';
+    infoEl.innerHTML = '<p>No tienes una plaza asignada. Selecciona una plaza para ver su ruta.</p>';
     plazaInfoEl.style.display = 'none';
+    autoBtn.style.display = 'none';
     ocultarRuta();
     return;
   }
 
+  autoBtn.style.display = 'inline-block';
   const plaza = plazasData.find(p => String(p.id) === String(plazaAsignadaId));
   if (!plaza) {
     infoEl.innerHTML = '<p>Plaza asignada no encontrada en el mapa.</p>';
@@ -193,7 +216,8 @@ async function marcarPlazaAsignada() {
   if (!autoMarcadoActivo) return;
 
   document.getElementById('plazaInfoTitle').textContent = `Plaza: ${plaza.codigo}`;
-  document.getElementById('plazaInfoDetail').textContent = `Bloque ${plaza.letra_bloque} - Plaza N° ${plaza.numero_plaza} (${plaza.estado})`;
+  document.getElementById('plazaInfoDetail').textContent =
+    `Bloque ${plaza.letra_bloque} - Plaza N° ${plaza.numero_plaza} (${plaza.estado})`;
   toggleBtn.style.display = 'inline-block';
   toggleBtn.textContent = 'Ocultar ruta';
   plazaInfoEl.style.display = 'flex';
@@ -204,39 +228,16 @@ async function marcarPlazaAsignada() {
 }
 
 function mostrarRuta(plazaCodigo) {
-  if (!svgActual) return;
-
   ocultarRuta();
 
-  const ruta = svgActual.getElementById(`ruta-${plazaCodigo}`);
-  if (ruta) {
-    ruta.classList.add('ruta-visible');
-    return;
-  }
-
-  const bloque = plazaCodigo.split('-').slice(-2, -1)[0];
-  const numero = plazaCodigo.split('-').pop();
-  let encontrada = false;
-
-  svgActual.querySelectorAll('path[id^="ruta"]').forEach(path => {
-    const match = path.id.match(/ruta([A-Z])(\d+)/i);
-    if (!match) return;
-
-    if (match[1].toUpperCase() === bloque && parseInt(match[2], 10) === parseInt(numero, 10)) {
-      path.classList.add('ruta-visible');
-      encontrada = true;
-    }
-  });
-
-  if (!encontrada) {
-    console.warn('[Mapa] No se encontró ruta exacta para', plazaCodigo, ', mostrando todas como fallback');
-    svgActual.querySelectorAll('path[id^="ruta"]').forEach(path => path.classList.add('ruta-visible'));
-  }
+  const ruta = document.getElementById(`ruta-${plazaCodigo}`);
+  if (ruta) ruta.style.display = 'inline';
 }
 
 function ocultarRuta() {
-  if (!svgActual) return;
-  svgActual.querySelectorAll('path[id^="ruta"]').forEach(path => path.classList.remove('ruta-visible'));
+  document.querySelectorAll('path[id^="ruta"]').forEach(p => {
+    p.style.display = 'none';
+  });
 }
 
 function toggleAutoMarcado() {
@@ -254,8 +255,7 @@ function toggleAutoMarcado() {
 }
 
 function ocultarAutoMarcado() {
-  const plazaInfoEl = document.getElementById('plazaInfo');
-  plazaInfoEl.style.display = 'none';
+  document.getElementById('plazaInfo').style.display = 'none';
   ocultarRuta();
 }
 
@@ -286,18 +286,16 @@ function onPlazaClick(plaza, rect) {
 
   if (plazaAsignadaId && String(plaza.id) === String(plazaAsignadaId)) {
     toggleBtn.style.display = 'inline-block';
-    if (rutaVisible) {
-      toggleBtn.textContent = 'Ocultar ruta';
-    } else {
-      toggleBtn.textContent = 'Mostrar ruta';
-    }
-  } else if (plaza.estado === 'ocupada' || plaza.estado === 'disponible') {
-    toggleBtn.style.display = 'none';
+    toggleBtn.textContent = rutaVisible ? 'Ocultar ruta' : 'Mostrar ruta';
   } else {
     toggleBtn.style.display = 'none';
   }
 
   plazaInfoEl.style.display = 'flex';
+
+  if (!plazaAsignadaId || String(plaza.id) === String(plazaAsignadaId)) {
+    mostrarRuta(plaza.codigo);
+  }
 }
 
 function alternarCochera(id) {
