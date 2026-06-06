@@ -40,7 +40,7 @@ async function cancel(id) {
   const result = await pool.query(
     `UPDATE solicitudes_estacionamiento
      SET estado = 'cancelado'
-     WHERE id = $1 AND estado IN ('pendiente', 'ingresado')
+     WHERE id = $1 AND estado = 'pendiente'
      RETURNING *`,
     [id]
   );

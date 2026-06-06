@@ -60,9 +60,16 @@ async function renderActiveRequest() {
     }
 
     document.getElementById('cancelRequestBtn')?.addEventListener('click', async () => {
+      if (!confirm('¿Estás seguro de cancelar la solicitud?')) return;
       clearInterval(timerInterval);
       timerInterval = null;
-      await apiFetch('/api/solicitudes/cancelar', { method: 'POST' });
+      const res = await apiFetch('/api/solicitudes/cancelar', { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || 'Error al cancelar');
+        renderActiveRequest();
+        return;
+      }
       renderActiveRequest();
       updateParkingGrid();
     });
