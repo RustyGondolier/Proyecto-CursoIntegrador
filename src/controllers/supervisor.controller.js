@@ -94,4 +94,18 @@ async function registrarSalida(req, res) {
   }
 }
 
-module.exports = { asignarPlaza, dashboard, buscar, buscarSolicitud, plazasDisponibles, confirmarIngreso, registrarSalida };
+async function buscarIdentificador(req, res) {
+  try {
+    const { estacionamiento_id, tipo_vehiculo, codigo } = req.query;
+    if (!estacionamiento_id || !tipo_vehiculo || !codigo) {
+      return res.status(400).json({ error: 'estacionamiento_id, tipo_vehiculo y codigo son requeridos' });
+    }
+    const data = await supervisorService.buscarPorIdentificador(estacionamiento_id, tipo_vehiculo, codigo);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  }
+}
+
+module.exports = { asignarPlaza, dashboard, buscar, buscarSolicitud, plazasDisponibles, confirmarIngreso, registrarSalida, buscarIdentificador };

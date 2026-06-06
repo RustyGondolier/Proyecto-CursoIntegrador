@@ -1,5 +1,7 @@
 let solicitudSalidaId = null;
 let lastSearchData = null;
+let timerInterval = null;
+let modoBusqueda = 'placa';
 
 async function init() {
   if (!isAuthenticated()) {
@@ -10,9 +12,39 @@ async function init() {
   await loadLayout();
 
   document.getElementById('placaInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') buscar();
+    if (e.key === 'Enter') buscarPorPlaca();
   });
-  document.getElementById('searchBtn').addEventListener('click', buscar);
+  document.getElementById('searchPlacaBtn').addEventListener('click', buscarPorPlaca);
+  document.getElementById('codigoInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') buscarPorCodigo();
+  });
+  document.getElementById('searchCodigoBtn').addEventListener('click', buscarPorCodigo);
+
+  document.getElementById('tabPlaca').addEventListener('click', () => cambiarModo('placa'));
+  document.getElementById('tabCodigo').addEventListener('click', () => cambiarModo('codigo'));
+
+  await cargarEstacionamientos();
+}
+
+function cambiarModo(modo) {
+  modoBusqueda = modo;
+  document.getElementById('tabPlaca').classList.toggle('active', modo === 'placa');
+  document.getElementById('tabCodigo').classList.toggle('active', modo === 'codigo');
+  document.getElementById('searchPlaca').classList.toggle('hidden', modo !== 'placa');
+  document.getElementById('searchCodigo').classList.toggle('hidden', modo !== 'codigo');
+  limpiarError();
+}
+
+async function cargarEstacionamientos() {
+  try {
+    const response = await apiFetch('/api/estacionamientos');
+    if (!response.ok) return;
+    const data = await response.json();
+    const select = document.getElementById('estacionamientoSelect');
+    select.innerHTML = data.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+  } catch {
+    mostrarError('Error al cargar estacionamientos');
+  }
 }
 
 function limpiarError() {
@@ -23,7 +55,13 @@ function mostrarError(msg) {
   document.getElementById('searchError').textContent = msg;
 }
 
-async function buscar() {
+function ocultarResultados() {
+  document.getElementById('resultContainer').classList.add('hidden');
+  document.getElementById('emptyResult').classList.remove('hidden');
+  solicitudSalidaId = null;
+}
+
+async function buscarPorPlaca() {
   const input = document.getElementById('placaInput');
   const placa = input.value.trim().toUpperCase();
 
@@ -39,9 +77,7 @@ async function buscar() {
   }
 
   limpiarError();
-  document.getElementById('resultContainer').classList.add('hidden');
-  document.getElementById('emptyResult').classList.remove('hidden');
-  solicitudSalidaId = null;
+  ocultarResultados();
 
   try {
     const response = await apiFetch(`/api/supervisor/buscar?placa=${encodeURIComponent(placa)}`);
@@ -50,7 +86,41 @@ async function buscar() {
       mostrarError(err.error || 'Vehículo no encontrado');
       return;
     }
+    const data = await response.json();
+    lastSearchData = data;
+    mostrarResultado(data);
+  } catch {
+    mostrarError('Error de conexión al buscar');
+  }
+}
 
+async function buscarPorCodigo() {
+  const estacionamientoId = document.getElementById('estacionamientoSelect').value;
+  const tipoVehiculo = document.getElementById('tipoVehiculoSelect').value;
+  const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+
+  if (!codigo) {
+    mostrarError('Ingrese el código (Bloque-Plaza)');
+    return;
+  }
+
+  if (!/^[A-Z]-\d+$/.test(codigo) && !/^[A-Z]\d+$/.test(codigo)) {
+    mostrarError('Formato inválido. Use: A-12');
+    return;
+  }
+
+  limpiarError();
+  ocultarResultados();
+
+  try {
+    const response = await apiFetch(
+      `/api/supervisor/buscar-identificador?estacionamiento_id=${estacionamientoId}&tipo_vehiculo=${tipoVehiculo}&codigo=${encodeURIComponent(codigo)}`
+    );
+    if (!response.ok) {
+      const err = await response.json();
+      mostrarError(err.error || 'No se encontraron resultados');
+      return;
+    }
     const data = await response.json();
     lastSearchData = data;
     mostrarResultado(data);
@@ -67,7 +137,6 @@ function calcularPermanencia(horaIngreso) {
   const totalMin = Math.floor(diffMs / 60000);
   const horas = Math.floor(totalMin / 60);
   const minutos = totalMin % 60;
-
   if (horas > 0) return `${horas}h ${minutos}min`;
   return `${minutos}min`;
 }
@@ -170,7 +239,7 @@ function mostrarResultado(data) {
         <div class="user-avatar">${initial}</div>
         <div class="user-info">
           <h2>${data.usuario_nombre}</h2>
-          <p class="user-placa">${data.placa}</p>
+          <p class="user-placa">${data.placa || '—'}</p>
         </div>
       </div>
       <div class="user-details">
@@ -192,8 +261,6 @@ function mostrarResultado(data) {
   }
 }
 
-let timerInterval = null;
-
 async function confirmarSalida() {
   if (!solicitudSalidaId) return;
 
@@ -204,9 +271,7 @@ async function confirmarSalida() {
   try {
     const response = await apiFetch('/api/supervisor/registrar-salida', {
       method: 'POST',
-      body: JSON.stringify({
-        solicitud_id: solicitudSalidaId
-      })
+      body: JSON.stringify({ solicitud_id: solicitudSalidaId })
     });
 
     if (!response.ok) {

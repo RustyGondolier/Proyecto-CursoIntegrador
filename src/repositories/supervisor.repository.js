@@ -139,16 +139,17 @@ async function buscarPorSolicitudId(solicitudId) {
   return result.rows[0] || null;
 }
 
-async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
+async function confirmarIngreso(solicitudId, plazaId, supervisorId, identificadorCodigo) {
   const result = await pool.query(`
     UPDATE solicitudes_estacionamiento
     SET estado = 'ingresado',
         plaza_asignada_id = $2,
         hora_ingreso = NOW(),
-        supervisor_ingreso_id = $3
+        supervisor_ingreso_id = $3,
+        identificador_codigo = $4
     WHERE id = $1 AND estado = 'pendiente'
     RETURNING *
-  `, [solicitudId, plazaId, supervisorId]);
+  `, [solicitudId, plazaId, supervisorId, identificadorCodigo]);
   return result.rows[0] || null;
 }
 
@@ -165,6 +166,39 @@ async function registrarSalida(solicitudId, supervisorId) {
   return result.rows[0] || null;
 }
 
+async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza) {
+  const result = await pool.query(`
+    SELECT
+      s.id AS solicitud_id,
+      s.estado AS solicitud_estado,
+      s.hora_ingreso,
+      s.hora_limite_ingreso,
+      s.identificador_codigo,
+      u.id AS usuario_id,
+      u.nombre AS usuario_nombre,
+      u.codigo_universitario,
+      v.placa,
+      tv.descripcion AS tipo_vehiculo,
+      e.id AS estacionamiento_id,
+      e.nombre AS estacionamiento_nombre,
+      p.codigo AS plaza_codigo
+    FROM solicitudes_estacionamiento s
+    JOIN vehiculos v ON v.id = s.vehiculo_id
+    JOIN usuarios u ON u.id = s.usuario_id
+    JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+    JOIN plazas p ON p.id = s.plaza_asignada_id
+    JOIN bloques b ON b.id = p.bloque_id
+    JOIN estacionamientos e ON e.id = b.estacionamiento_id
+    WHERE s.estado = 'ingresado'
+      AND b.estacionamiento_id = $1
+      AND b.tipo_vehiculo = $2
+      AND b.letra_bloque = $3
+      AND p.numero_plaza = $4
+    LIMIT 1
+  `, [estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza]);
+  return result.rows[0] || null;
+}
+
 module.exports = {
   getDashboardData,
   getSolicitudesPendientes,
@@ -173,5 +207,6 @@ module.exports = {
   plazasDisponibles,
   confirmarIngreso,
   buscarPorSolicitudId,
-  registrarSalida
+  registrarSalida,
+  buscarPorIdentificador
 };

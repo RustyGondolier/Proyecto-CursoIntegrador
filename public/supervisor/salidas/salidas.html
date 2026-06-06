@@ -22,19 +22,60 @@
     <main class="content">
       <section class="card search-section">
         <h1>Registro de Salida</h1>
-        <p class="search-subtitle">Busque el vehículo por placa para registrar su salida</p>
+        <p class="search-subtitle">Busque el vehículo para registrar su salida</p>
 
-        <div class="search-bar">
-          <input
-            type="text"
-            id="placaInput"
-            class="search-input"
-            placeholder="Ingrese la placa (ej: ABC-123)"
-            maxlength="20"
-            autocomplete="off"
-          >
-          <button id="searchBtn" class="btn btn-primary">Buscar</button>
+        <div class="search-tabs">
+          <button id="tabPlaca" class="search-tab active">Buscar por Placa</button>
+          <button id="tabCodigo" class="search-tab">Buscar por Código</button>
         </div>
+
+        <div id="searchPlaca" class="search-panel">
+          <div class="search-bar">
+            <input
+              type="text"
+              id="placaInput"
+              class="search-input"
+              placeholder="Ingrese la placa (ej: ABC-123)"
+              maxlength="20"
+              autocomplete="off"
+            >
+            <button id="searchPlacaBtn" class="btn btn-primary">Buscar</button>
+          </div>
+        </div>
+
+        <div id="searchCodigo" class="search-panel hidden">
+          <div class="codigo-form">
+            <div class="codigo-row">
+              <div class="codigo-field">
+                <label class="codigo-label">Estacionamiento</label>
+                <select id="estacionamientoSelect" class="search-select"></select>
+              </div>
+              <div class="codigo-field">
+                <label class="codigo-label">Tipo Vehículo</label>
+                <select id="tipoVehiculoSelect" class="search-select">
+                  <option value="auto">Auto</option>
+                  <option value="moto">Moto</option>
+                </select>
+              </div>
+              <div class="codigo-field">
+                <label class="codigo-label">Código (Bloque-Plaza)</label>
+                <input
+                  type="text"
+                  id="codigoInput"
+                  class="search-input"
+                  placeholder="Ej: A-12"
+                  maxlength="10"
+                  autocomplete="off"
+                >
+              </div>
+              <div class="codigo-field codigo-btn-field">
+                <label class="codigo-label">&nbsp;</label>
+                <button id="searchCodigoBtn" class="btn btn-primary">Buscar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <p id="searchError" class="search-error"></p>
       </section>
 
