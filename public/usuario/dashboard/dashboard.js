@@ -95,6 +95,12 @@ window.onPlazaAsignada = function () {
   renderActiveRequest();
 };
 
+window.onSalidaRegistrada = function () {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  renderActiveRequest();
+};
+
 async function renderLocationStatus() {
   const container = document.getElementById('locationStatus');
   container.innerHTML = '<p>Obteniendo ubicación...</p>';

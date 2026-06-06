@@ -26,3 +26,10 @@ socket.on('plaza:asignada', (data) => {
     window.onPlazaAsignada(data);
   }
 });
+
+socket.on('salida:registrada', (data) => {
+  console.log('[WS] Salida registrada:', data);
+  if (typeof window.onSalidaRegistrada === 'function') {
+    window.onSalidaRegistrada(data);
+  }
+});
