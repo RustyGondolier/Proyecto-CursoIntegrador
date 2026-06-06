@@ -27,5 +27,11 @@ router.get(
   controller.ocupacion
 );
 
+router.get(
+  '/:id/plazas',
+  authJWT,
+  controller.listarPlazas
+);
+
 module.exports =
   router;

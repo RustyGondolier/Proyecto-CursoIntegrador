@@ -75,6 +75,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/supervisor',
+  require(
+    './routes/supervisor.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

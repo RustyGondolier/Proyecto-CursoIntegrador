@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Estacionamiento | UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./estacionamiento.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <h1>Mapa de Estacionamiento</h1>
+
+      <div class="parking-selector">
+        <button class="btn select-btn active" data-id="1">Cochera 1 (Subterráneo)</button>
+        <button class="btn select-btn" data-id="2">Cochera 2 (Exterior)</button>
+      </div>
+
+      <div id="activeRequestInfo" class="card"></div>
+
+      <div class="map-container">
+        <div id="svgContainer" class="svg-wrapper">
+          <p class="loading-text">Cargando mapa...</p>
+        </div>
+
+        <div class="sidebar-legend">
+          <h3>Leyenda</h3>
+          <div class="legend-item"><span class="legend-color disponible"></span> Disponible</div>
+          <div class="legend-item"><span class="legend-color ocupada"></span> Ocupada</div>
+          <div class="legend-item"><span class="legend-color mi-plaza"></span> Mi plaza</div>
+          <div class="legend-item"><span class="legend-color bloqueada"></span> Bloqueada</div>
+          <div class="legend-item"><span class="legend-color mantenimiento"></span> Mantenimiento</div>
+          <div class="legend-item"><span class="legend-color ruta"></span> Ruta indicada</div>
+        </div>
+      </div>
+
+      <div id="plazaInfo" class="card plaza-info" style="display:none">
+        <h3 id="plazaInfoTitle">Plaza seleccionada</h3>
+        <p id="plazaInfoDetail"></p>
+        <button id="toggleRouteBtn" class="btn btn-secondary" style="display:none">Ocultar ruta</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/shared/js/websocket.js"></script>
+  <script src="./estacionamiento.js"></script>
+</body>
+</html>

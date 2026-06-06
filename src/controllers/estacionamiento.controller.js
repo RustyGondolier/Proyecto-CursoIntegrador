@@ -39,7 +39,19 @@ async function listar(req, res) {
   }
 }
 
+async function listarPlazas(req, res) {
+  try {
+    const { id } = req.params;
+    const data = await estacionamientoService.obtenerPlazas(id);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+}
+
 module.exports = {
   ocupacion,
-  listar
+  listar,
+  listarPlazas
 };

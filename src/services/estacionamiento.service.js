@@ -15,7 +15,12 @@ async function listar() {
   return estacionamientoRepository.getAll();
 }
 
+async function obtenerPlazas(estacionamientoId) {
+  return estacionamientoRepository.getPlazasByEstacionamiento(estacionamientoId);
+}
+
 module.exports = {
   obtenerOcupacion,
-  listar
+  listar,
+  obtenerPlazas
 };

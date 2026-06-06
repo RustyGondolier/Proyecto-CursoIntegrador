@@ -1,5 +1,8 @@
+const token = localStorage.getItem('token');
+
 const socket = io(window.location.origin, {
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  auth: { token }
 });
 
 socket.on('connect', () => {
@@ -14,5 +17,12 @@ socket.on('ocupacion:updated', () => {
   console.log('[WS] Evento ocupacion:updated recibido');
   if (typeof window.refreshParkingGrid === 'function') {
     window.refreshParkingGrid();
+  }
+});
+
+socket.on('plaza:asignada', (data) => {
+  console.log('[WS] Plaza asignada:', data);
+  if (typeof window.onPlazaAsignada === 'function') {
+    window.onPlazaAsignada(data);
   }
 });
