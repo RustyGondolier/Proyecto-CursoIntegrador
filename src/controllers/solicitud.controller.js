@@ -39,8 +39,19 @@ async function cancelar(req, res) {
   }
 }
 
+async function getHistorial(req, res) {
+  try {
+    const data = await solicitudService.obtenerHistorial(req.usuario.id);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cargar el historial' });
+  }
+}
+
 module.exports = {
   crear,
   activa,
-  cancelar
+  cancelar,
+  getHistorial
 };

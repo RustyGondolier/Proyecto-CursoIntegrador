@@ -66,11 +66,29 @@ async function assignPlaza(id, plazaId) {
   return result.rows[0] || null;
 }
 
+async function findHistorialByUser(usuarioId) {
+  const result = await pool.query(
+    `SELECT s.id, s.hora_solicitud, s.hora_ingreso, s.hora_salida,
+            s.estado, s.tiempo_permanencia_min, s.plaza_asignada_id,
+            e.nombre AS estacionamiento_nombre,
+            p.codigo AS plaza_codigo
+     FROM solicitudes_estacionamiento s
+     JOIN estacionamientos e ON e.id = s.estacionamiento_id
+     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
+     WHERE s.usuario_id = $1
+     ORDER BY s.hora_solicitud DESC
+     LIMIT 50`,
+    [usuarioId]
+  );
+  return result.rows;
+}
+
 module.exports = {
   create,
   findActiveByUser,
   findById,
   cancel,
   expireOlderThan,
-  assignPlaza
+  assignPlaza,
+  findHistorialByUser
 };

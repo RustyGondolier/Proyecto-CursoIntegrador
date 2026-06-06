@@ -175,8 +175,23 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+async function obtenerHistorial(usuarioId) {
+  const registros = await solicitudRepository.findHistorialByUser(usuarioId);
+  return registros.map(r => ({
+    id: r.id,
+    estacionamiento: r.estacionamiento_nombre,
+    plaza_codigo: r.plaza_codigo || '—',
+    estado: r.estado,
+    hora_solicitud: r.hora_solicitud,
+    hora_ingreso: r.hora_ingreso,
+    hora_salida: r.hora_salida,
+    tiempo_permanencia_min: r.tiempo_permanencia_min
+  }));
+}
+
 module.exports = {
   crear,
   obtenerActiva,
-  cancelar
+  cancelar,
+  obtenerHistorial
 };
