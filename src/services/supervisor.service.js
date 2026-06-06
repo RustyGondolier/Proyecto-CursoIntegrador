@@ -91,7 +91,7 @@ async function obtenerPlazasDisponibles(estacionamientoId, categoriaPlaza) {
 
 async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
   const plaza = await pool.query(
-    `SELECT p.*, b.estacionamiento_id FROM plazas p JOIN bloques b ON b.id = p.bloque_id WHERE p.id = $1`,
+    `SELECT p.*, p.numero_plaza, b.letra_bloque, b.estacionamiento_id FROM plazas p JOIN bloques b ON b.id = p.bloque_id WHERE p.id = $1`,
     [plazaId]
   );
   if (!plaza.rows[0]) {
@@ -105,7 +105,8 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
     throw error;
   }
 
-  const solicitud = await supervisorRepository.confirmarIngreso(solicitudId, plazaId, supervisorId);
+  const identificador = `${plaza.rows[0].letra_bloque}-${String(plaza.rows[0].numero_plaza).padStart(2, '0')}`;
+  const solicitud = await supervisorRepository.confirmarIngreso(solicitudId, plazaId, supervisorId, identificador);
   if (!solicitud) {
     const error = new Error('Solicitud no encontrada o ya no está pendiente');
     error.status = 404;
@@ -169,4 +170,25 @@ async function registrarSalida(solicitudId, supervisorId) {
   };
 }
 
-module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso, registrarSalida };
+async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, codigo) {
+  const match = codigo.match(/^([A-Z])-?(\d+)$/i);
+  if (!match) {
+    const error = new Error('Formato de código inválido. Use: A-12');
+    error.status = 400;
+    throw error;
+  }
+  const letraBloque = match[1].toUpperCase();
+  const numeroPlaza = parseInt(match[2], 10);
+
+  const resultado = await supervisorRepository.buscarPorIdentificador(
+    estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza
+  );
+  if (!resultado) {
+    const error = new Error('No se encontró ninguna solicitud activa con ese código');
+    error.status = 404;
+    throw error;
+  }
+  return resultado;
+}
+
+module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso, registrarSalida, buscarPorIdentificador };
