@@ -1,8 +1,35 @@
 const reporteRepository = require('../repositories/reporte.repository');
 const solicitudRepository = require('../repositories/solicitud.repository');
+const notificacionService = require('./notificacion.service');
 
 async function listar(usuario_id) {
   return reporteRepository.findByUserId(usuario_id);
+}
+
+async function listarTodos(estado_id) {
+  return reporteRepository.findAll(estado_id || null);
+}
+
+async function marcarEnRevision({ id, supervisor_id }) {
+  const reporte = await reporteRepository.findById(id);
+  if (!reporte) {
+    const error = new Error('Reporte no encontrado');
+    error.status = 404;
+    throw error;
+  }
+  if (reporte.estado_id !== 1) return reporte;
+
+  return reporteRepository.marcarEnRevision({ id, supervisor_id });
+}
+
+async function obtenerDetalle(id) {
+  const reporte = await reporteRepository.findById(id);
+  if (!reporte) {
+    const error = new Error('Reporte no encontrado');
+    error.status = 404;
+    throw error;
+  }
+  return reporte;
 }
 
 async function crear({ usuario_id, estacionamiento_id, descripcion }) {
@@ -23,7 +50,90 @@ async function crear({ usuario_id, estacionamiento_id, descripcion }) {
   });
 }
 
+async function responder({ id, supervisor_id, respuesta }) {
+  if (!respuesta || respuesta.trim().length < 5) {
+    const error = new Error('La respuesta debe tener al menos 5 caracteres');
+    error.status = 400;
+    throw error;
+  }
+
+  const reporte = await reporteRepository.findById(id);
+  if (!reporte) {
+    const error = new Error('Reporte no encontrado');
+    error.status = 404;
+    throw error;
+  }
+
+  const actualizado = await reporteRepository.updateEstado({
+    id,
+    estado_id: 3,
+    supervisor_id,
+    respuesta_supervisor: respuesta.trim()
+  });
+
+  if (!actualizado) {
+    const error = new Error('Error al actualizar el reporte');
+    error.status = 500;
+    throw error;
+  }
+
+  try {
+    await notificacionService.notificar({
+      usuario_id: reporte.usuario_id,
+      tipo_codigo: 'reporte',
+      titulo: 'Reporte resuelto',
+      mensaje: `Tu reporte #REP-${String(id).padStart(5, '0')} ha sido resuelto por un supervisor.`,
+      url_destino: `/usuario/reportes/reportes.html`
+    });
+  } catch (_) {}
+
+  return actualizado;
+}
+
+async function marcarPrioritario({ id, supervisor_id, razon }) {
+  if (!razon || razon.trim().length < 5) {
+    const error = new Error('Debe indicar una razón para marcar como prioritario');
+    error.status = 400;
+    throw error;
+  }
+
+  const reporte = await reporteRepository.findById(id);
+  if (!reporte) {
+    const error = new Error('Reporte no encontrado');
+    error.status = 404;
+    throw error;
+  }
+
+  const actualizado = await reporteRepository.marcarPrioritario({
+    id,
+    supervisor_id,
+    razon_prioridad: razon.trim()
+  });
+
+  if (!actualizado) {
+    const error = new Error('Error al marcar como prioritario');
+    error.status = 500;
+    throw error;
+  }
+
+  try {
+    await notificacionService.notificarAdministradores({
+      tipo_codigo: 'reporte',
+      titulo: 'Reporte prioritario',
+      mensaje: `El reporte #REP-${String(id).padStart(5, '0')} ha sido marcado como prioritario por un supervisor. Razón: ${razon.trim()}`,
+      url_destino: `/administrador/incidencias/incidencias.html`
+    });
+  } catch (_) {}
+
+  return actualizado;
+}
+
 module.exports = {
   listar,
-  crear
+  listarTodos,
+  marcarEnRevision,
+  obtenerDetalle,
+  crear,
+  responder,
+  marcarPrioritario
 };
