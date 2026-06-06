@@ -2,6 +2,7 @@ const pool = require('../../db');
 const { getIO } = require('../config/socket');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const plazaRepository = require('../repositories/plaza.repository');
+const supervisorRepository = require('../repositories/supervisor.repository');
 
 async function asignarPlaza(solicitudId, plazaId, supervisorId) {
   const solicitud = await solicitudRepository.findById(solicitudId);
@@ -47,4 +48,21 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
   return { mensaje: 'Plaza asignada exitosamente' };
 }
 
-module.exports = { asignarPlaza };
+async function getDashboard() {
+  const [dashboard, pendientesList, movimientos] = await Promise.all([
+    supervisorRepository.getDashboardData(),
+    supervisorRepository.getSolicitudesPendientes(),
+    supervisorRepository.getUltimosMovimientos()
+  ]);
+  return {
+    pendientes_count: dashboard.pendientes_count,
+    ingresos_hoy: dashboard.ingresos_hoy,
+    salidas_hoy: dashboard.salidas_hoy,
+    incidencias_pendientes: dashboard.incidencias_pendientes,
+    ocupacion_porcentaje: dashboard.ocupacion_porcentaje,
+    pendientes: pendientesList,
+    movimientos
+  };
+}
+
+module.exports = { asignarPlaza, getDashboard };

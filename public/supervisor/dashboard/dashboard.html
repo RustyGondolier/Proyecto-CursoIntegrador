@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Supervisor - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <section class="card welcome-card">
+        <h1 id="welcomeText">Bienvenido</h1>
+        <p>Panel de supervisión</p>
+      </section>
+
+      <section id="statsContainer" class="stats-grid"></section>
+
+      <section class="two-column">
+        <section id="pendingRequests" class="card section-card">
+          <div class="section-header">
+            <h2>Solicitudes Pendientes</h2>
+            <a href="/supervisor/ingresos/ingresos.html" class="btn btn-primary btn-sm">Ir a Ingresos</a>
+          </div>
+          <div id="pendingList" class="table-container"></div>
+        </section>
+
+        <section id="recentMovements" class="card section-card">
+          <div class="section-header">
+            <h2>Últimos Movimientos</h2>
+          </div>
+          <div id="movementsList" class="table-container"></div>
+        </section>
+      </section>
+
+      <section id="parkingContainer" class="parking-grid"></section>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/shared/js/websocket.js"></script>
+  <script src="./dashboard.js"></script>
+</body>
+</html>
