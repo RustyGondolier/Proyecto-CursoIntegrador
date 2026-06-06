@@ -12,9 +12,24 @@ async function loadLayout(){
     .innerHTML =
       await headerResponse.text();
 
+  const modo =
+    JSON.parse(
+      localStorage.getItem(
+        'modoIngreso'
+      ) || '{}'
+    );
+
+  const rol =
+    modo.rol || 'usuario';
+
+  const sidebarFile =
+    rol === 'usuario'
+      ? 'sidebar.html'
+      : `sidebar-${rol}.html`;
+
   const sidebarResponse =
     await fetch(
-      '/shared/components/sidebar.html'
+      `/shared/components/${sidebarFile}`
     );
 
   document
