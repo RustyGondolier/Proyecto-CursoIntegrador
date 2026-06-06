@@ -60,8 +60,97 @@ async function getUltimosMovimientos(limite = 10) {
   return result.rows;
 }
 
+async function buscarPorPlaca(placa) {
+  const result = await pool.query(`
+    SELECT
+      u.id AS usuario_id,
+      u.nombre AS usuario_nombre,
+      u.codigo_universitario,
+      u.rol,
+      v.id AS vehiculo_id,
+      v.placa,
+      tv.descripcion AS tipo_vehiculo,
+      tv.categoria_plaza,
+      s.id AS solicitud_id,
+      s.estado AS solicitud_estado,
+      s.hora_limite_ingreso,
+      EXTRACT(EPOCH FROM (s.hora_limite_ingreso - NOW()))::INTEGER AS tiempo_restante_segundos,
+      e.id AS estacionamiento_id,
+      e.nombre AS estacionamiento_nombre
+    FROM vehiculos v
+    JOIN usuarios u ON u.id = v.usuario_id
+    JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+    LEFT JOIN solicitudes_estacionamiento s
+      ON s.vehiculo_id = v.id AND s.estado = 'pendiente'
+    LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
+    WHERE v.placa = $1 AND v.activo = true
+    LIMIT 1
+  `, [placa]);
+  return result.rows[0] || null;
+}
+
+async function plazasDisponibles(estacionamientoId, categoriaPlaza) {
+  const result = await pool.query(`
+    SELECT p.id, p.codigo, p.numero_plaza, p.estado,
+           b.letra_bloque, b.codigo AS bloque_codigo, b.tipo_vehiculo,
+           tp.codigo AS tipo_plaza, tp.descripcion AS tipo_plaza_descripcion
+    FROM plazas p
+    JOIN bloques b ON b.id = p.bloque_id
+    JOIN tipos_plaza tp ON tp.id = p.tipo_plaza_id
+    WHERE b.estacionamiento_id = $1
+      AND b.tipo_vehiculo = $2
+      AND p.estado = 'disponible'
+    ORDER BY b.id, p.numero_plaza
+  `, [estacionamientoId, categoriaPlaza]);
+  return result.rows;
+}
+
+async function buscarPorSolicitudId(solicitudId) {
+  const result = await pool.query(`
+    SELECT
+      u.id AS usuario_id,
+      u.nombre AS usuario_nombre,
+      u.codigo_universitario,
+      u.rol,
+      v.id AS vehiculo_id,
+      v.placa,
+      tv.descripcion AS tipo_vehiculo,
+      tv.categoria_plaza,
+      s.id AS solicitud_id,
+      s.estado AS solicitud_estado,
+      s.hora_limite_ingreso,
+      EXTRACT(EPOCH FROM (s.hora_limite_ingreso - NOW()))::INTEGER AS tiempo_restante_segundos,
+      e.id AS estacionamiento_id,
+      e.nombre AS estacionamiento_nombre
+    FROM solicitudes_estacionamiento s
+    JOIN vehiculos v ON v.id = s.vehiculo_id
+    JOIN usuarios u ON u.id = s.usuario_id
+    JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
+    LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
+    WHERE s.id = $1 AND s.estado = 'pendiente'
+    LIMIT 1
+  `, [solicitudId]);
+  return result.rows[0] || null;
+}
+
+async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
+  const result = await pool.query(`
+    UPDATE solicitudes_estacionamiento
+    SET estado = 'ingresado',
+        plaza_asignada_id = $2,
+        hora_ingreso = NOW(),
+        supervisor_ingreso_id = $3
+    WHERE id = $1 AND estado = 'pendiente'
+    RETURNING *
+  `, [solicitudId, plazaId, supervisorId]);
+  return result.rows[0] || null;
+}
+
 module.exports = {
   getDashboardData,
   getSolicitudesPendientes,
-  getUltimosMovimientos
+  getUltimosMovimientos,
+  buscarPorPlaca,
+  plazasDisponibles,
+  confirmarIngreso
 };
