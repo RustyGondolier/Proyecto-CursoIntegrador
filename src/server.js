@@ -82,6 +82,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/infracciones',
+  require(
+    './routes/infraccion.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(
