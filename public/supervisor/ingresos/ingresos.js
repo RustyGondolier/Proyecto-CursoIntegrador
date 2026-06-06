@@ -42,6 +42,12 @@ async function buscar() {
     return;
   }
 
+  const formatoValido = /^[A-Z]{2,3}-\d{3,4}$/.test(placa);
+  if (!formatoValido) {
+    mostrarError('Formato inválido. Use formato: ABC-123 o AB-1234');
+    return;
+  }
+
   limpiarError();
   document.getElementById('resultContainer').classList.add('hidden');
   document.getElementById('emptyResult').classList.remove('hidden');
