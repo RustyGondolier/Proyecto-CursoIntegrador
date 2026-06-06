@@ -65,4 +65,69 @@ async function getDashboard() {
   };
 }
 
-module.exports = { asignarPlaza, getDashboard };
+async function buscarPorPlaca(placa) {
+  const resultado = await supervisorRepository.buscarPorPlaca(placa);
+  if (!resultado) {
+    const error = new Error('Vehículo no encontrado');
+    error.status = 404;
+    throw error;
+  }
+  return resultado;
+}
+
+async function buscarPorSolicitudId(solicitudId) {
+  const resultado = await supervisorRepository.buscarPorSolicitudId(solicitudId);
+  if (!resultado) {
+    const error = new Error('Solicitud no encontrada o ya no está pendiente');
+    error.status = 404;
+    throw error;
+  }
+  return resultado;
+}
+
+async function obtenerPlazasDisponibles(estacionamientoId, categoriaPlaza) {
+  return await supervisorRepository.plazasDisponibles(estacionamientoId, categoriaPlaza);
+}
+
+async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
+  const plaza = await pool.query(
+    `SELECT p.*, b.estacionamiento_id FROM plazas p JOIN bloques b ON b.id = p.bloque_id WHERE p.id = $1`,
+    [plazaId]
+  );
+  if (!plaza.rows[0]) {
+    const error = new Error('Plaza no encontrada');
+    error.status = 404;
+    throw error;
+  }
+  if (plaza.rows[0].estado !== 'disponible') {
+    const error = new Error('La plaza no está disponible');
+    error.status = 409;
+    throw error;
+  }
+
+  const solicitud = await supervisorRepository.confirmarIngreso(solicitudId, plazaId, supervisorId);
+  if (!solicitud) {
+    const error = new Error('Solicitud no encontrada o ya no está pendiente');
+    error.status = 404;
+    throw error;
+  }
+
+  await plazaRepository.updateEstado(plazaId, 'ocupada');
+
+  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+
+  try {
+    getIO().to(`user:${solicitud.usuario_id}`).emit('plaza:asignada', {
+      solicitud_id: solicitudId,
+      plaza_id: plazaId,
+      plaza_codigo: plaza.rows[0].codigo
+    });
+  } catch (_) {}
+
+  return {
+    mensaje: 'Ingreso confirmado exitosamente',
+    solicitud
+  };
+}
+
+module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso };
