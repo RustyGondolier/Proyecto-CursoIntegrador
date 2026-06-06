@@ -150,6 +150,23 @@ function mostrarResultado(data) {
 
 let timerInterval = null;
 
+function expirarSolicitud() {
+  const grid = document.getElementById('plazasGrid');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const selectedInfo = document.getElementById('selectedPlazaInfo');
+  const plazasCount = document.getElementById('plazasCount');
+
+  if (grid) grid.innerHTML = '';
+  if (plazasCount) plazasCount.textContent = '0 disponibles';
+  if (selectedInfo) selectedInfo.textContent = 'Solicitud expirada';
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Solicitud Expirada';
+  }
+  selectedPlazaId = null;
+  solicitudPendienteId = null;
+}
+
 function iniciarTimer(segundosRestantes) {
   if (timerInterval) clearInterval(timerInterval);
 
@@ -164,6 +181,7 @@ function iniciarTimer(segundosRestantes) {
       el.textContent = 'VENCIDO';
       el.style.color = '#DC2626';
       clearInterval(timerInterval);
+      expirarSolicitud();
     } else {
       const mins = Math.floor(segs / 60);
       const s = segs % 60;
