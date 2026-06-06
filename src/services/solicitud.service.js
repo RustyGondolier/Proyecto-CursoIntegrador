@@ -131,6 +131,12 @@ async function cancelar(usuarioId) {
     throw error;
   }
 
+  if (solicitud.estado === 'ingresado') {
+    const error = new Error('El supervisor ya confirmó tu ingreso. No puedes cancelar desde la app, coordina con el supervisor.');
+    error.status = 400;
+    throw error;
+  }
+
   await solicitudRepository.cancel(solicitud.id);
   try { getIO().emit('ocupacion:updated'); } catch (_) {}
   return { mensaje: 'Solicitud cancelada exitosamente' };
