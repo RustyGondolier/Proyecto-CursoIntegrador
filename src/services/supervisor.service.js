@@ -130,4 +130,43 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
   };
 }
 
-module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso };
+async function registrarSalida(solicitudId, supervisorId) {
+  const solicitud = await solicitudRepository.findById(solicitudId);
+  if (!solicitud) {
+    const error = new Error('Solicitud no encontrada');
+    error.status = 404;
+    throw error;
+  }
+  if (solicitud.estado !== 'ingresado') {
+    const error = new Error('La solicitud no tiene un ingreso confirmado');
+    error.status = 400;
+    throw error;
+  }
+
+  const updated = await supervisorRepository.registrarSalida(solicitudId, supervisorId);
+  if (!updated) {
+    const error = new Error('Error al registrar la salida');
+    error.status = 500;
+    throw error;
+  }
+
+  if (solicitud.plaza_asignada_id) {
+    await plazaRepository.updateEstado(solicitud.plaza_asignada_id, 'disponible');
+  }
+
+  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+
+  try {
+    getIO().to(`user:${solicitud.usuario_id}`).emit('salida:registrada', {
+      solicitud_id: solicitudId,
+      mensaje: 'Su salida ha sido registrada'
+    });
+  } catch (_) {}
+
+  return {
+    mensaje: 'Salida registrada exitosamente',
+    solicitud: updated
+  };
+}
+
+module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso, registrarSalida };

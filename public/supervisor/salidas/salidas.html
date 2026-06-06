@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salidas | Supervisor - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./salidas.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <section class="card search-section">
+        <h1>Registro de Salida</h1>
+        <p class="search-subtitle">Busque el vehículo por placa para registrar su salida</p>
+
+        <div class="search-bar">
+          <input
+            type="text"
+            id="placaInput"
+            class="search-input"
+            placeholder="Ingrese la placa (ej: ABC-123)"
+            maxlength="20"
+            autocomplete="off"
+          >
+          <button id="searchBtn" class="btn btn-primary">Buscar</button>
+        </div>
+        <p id="searchError" class="search-error"></p>
+      </section>
+
+      <div id="resultContainer" class="card result-card hidden">
+        <div id="userInfoContent"></div>
+      </div>
+
+      <section id="emptyResult" class="card empty-result hidden">
+        <p>Realice una búsqueda para comenzar</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/shared/js/websocket.js"></script>
+  <script src="./salidas.js"></script>
+</body>
+</html>

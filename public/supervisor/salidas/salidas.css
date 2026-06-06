@@ -1,0 +1,166 @@
+.search-section {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.search-section h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.search-subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  max-width: 500px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  text-transform: uppercase;
+}
+
+.search-input:focus {
+  border-color: var(--color-primary);
+}
+
+.search-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #DC2626;
+  min-height: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.result-card {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.user-info h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.user-info .user-placa {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-weight: 600;
+}
+
+.user-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-item .label {
+  font-size: 11px;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item .value {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.detail-item .value.estado-ingresado {
+  color: #065F46;
+}
+
+.detail-item .value.tiempo-permanencia {
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.salida-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.salida-actions .btn {
+  flex: 1;
+}
+
+.success-message {
+  padding: 24px;
+  text-align: center;
+  background: #D1FAE5;
+  border-radius: var(--radius-md);
+  color: #065F46;
+}
+
+.success-message h3 {
+  margin: 0 0 4px;
+  color: #065F46;
+}
+
+.success-message p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.empty-result {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+.empty-result p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.no-ingreso-msg {
+  text-align: center;
+  padding: 30px;
+  color: var(--color-text-light);
+  font-size: 14px;
+}

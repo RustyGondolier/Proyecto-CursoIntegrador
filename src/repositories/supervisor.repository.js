@@ -73,16 +73,19 @@ async function buscarPorPlaca(placa) {
       tv.categoria_plaza,
       s.id AS solicitud_id,
       s.estado AS solicitud_estado,
+      s.hora_ingreso,
       s.hora_limite_ingreso,
       EXTRACT(EPOCH FROM (s.hora_limite_ingreso - NOW()))::INTEGER AS tiempo_restante_segundos,
       e.id AS estacionamiento_id,
-      e.nombre AS estacionamiento_nombre
+      e.nombre AS estacionamiento_nombre,
+      p.codigo AS plaza_codigo
     FROM vehiculos v
     JOIN usuarios u ON u.id = v.usuario_id
     JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
     LEFT JOIN solicitudes_estacionamiento s
-      ON s.vehiculo_id = v.id AND s.estado = 'pendiente'
+      ON s.vehiculo_id = v.id AND s.estado IN ('pendiente', 'ingresado')
     LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
+    LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
     WHERE v.placa = $1 AND v.activo = true
     LIMIT 1
   `, [placa]);
@@ -118,16 +121,19 @@ async function buscarPorSolicitudId(solicitudId) {
       tv.categoria_plaza,
       s.id AS solicitud_id,
       s.estado AS solicitud_estado,
+      s.hora_ingreso,
       s.hora_limite_ingreso,
       EXTRACT(EPOCH FROM (s.hora_limite_ingreso - NOW()))::INTEGER AS tiempo_restante_segundos,
       e.id AS estacionamiento_id,
-      e.nombre AS estacionamiento_nombre
+      e.nombre AS estacionamiento_nombre,
+      p.codigo AS plaza_codigo
     FROM solicitudes_estacionamiento s
     JOIN vehiculos v ON v.id = s.vehiculo_id
     JOIN usuarios u ON u.id = s.usuario_id
     JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
     LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
-    WHERE s.id = $1 AND s.estado = 'pendiente'
+    LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
+    WHERE s.id = $1 AND s.estado IN ('pendiente', 'ingresado')
     LIMIT 1
   `, [solicitudId]);
   return result.rows[0] || null;
@@ -146,11 +152,26 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
   return result.rows[0] || null;
 }
 
+async function registrarSalida(solicitudId, supervisorId) {
+  const result = await pool.query(`
+    UPDATE solicitudes_estacionamiento
+    SET estado = 'finalizado',
+        hora_salida = NOW(),
+        supervisor_salida_id = $2,
+        tiempo_permanencia_min = EXTRACT(EPOCH FROM (NOW() - hora_ingreso)) / 60
+    WHERE id = $1 AND estado = 'ingresado'
+    RETURNING *
+  `, [solicitudId, supervisorId]);
+  return result.rows[0] || null;
+}
+
 module.exports = {
   getDashboardData,
   getSolicitudesPendientes,
   getUltimosMovimientos,
   buscarPorPlaca,
   plazasDisponibles,
-  confirmarIngreso
+  confirmarIngreso,
+  buscarPorSolicitudId,
+  registrarSalida
 };
