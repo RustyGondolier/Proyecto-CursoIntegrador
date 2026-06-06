@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infracciones | Supervisor - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="/shared/css/modal.css">
+  <link rel="stylesheet" href="./infracciones.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+
+      <section class="card inf-header">
+        <div class="inf-header-left">
+          <span class="inf-header-icon">🚨</span>
+          <div>
+            <h1>Registro de Infracciones</h1>
+            <p>Busca un vehículo por placa y registra la infracción observada.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card inf-search-card">
+        <div class="inf-search-body">
+          <h2>Buscar vehículo</h2>
+          <div class="inf-search-row">
+            <input type="text" id="placaInput" class="inf-input" placeholder="Ingresa la placa (ej: ABC-123)" maxlength="15" autocomplete="off">
+            <button class="btn btn-primary" id="buscarBtn">Buscar</button>
+          </div>
+          <div id="searchError" class="inf-error" style="display:none"></div>
+        </div>
+      </section>
+
+      <section class="card inf-result-card" id="resultCard" style="display:none">
+        <div class="inf-result-body">
+          <h2>Datos del vehículo</h2>
+          <div class="inf-vehicle-info">
+            <div class="inf-info-item">
+              <span class="inf-info-label">Propietario</span>
+              <span class="inf-info-value" id="resultNombre">—</span>
+            </div>
+            <div class="inf-info-item">
+              <span class="inf-info-label">Código</span>
+              <span class="inf-info-value" id="resultCodigo">—</span>
+            </div>
+            <div class="inf-info-item">
+              <span class="inf-info-label">Placa</span>
+              <span class="inf-info-value" id="resultPlaca">—</span>
+            </div>
+            <div class="inf-info-item">
+              <span class="inf-info-label">Modelo</span>
+              <span class="inf-info-value" id="resultModelo">—</span>
+            </div>
+            <div class="inf-info-item">
+              <span class="inf-info-label">Rol</span>
+              <span class="inf-info-value" id="resultRol">—</span>
+            </div>
+          </div>
+
+          <hr class="inf-divider">
+
+          <h2>Registrar infracción</h2>
+          <div class="inf-form">
+            <div class="inf-form-group">
+              <label class="inf-form-label" for="tipoSelect">Tipo de infracción <span class="required">*</span></label>
+              <select id="tipoSelect" class="inf-select">
+                <option value="">Selecciona el tipo</option>
+              </select>
+            </div>
+            <div class="inf-form-group">
+              <label class="inf-form-label" for="descripcionInput">Descripción adicional</label>
+              <textarea id="descripcionInput" class="inf-textarea" rows="3" placeholder="Describe lo observado (opcional)"></textarea>
+            </div>
+            <div class="inf-form-actions">
+              <button class="btn btn-secondary" id="cancelarBtn">Cancelar</button>
+              <button class="btn btn-primary" id="registrarBtn">Registrar infracción</button>
+            </div>
+            <div id="formError" class="inf-error" style="display:none"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card inf-list-card">
+        <div class="inf-list-head">
+          <h2>Mis infracciones registradas</h2>
+          <span class="inf-list-count" id="infCount">0</span>
+        </div>
+        <div id="infList" class="inf-list">
+          <p class="empty-state">Cargando...</p>
+        </div>
+      </section>
+
+      <div id="successToast" class="inf-toast" style="display:none"></div>
+      <div id="errorToast" class="inf-toast inf-toast-error" style="display:none"></div>
+
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/shared/api/infraccion.api.js"></script>
+  <script src="./infracciones.js"></script>
+</body>
+</html>
