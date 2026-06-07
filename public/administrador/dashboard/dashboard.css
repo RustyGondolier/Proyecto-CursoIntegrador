@@ -1,0 +1,212 @@
+.welcome-card {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.welcome-card h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.welcome-card p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.stat-card .stat-number {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 4px;
+}
+
+.stat-card .stat-label {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.stat-card.stat-pendientes .stat-number {
+  color: #D97706;
+}
+
+.stat-card.stat-suspendidas .stat-number {
+  color: #DC2626;
+}
+
+.stat-card.stat-prioritarios .stat-number {
+  color: #EF4444;
+}
+
+.stat-card.stat-infracciones .stat-number {
+  color: var(--color-primary);
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-card {
+  padding: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table-container th {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-text-light);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table-container td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table-container tr:last-child td {
+  border-bottom: none;
+}
+
+.table-container .badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-verificacion {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.badge-suspension {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.badge-reactivacion {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--color-text-light);
+  padding: 30px 0;
+  font-size: 14px;
+}
+
+.quick-access {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.qa-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.qa-icon {
+  font-size: 28px;
+}
+
+.qa-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.qa-desc {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+@media (max-width: 600px) {
+  .section-card {
+    padding: 16px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .quick-access {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
