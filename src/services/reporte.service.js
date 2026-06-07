@@ -1,3 +1,4 @@
+const { getIO } = require('../config/socket');
 const reporteRepository = require('../repositories/reporte.repository');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const notificacionService = require('./notificacion.service');
@@ -19,7 +20,16 @@ async function marcarEnRevision({ id, supervisor_id }) {
   }
   if (reporte.estado_id !== 1) return reporte;
 
-  return reporteRepository.marcarEnRevision({ id, supervisor_id });
+  const actualizado = await reporteRepository.marcarEnRevision({ id, supervisor_id });
+
+  try {
+    getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
+      reporte_id: id,
+      estado_id: 2
+    });
+  } catch (_) {}
+
+  return actualizado;
 }
 
 async function obtenerDetalle(id) {
@@ -87,6 +97,13 @@ async function responder({ id, supervisor_id, respuesta }) {
     });
   } catch (_) {}
 
+  try {
+    getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
+      reporte_id: id,
+      estado_id: 3
+    });
+  } catch (_) {}
+
   return actualizado;
 }
 
@@ -122,6 +139,13 @@ async function marcarPrioritario({ id, supervisor_id, razon }) {
       titulo: 'Reporte prioritario',
       mensaje: `El reporte #REP-${String(id).padStart(5, '0')} ha sido marcado como prioritario por un supervisor. Razón: ${razon.trim()}`,
       url_destino: `/administrador/incidencias/incidencias.html`
+    });
+  } catch (_) {}
+
+  try {
+    getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
+      reporte_id: id,
+      estado_id: 4
     });
   } catch (_) {}
 
