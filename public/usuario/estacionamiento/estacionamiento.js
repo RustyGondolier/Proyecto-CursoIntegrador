@@ -3,7 +3,7 @@ const COCHERAS = {
     svg: 'EstacionamientoSubterraneo',
     layerParking: 'layer11',
     layerRutas: 'layer9',
-    matchPlaza: null
+    matchPlaza: (rect, plazas) => plazas.find(p => p.codigo === rect.id)
   },
   2: {
     svg: 'EstacionamientoExterior',
