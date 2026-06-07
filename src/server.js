@@ -89,6 +89,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/administrador',
+  require(
+    './routes/administrador.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

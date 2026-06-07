@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Administrador - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <section class="card welcome-card">
+        <h1 id="welcomeText">Bienvenido</h1>
+        <p>Panel de administración</p>
+      </section>
+
+      <section id="statsContainer" class="stats-grid"></section>
+
+      <section class="two-column">
+        <section id="accionesSection" class="card section-card">
+          <div class="section-header">
+            <h2>Acciones Recientes</h2>
+          </div>
+          <div id="accionesList" class="table-container"></div>
+        </section>
+
+        <section id="pendientesSection" class="card section-card">
+          <div class="section-header">
+            <h2>Pendientes de Verificación</h2>
+            <a href="/administrador/verificaciones/verificaciones.html" class="btn btn-primary btn-sm">Ver todas</a>
+          </div>
+          <div id="pendientesList" class="table-container"></div>
+        </section>
+      </section>
+
+      <section class="quick-access">
+        <a href="/administrador/verificaciones/verificaciones.html" class="qa-card">
+          <span class="qa-icon">📋</span>
+          <span class="qa-title">Verificaciones</span>
+          <span class="qa-desc">Revisar y aprobar perfiles</span>
+        </a>
+        <a href="/administrador/usuarios/usuarios.html" class="qa-card">
+          <span class="qa-icon">👥</span>
+          <span class="qa-title">Usuarios</span>
+          <span class="qa-desc">Gestionar cuentas</span>
+        </a>
+        <a href="/administrador/infracciones/infracciones.html" class="qa-card">
+          <span class="qa-icon">🚨</span>
+          <span class="qa-title">Infracciones</span>
+          <span class="qa-desc">Historial y sanciones</span>
+        </a>
+        <a href="/administrador/incidencias/incidencias.html" class="qa-card">
+          <span class="qa-icon">⚠️</span>
+          <span class="qa-title">Reportes Prioritarios</span>
+          <span class="qa-desc">Incidencias escaladas</span>
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/socket.io/socket.io.min.js"></script>
+  <script src="/shared/js/websocket.js"></script>
+  <script src="/shared/api/administrador.api.js"></script>
+  <script src="./dashboard.js"></script>
+</body>
+</html>
