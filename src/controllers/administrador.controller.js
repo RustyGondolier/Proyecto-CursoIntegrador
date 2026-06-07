@@ -90,12 +90,13 @@ async function reactivarCuenta(req, res) {
 
 async function listarInfracciones(req, res) {
   try {
-    const { tipo_id, usuario_search, fecha_desde, fecha_hasta } = req.query;
+    const { tipo_id, usuario_search, fecha_desde, fecha_hasta, usuario_estado } = req.query;
     const data = await adminService.listarInfracciones({
       tipo_id: tipo_id ? Number(tipo_id) : undefined,
       usuario_search,
       fecha_desde,
-      fecha_hasta
+      fecha_hasta,
+      usuario_estado
     });
     res.json(data);
   } catch (err) {

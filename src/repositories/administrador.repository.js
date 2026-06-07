@@ -202,7 +202,7 @@ async function findAcciones(limit = 10) {
   return result.rows;
 }
 
-async function findAllInfracciones({ tipo_id, usuario_search, fecha_desde, fecha_hasta } = {}) {
+async function findAllInfracciones({ tipo_id, usuario_search, fecha_desde, fecha_hasta, usuario_estado } = {}) {
   let query = `
     SELECT
       i.id,
@@ -251,6 +251,12 @@ async function findAllInfracciones({ tipo_id, usuario_search, fecha_desde, fecha
   if (fecha_hasta) {
     query += ` AND i.creado_en <= $${idx}`;
     params.push(fecha_hasta);
+    idx++;
+  }
+
+  if (usuario_estado) {
+    query += ` AND u.estado_cuenta = $${idx}`;
+    params.push(usuario_estado);
     idx++;
   }
 
