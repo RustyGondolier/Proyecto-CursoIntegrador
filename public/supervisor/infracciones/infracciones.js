@@ -174,28 +174,29 @@ async function cargarMisInfracciones() {
     }
 
     list.innerHTML =
-      '<table class="inf-table"><thead><tr>' +
-        '<th>Código</th>' +
-        '<th>Placa</th>' +
-        '<th>Usuario</th>' +
-        '<th>Tipo</th>' +
-        '<th>Descripción</th>' +
-        '<th>Fecha</th>' +
-      '</tr></thead><tbody>' +
-      data.map(function(i) {
-        var fecha = formatDateInf(i.creado_en);
-        return (
-          '<tr>' +
-            '<td><span class="inc-code">#INF-' + String(i.id).padStart(5, '0') + '</span></td>' +
-            '<td><strong>' + escapeHtml(i.placa || '—') + '</strong></td>' +
-            '<td>' + escapeHtml(i.usuario_nombre || '—') + '</td>' +
-            '<td><span class="inf-tipo-badge">' + escapeHtml(i.tipo_descripcion) + '</span></td>' +
-            '<td>' + escapeHtml((i.descripcion || '').substring(0, 60)) + '</td>' +
-            '<td><span class="inf-fecha">' + fecha + '</span></td>' +
-          '</tr>'
-        );
-      }).join('') +
-      '</tbody></table>';
+      '<div class="inf-list-items">' +
+        '<div class="inf-row inf-header-row">' +
+          '<span class="inf-col col-code">Código</span>' +
+          '<span class="inf-col col-placa">Placa</span>' +
+          '<span class="inf-col col-user">Usuario</span>' +
+          '<span class="inf-col col-tipo">Tipo</span>' +
+          '<span class="inf-col col-desc">Descripción</span>' +
+          '<span class="inf-col col-fecha">Fecha</span>' +
+        '</div>' +
+        data.map(function(i) {
+          var fecha = formatDateInf(i.creado_en);
+          return (
+            '<div class="inf-row" data-id="' + i.id + '">' +
+              '<span class="inf-col col-code"><span class="inf-code">#INF-' + String(i.id).padStart(5, '0') + '</span></span>' +
+              '<span class="inf-col col-placa"><strong>' + escapeHtml(i.placa || '—') + '</strong></span>' +
+              '<span class="inf-col col-user">' + escapeHtml(i.usuario_nombre || '—') + '</span>' +
+              '<span class="inf-col col-tipo"><span class="inf-tipo-badge">' + escapeHtml(i.tipo_descripcion) + '</span></span>' +
+              '<span class="inf-col col-desc">' + escapeHtml((i.descripcion || '').substring(0, 60)) + '</span>' +
+              '<span class="inf-col col-fecha">' + fecha + '</span>' +
+            '</div>'
+          );
+        }).join('') +
+      '</div>';
   } catch {
     list.innerHTML = '<p class="empty-state">Error al cargar infracciones.</p>';
   }
@@ -240,4 +241,100 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/* MODAL DETALLE */
+
+function bindDetalle() {
+  document.addEventListener('click', function(e) {
+    var row = e.target.closest('.inf-row:not(.inf-header-row)');
+    if (!row) return;
+    var id = Number(row.dataset.id);
+    if (id) abrirDetalle(id);
+  });
+
+  document.querySelectorAll('[data-close-modal]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      document.getElementById('detailModal').classList.remove('open');
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.getElementById('detailModal').classList.remove('open');
+    }
+  });
+}
+
+async function abrirDetalle(id) {
+  var body = document.getElementById('detailBody');
+  body.innerHTML = '<p class="empty-state">Cargando detalle...</p>';
+  document.getElementById('detailModal').classList.add('open');
+
+  try {
+    var r = await obtenerInfraccionPorId(id);
+    renderDetalle(r);
+  } catch {
+    body.innerHTML = '<p class="empty-state" style="color:var(--color-primary)">Error al cargar el detalle.</p>';
+  }
+}
+
+function renderDetalle(r) {
+  var body = document.getElementById('detailBody');
+  var fecha = r.creado_en
+    ? new Date(r.creado_en).toLocaleString('es-PE', {
+        year: 'numeric', month: 'long', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      })
+    : '—';
+
+  body.innerHTML =
+    '<div class="detail-head">' +
+      '<span class="detail-code">#INF-' + String(r.id).padStart(5, '0') + '</span>' +
+      '<span class="inf-tipo-badge">' + escapeHtml(r.tipo_descripcion) + '</span>' +
+    '</div>' +
+
+    '<div class="detail-card">' +
+      '<h3>Información de la infracción</h3>' +
+      '<div class="detail-grid-2col">' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Placa</span>' +
+          '<span class="detail-value"><strong>' + escapeHtml(r.placa || '—') + '</strong></span>' +
+        '</div>' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Modelo</span>' +
+          '<span class="detail-value">' + escapeHtml(r.modelo || '—') + '</span>' +
+        '</div>' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Propietario</span>' +
+          '<span class="detail-value">' + escapeHtml(r.usuario_nombre || '—') + '</span>' +
+        '</div>' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Código</span>' +
+          '<span class="detail-value">' + escapeHtml(r.usuario_codigo || '—') + '</span>' +
+        '</div>' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Supervisor</span>' +
+          '<span class="detail-value">' + escapeHtml(r.supervisor_nombre || '—') + '</span>' +
+        '</div>' +
+        '<div class="detail-section">' +
+          '<span class="detail-label">Fecha</span>' +
+          '<span class="detail-value">' + fecha + '</span>' +
+        '</div>' +
+        (r.plaza_codigo ? (
+          '<div class="detail-section">' +
+            '<span class="detail-label">Plaza asociada</span>' +
+            '<span class="detail-value">' + escapeHtml(r.plaza_codigo) + '</span>' +
+          '</div>'
+        ) : '') +
+      '</div>' +
+    '</div>' +
+
+    (r.descripcion ? (
+      '<div class="detail-section" style="margin-bottom:6px">' +
+        '<span class="detail-label">Descripción</span>' +
+      '</div>' +
+      '<div class="detail-desc">' + escapeHtml(r.descripcion) + '</div>'
+    ) : '');
+}
+
+bindDetalle();
 init();

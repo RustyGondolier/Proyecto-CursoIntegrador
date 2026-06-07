@@ -4,7 +4,7 @@ async function getDashboardData() {
   const result = await pool.query(`
     SELECT
       (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = 'pendiente') AS pendientes_count,
-      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = 'ingresado' AND hora_ingreso::date = CURRENT_DATE) AS ingresos_hoy,
+      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE hora_ingreso IS NOT NULL AND hora_ingreso::date = CURRENT_DATE) AS ingresos_hoy,
       (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = 'finalizado' AND hora_salida::date = CURRENT_DATE) AS salidas_hoy,
       (SELECT COUNT(*) FROM reportes_incidencias r JOIN estados_reporte er ON er.id = r.estado_id WHERE er.codigo IN ('enviado', 'en_revision', 'prioritario')) AS incidencias_pendientes,
       (SELECT ROUND(

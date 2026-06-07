@@ -47,8 +47,19 @@ async function listar(req, res) {
   }
 }
 
+async function obtenerPorId(req, res) {
+  try {
+    const data = await infraccionService.obtenerPorId(Number(req.params.id));
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status || 500).json({ error: err.message || 'Error al obtener infracción' });
+  }
+}
+
 module.exports = {
   obtenerTipos,
   registrar,
-  listar
+  listar,
+  obtenerPorId
 };

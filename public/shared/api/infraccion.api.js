@@ -27,3 +27,9 @@ async function listarMisInfracciones() {
   if (!response.ok) throw new Error('Error al cargar infracciones');
   return response.json();
 }
+
+async function obtenerInfraccionPorId(id) {
+  const response = await apiFetch(`/api/infracciones/${id}`);
+  if (!response.ok) throw new Error('Error al cargar infracción');
+  return response.json();
+}

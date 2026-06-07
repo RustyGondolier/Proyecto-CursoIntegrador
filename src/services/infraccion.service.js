@@ -59,8 +59,19 @@ async function listar(supervisor_id) {
   return infraccionRepository.findAll(supervisor_id || null);
 }
 
+async function obtenerPorId(id) {
+  const infraccion = await infraccionRepository.findById(id);
+  if (!infraccion) {
+    const error = new Error('Infracción no encontrada');
+    error.status = 404;
+    throw error;
+  }
+  return infraccion;
+}
+
 module.exports = {
   obtenerTipos,
   registrar,
-  listar
+  listar,
+  obtenerPorId
 };

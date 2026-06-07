@@ -106,45 +106,66 @@
   overflow-x: auto;
 }
 
-.inc-table {
-  width: 100%;
-  border-collapse: collapse;
+.inc-list-items {
+  min-width: 700px;
 }
 
-.inc-table th {
-  padding: 12px 16px;
-  text-align: left;
+.inc-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 1fr 100px 130px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inc-row:last-child {
+  border-bottom: none;
+}
+
+.inc-row:hover {
+  background: var(--color-background);
+}
+
+.inc-header-row {
+  cursor: default;
+  background: var(--color-background);
   font-size: 11px;
   font-weight: 700;
   color: var(--color-text-light);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-background);
-  white-space: nowrap;
 }
 
-.inc-table td {
+.inc-header-row:hover {
+  background: var(--color-background);
+}
+
+.inc-col {
   padding: 12px 16px;
   font-size: 13px;
-  border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.inc-table tr:hover td {
-  background: var(--color-background);
+.inc-header-row .inc-col {
+  padding: 12px 16px;
+  color: var(--color-text-light);
 }
 
-.inc-table tr {
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.inc-code {
+.col-code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-light);
+  gap: 8px;
+}
+
+.col-user {
+  display: flex;
+  align-items: center;
 }
 
 .inc-user {
@@ -172,7 +193,7 @@
   font-size: 12px;
 }
 
-.inc-fecha {
+.col-fecha {
   font-size: 12px;
   color: var(--color-text-light);
   white-space: nowrap;
@@ -524,7 +545,60 @@
   .inc-filter {
     min-width: unset;
     flex: 0 1 auto;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .error-toast,
+  .toast-notification {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+
+  .inc-list {
+    overflow-x: visible;
+  }
+
+  .inc-list-items {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inc-row.inc-header-row {
+    display: none;
+  }
+
+  .inc-row {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .inc-row:hover {
+    background: var(--color-surface);
+  }
+
+  .inc-col {
+    padding: 2px 0;
+    font-size: 13px;
+    align-items: flex-start;
+  }
+
+  .col-code {
     font-size: 12px;
-    padding: 8px 12px;
+    margin-bottom: 4px;
+  }
+
+  .col-est,
+  .col-desc,
+  .col-estado,
+  .col-fecha {
+    display: none;
   }
 }

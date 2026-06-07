@@ -18,6 +18,7 @@
   display: flex;
   gap: 10px;
   max-width: 500px;
+  flex-wrap: wrap;
 }
 
 .search-input {
@@ -164,7 +165,7 @@
 }
 
 .plaza-item {
-  padding: 10px 8px;
+  padding: 12px 8px;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
   text-align: center;
@@ -172,6 +173,10 @@
   transition: all 0.15s;
   font-size: 13px;
   font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .plaza-item:hover {
@@ -196,8 +201,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
 }
 
 .selected-info {
@@ -207,7 +214,7 @@
 }
 
 .confirm-bar .btn {
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .empty-result {
@@ -261,4 +268,22 @@
 .sin-solicitud p {
   margin: 0 0 8px;
   font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .search-section {
+    padding: 16px;
+  }
+
+  .user-card {
+    padding: 16px;
+  }
+
+  .plazas-section {
+    padding: 16px;
+  }
+
+  .user-details {
+    grid-template-columns: 1fr;
+  }
 }

@@ -22,6 +22,24 @@ async function loadLayout(){
   const rol =
     modo.rol || 'usuario';
 
+  const logoLink =
+    document.querySelector(
+      '.header-logo'
+    );
+
+  if(logoLink){
+
+    const dashboards = {
+      usuario: '/usuario/dashboard/dashboard.html',
+      supervisor: '/supervisor/dashboard/dashboard.html',
+      administrador: '/administrador/dashboard/dashboard.html'
+    };
+
+    logoLink.href =
+      dashboards[rol] || dashboards.usuario;
+
+  }
+
   const sidebarFile =
     rol === 'usuario'
       ? 'sidebar.html'

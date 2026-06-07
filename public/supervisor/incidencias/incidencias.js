@@ -76,36 +76,42 @@ function renderReportes() {
   }
 
   list.innerHTML =
-    '<table class="inc-table"><thead><tr>' +
-      '<th>Código</th>' +
-      '<th>Usuario</th>' +
-      '<th>Estacionamiento</th>' +
-      '<th>Descripción</th>' +
-      '<th>Estado</th>' +
-      '<th>Fecha</th>' +
-    '</tr></thead><tbody>' +
-    filtered.map(createRow).join('') +
-    '</tbody></table>';
+    '<div class="inc-list-items">' +
+      '<div class="inc-row inc-header-row">' +
+        '<span class="inc-col col-code">Código</span>' +
+        '<span class="inc-col col-user">Usuario</span>' +
+        '<span class="inc-col col-est">Estacionamiento</span>' +
+        '<span class="inc-col col-desc">Descripción</span>' +
+        '<span class="inc-col col-estado">Estado</span>' +
+        '<span class="inc-col col-fecha">Fecha</span>' +
+      '</div>' +
+      filtered.map(createItem).join('') +
+    '</div>';
 }
 
-function createRow(r) {
+function createItem(r) {
   const estado = r.estado_codigo || 'enviado';
   const estadoLabel = (ESTADOS[estado] || {}).label || estado;
   const fecha = formatDate(r.creado_en);
   const descPreview = stripTipoLabel(r.descripcion).substring(0, 80);
 
   return (
-    '<tr data-id="' + r.id + '">' +
-      '<td><span class="inc-code">#REP-' + String(r.id).padStart(5, '0') + '</span></td>' +
-      '<td><div class="inc-user">' +
-        '<span class="inc-user-name">' + escapeHtml(r.usuario_nombre || '—') + '</span>' +
-        '<span class="inc-user-code">' + escapeHtml(r.usuario_codigo || '') + '</span>' +
-      '</div></td>' +
-      '<td>' + escapeHtml(r.estacionamiento_nombre || '—') + '</td>' +
-      '<td><span class="inc-desc-preview" title="' + escapeHtml(stripTipoLabel(r.descripcion)) + '">' + escapeHtml(descPreview) + '</span></td>' +
-      '<td><span class="badge badge-' + estado + '">' + estadoLabel + '</span></td>' +
-      '<td><span class="inc-fecha">' + fecha + '</span></td>' +
-    '</tr>'
+    '<div class="inc-row" data-id="' + r.id + '">' +
+      '<span class="inc-col col-code">' +
+        '<span class="badge badge-' + estado + '">' + estadoLabel + '</span>' +
+        '<span class="inc-code">#REP-' + String(r.id).padStart(5, '0') + '</span>' +
+      '</span>' +
+      '<span class="inc-col col-user">' +
+        '<span class="inc-user">' +
+          '<span class="inc-user-name">' + escapeHtml(r.usuario_nombre || '—') + '</span>' +
+          '<span class="inc-user-code">' + escapeHtml(r.usuario_codigo || '') + '</span>' +
+        '</span>' +
+      '</span>' +
+      '<span class="inc-col col-est">' + escapeHtml(r.estacionamiento_nombre || '—') + '</span>' +
+      '<span class="inc-col col-desc"><span class="inc-desc-preview" title="' + escapeHtml(stripTipoLabel(r.descripcion)) + '">' + escapeHtml(descPreview) + '</span></span>' +
+      '<span class="inc-col col-estado"><span class="badge badge-' + estado + '">' + estadoLabel + '</span></span>' +
+      '<span class="inc-col col-fecha">' + fecha + '</span>' +
+    '</div>'
   );
 }
 
@@ -154,7 +160,7 @@ function bindModal() {
   });
 
   document.addEventListener('click', function(e) {
-    var row = e.target.closest('.inc-table tr');
+    var row = e.target.closest('.inc-row:not(.inc-header-row)');
     if (!row) return;
     var id = Number(row.dataset.id);
     if (id) openDetalle(id);
