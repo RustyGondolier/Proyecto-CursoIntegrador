@@ -6,7 +6,7 @@ const campus = [
     descripcion:
       'Sede principal del sistema.',
     imagen:
-      '/assets/images/sedes/lima-sur.jpg',
+      '/assets/images/campus/lima-sur.webp',
     disponible:true
   },
 
@@ -16,7 +16,7 @@ const campus = [
     descripcion:
       'Próximamente',
     imagen:
-      '/assets/images/sedes/lima-centro.jpg',
+      '/assets/images/campus/lima-centro.webp',
     disponible:false
   },
 
@@ -26,7 +26,7 @@ const campus = [
     descripcion:
       'Próximamente',
     imagen:
-      '/assets/images/sedes/lima-norte.jpg',
+      '/assets/images/campus/lima-norte.webp',
     disponible:false
   }
 
