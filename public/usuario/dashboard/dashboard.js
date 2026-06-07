@@ -187,8 +187,7 @@ function createParkingCard(e) {
     <div class="parking-card" data-id="${e.id}">
       <img
         class="parking-image"
-        src="/assets/images/campus/estacionamiento-${e.id}.jpg"
-        alt="${e.nombre}"
+        src="/assets/images/estacionamientos/Estacionamiento-${e.id}.webp" alt="${e.nombre}"
       >
       <div class="parking-body">
         <h2>${e.nombre}</h2>
