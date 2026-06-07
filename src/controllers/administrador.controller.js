@@ -22,8 +22,8 @@ async function listarPendientes(req, res) {
 
 async function listarUsuarios(req, res) {
   try {
-    const { search, rol, estado } = req.query;
-    const data = await adminService.listarUsuarios({ search, rol, estado });
+    const { search, rol, estado, fecha_desde, fecha_hasta } = req.query;
+    const data = await adminService.listarUsuarios({ search, rol, estado, fecha_desde, fecha_hasta });
     res.json(data);
   } catch (err) {
     console.error(err);

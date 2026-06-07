@@ -176,7 +176,7 @@ function renderDetalle(u) {
               '<td>' + escapeHtml(v.tipo) + '</td>' +
               '<td><strong>' + escapeHtml(v.placa) + '</strong></td>' +
               '<td>' + escapeHtml(v.modelo || '—') + '</td>' +
-              '<td>' + (v.activo ? '✅' : '—') + '</td>' +
+              '<td>' + (v.activo ? 'Sí' : '—') + '</td>' +
             '</tr>';
           }).join('') +
         '</tbody>' +
@@ -216,7 +216,7 @@ function renderDetalle(u) {
       '<h3 class="detail-section-title">CONADIS</h3>' +
       '<div class="detail-grid-2col">' +
         field('Código CONADIS', u.codigo_conadis || '—') +
-        field('Verificado', u.conadis_verificado ? '✅ Sí' : '—') +
+        field('Verificado', u.conadis_verificado ? 'Sí' : '—') +
       '</div>' +
     '</div>' +
 
@@ -226,8 +226,8 @@ function renderDetalle(u) {
     '</div>' +
 
     '<div class="detail-actions">' +
-      '<button class="btn btn-primary" data-action="aprobar" data-id="' + u.id + '">✅ Aprobar perfil</button>' +
-      '<button class="btn btn-danger" data-action="suspender" data-id="' + u.id + '">❌ Suspender cuenta</button>' +
+      '<button class="btn btn-primary" data-action="aprobar" data-id="' + u.id + '">Aprobar perfil</button>' +
+      '<button class="btn btn-danger" data-action="suspender" data-id="' + u.id + '">Suspender cuenta</button>' +
     '</div>';
 }
 
@@ -254,7 +254,7 @@ async function handleAprobar(id) {
     showErrorToast(e.message || 'Error al aprobar el perfil');
   } finally {
     btn.disabled = false;
-    btn.textContent = '✅ Aprobar perfil';
+    btn.textContent = 'Aprobar perfil';
   }
 }
 

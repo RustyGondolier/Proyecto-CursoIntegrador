@@ -70,7 +70,7 @@ async function findUserDetail(id) {
   return result.rows[0] || null;
 }
 
-async function findAllUsuarios({ search, rol, estado } = {}) {
+async function findAllUsuarios({ search, rol, estado, fecha_desde, fecha_hasta } = {}) {
   let query = `
     SELECT
       u.id,
@@ -101,6 +101,18 @@ async function findAllUsuarios({ search, rol, estado } = {}) {
   if (estado) {
     query += ` AND u.estado_cuenta = $${idx}`;
     params.push(estado);
+    idx++;
+  }
+
+  if (fecha_desde) {
+    query += ` AND u.creado_en >= $${idx}::timestamp`;
+    params.push(fecha_desde);
+    idx++;
+  }
+
+  if (fecha_hasta) {
+    query += ` AND u.creado_en <= ($${idx}::timestamp + INTERVAL '1 day')`;
+    params.push(fecha_hasta);
     idx++;
   }
 

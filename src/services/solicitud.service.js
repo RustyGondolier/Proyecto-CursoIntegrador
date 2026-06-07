@@ -5,10 +5,20 @@ const vehiculoRepository = require('../repositories/vehiculo.repository');
 
 async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   const usuarioResult = await pool.query(
-    `SELECT verificado FROM usuarios WHERE id = $1`,
+    `SELECT verificado, estado_cuenta FROM usuarios WHERE id = $1`,
     [usuarioId]
   );
-  if (!usuarioResult.rows[0] || !usuarioResult.rows[0].verificado) {
+  if (!usuarioResult.rows[0]) {
+    const error = new Error('Usuario no encontrado');
+    error.status = 404;
+    throw error;
+  }
+  if (usuarioResult.rows[0].estado_cuenta === 'suspendida') {
+    const error = new Error('Tu cuenta está suspendida. No puedes solicitar plazas.');
+    error.status = 403;
+    throw error;
+  }
+  if (!usuarioResult.rows[0].verificado) {
     const error = new Error('Tu perfil no está verificado');
     error.status = 400;
     throw error;
