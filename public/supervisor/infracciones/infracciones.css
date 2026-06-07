@@ -254,36 +254,60 @@
   overflow-x: auto;
 }
 
-.inf-table {
-  width: 100%;
-  border-collapse: collapse;
+.inf-list-items {
+  min-width: 700px;
 }
 
-.inf-table th {
-  padding: 12px 16px;
-  text-align: left;
+.inf-row {
+  display: grid;
+  grid-template-columns: 120px 100px 1fr 1fr 1fr 120px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inf-row:last-child {
+  border-bottom: none;
+}
+
+.inf-row:hover {
+  background: var(--color-background);
+}
+
+.inf-header-row {
+  cursor: default;
+  background: var(--color-background);
   font-size: 11px;
   font-weight: 700;
   color: var(--color-text-light);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-background);
-  white-space: nowrap;
 }
 
-.inf-table td {
+.inf-header-row:hover {
+  background: var(--color-background);
+}
+
+.inf-col {
   padding: 12px 16px;
   font-size: 13px;
-  border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.inf-table tbody tr:hover {
-  background: var(--color-background);
+.inf-header-row .inf-col {
+  color: var(--color-text-light);
 }
 
-.inf-fecha {
+.col-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+.col-fecha {
   font-size: 12px;
   color: var(--color-text-light);
   white-space: nowrap;
@@ -297,6 +321,86 @@
   font-weight: 600;
   background: rgba(239, 68, 68, 0.1);
   color: #B91C1C;
+}
+
+/* MODAL DETALLE */
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 16px;
+}
+
+.detail-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.detail-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-section .detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-section .detail-value {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.detail-card {
+  padding: 14px;
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  margin-bottom: 16px;
+}
+
+.detail-card h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-desc {
+  padding: 12px 14px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .detail-grid-2col {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* LOADING SPINNER */
@@ -334,5 +438,66 @@
 
   .inf-form-actions {
     flex-direction: column;
+  }
+
+  .inf-toast {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+
+  .inf-header {
+    padding: 16px;
+  }
+
+  .inf-search-body {
+    padding: 16px;
+  }
+
+  .inf-result-body {
+    padding: 16px;
+  }
+
+  .inf-list-head {
+    padding: 12px 16px;
+  }
+
+  .inf-list {
+    overflow-x: visible;
+  }
+
+  .inf-list-items {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inf-row.inf-header-row {
+    display: none;
+  }
+
+  .inf-row {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .inf-row:hover {
+    background: var(--color-surface);
+  }
+
+  .inf-col {
+    padding: 2px 0;
+    font-size: 13px;
+    align-items: flex-start;
+  }
+
+  .col-desc,
+  .col-fecha {
+    display: none;
   }
 }

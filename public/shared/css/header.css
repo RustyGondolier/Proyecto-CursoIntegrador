@@ -38,4 +38,43 @@
   font-size:24px;
 
   cursor:pointer;
+
+  padding:10px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #fff;
+  min-width: 0;
+}
+
+.header-logo img {
+  max-height: 36px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.header-logo span {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .header-logo span {
+    display: none;
+  }
+
+  .header-logo img {
+    max-height: 30px;
+  }
 }
