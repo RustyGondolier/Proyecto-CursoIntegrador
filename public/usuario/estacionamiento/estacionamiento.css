@@ -52,103 +52,6 @@ svg text {
   padding: 60px 0;
 }
 
-.sidebar-legend {
-  width: 200px;
-  min-width: 200px;
-  background: var(--color-surface, #fff);
-  border-radius: var(--radius-md, 12px);
-  box-shadow: var(--shadow);
-  padding: 16px;
-  align-self: flex-start;
-}
-
-.sidebar-legend h3 {
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: var(--color-text-light, #6B7280);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  font-size: 13px;
-  color: var(--color-text, #1F2937);
-}
-
-.legend-color {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 1px solid rgba(0,0,0,.1);
-}
-
-.legend-color.disponible { background: #22c55e; }
-.legend-color.ocupada { background: #ef4444; }
-.legend-color.mi-plaza { background: #3b82f6; }
-.legend-color.bloqueada { background: #6b7280; }
-.legend-color.mantenimiento { background: #f59e0b; }
-.legend-color.ruta { background: #8e98f4; }
-
-.plaza-info {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.plaza-info h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.plaza-info p {
-  margin: 0;
-  color: var(--color-text-light, #6B7280);
-}
-
-.controls-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-  justify-content: flex-end;
-}
-
-.btn-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border: 2px solid var(--color-border, #E5E7EB);
-  background: var(--color-surface, #fff);
-  color: var(--color-text, #1F2937);
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all .2s;
-}
-
-.btn-toggle.active {
-  border-color: #22c55e;
-  background: #22c55e;
-  color: #fff;
-}
-
-.btn-toggle:not(.active) {
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-#toggleRouteBtn {
-  margin-left: auto;
-}
-
 /* Estados de plazas en SVG */
 .plaza-disponible { fill: #22c55e !important; opacity: .7 !important; }
 .plaza-ocupada { fill: #ef4444 !important; opacity: .7 !important; }
@@ -169,14 +72,74 @@ svg text {
 /* Rutas */
 .ruta-visible { display: block !important; }
 
+.asignacion-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--color-text-light, #6B7280);
+  font-size: 14px;
+}
+
+.asignacion-sub {
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: .8;
+}
+
+.asignacion-info {
+  padding: 16px;
+}
+
+.asignacion-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.asignacion-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  color: var(--color-text-light, #6B7280);
+}
+
+.asignacion-plaza-codigo {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-primary, #B50E30);
+  margin-bottom: 4px;
+}
+
+.asignacion-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-light, #6B7280);
+}
+
+.asignacion-sep {
+  color: var(--color-border, #E5E7EB);
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.estado-disponible { background: #D1FAE5; color: #065F46; }
+.estado-ocupada { background: #FEE2E2; color: #991B1B; }
+.estado-bloqueada { background: #F3F4F6; color: #6B7280; }
+.estado-mantenimiento { background: #FEF3C7; color: #92400E; }
+
 @media (max-width: 768px) {
   .map-container {
     flex-direction: column;
-  }
-
-  .sidebar-legend {
-    width: 100%;
-    min-width: auto;
   }
 
   .parking-selector {

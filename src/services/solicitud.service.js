@@ -170,6 +170,7 @@ function formatearSolicitud(solicitud) {
     estado: solicitud.estado,
     tiempo_restante,
     plaza_codigo: solicitud.plaza_codigo || null,
+    plaza_asignada_id: solicitud.plaza_asignada_id || null,
     hora_solicitud: solicitud.hora_solicitud,
     hora_limite_ingreso: solicitud.hora_limite_ingreso
   };

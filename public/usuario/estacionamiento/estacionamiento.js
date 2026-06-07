@@ -19,7 +19,6 @@ let rectsPlaza = [];
 let plazaAsignadaId = null;
 let rutaVisible = true;
 let svgActual = null;
-let autoMarcadoActivo = true;
 
 async function init() {
   if (!isAuthenticated()) {
@@ -38,9 +37,6 @@ async function init() {
       alternarCochera(btn.dataset.id);
     });
   });
-
-  document.getElementById('toggleRouteBtn')?.addEventListener('click', toggleRuta);
-  document.getElementById('autoMarkerBtn')?.addEventListener('click', toggleAutoMarcado);
 
   window.onPlazaAsignada = async (data) => {
     await cargarMapa(estacionamientoId);
@@ -84,7 +80,7 @@ async function cargarMapa(id) {
 
     asignarPlazas(svgActual);
     colorearPlazas();
-    if (autoMarcadoActivo) marcarPlazaAsignada();
+    marcarPlazaAsignada();
 
   } catch (err) {
     console.error(err);
@@ -189,40 +185,41 @@ function colorearPlazas() {
 
 async function marcarPlazaAsignada() {
   const infoEl = document.getElementById('activeRequestInfo');
-  const plazaInfoEl = document.getElementById('plazaInfo');
-  const toggleBtn = document.getElementById('toggleRouteBtn');
-  const autoBtn = document.getElementById('autoMarkerBtn');
 
   if (!plazaAsignadaId) {
-    infoEl.innerHTML = '<p>No tienes una plaza asignada. Selecciona una plaza para ver su ruta.</p>';
-    plazaInfoEl.style.display = 'none';
-    autoBtn.style.display = 'none';
+    infoEl.innerHTML = `
+      <div class="asignacion-empty">
+        <p>No tienes una plaza asignada.</p>
+        <p class="asignacion-sub">Selecciona una plaza en el mapa para ver su ruta.</p>
+      </div>
+    `;
     ocultarRuta();
     return;
   }
 
-  autoBtn.style.display = 'inline-block';
   const plaza = plazasData.find(p => String(p.id) === String(plazaAsignadaId));
   if (!plaza) {
-    infoEl.innerHTML = '<p>Plaza asignada no encontrada en el mapa.</p>';
+    infoEl.innerHTML = '<p class="asignacion-empty">Plaza asignada no encontrada en este estacionamiento.</p>';
+    ocultarRuta();
     return;
   }
 
   infoEl.innerHTML = `
-    <p><strong>Plaza asignada:</strong> ${plaza.codigo} (Bloque ${plaza.letra_bloque}, N° ${plaza.numero_plaza})</p>
-    <p><strong>Estado:</strong> ${plaza.estado}</p>
+    <div class="asignacion-info">
+      <div class="asignacion-head">
+        <span class="asignacion-label">Mi plaza</span>
+        <span class="estado-badge estado-${plaza.estado}">${plaza.estado}</span>
+      </div>
+      <div class="asignacion-plaza-codigo">${plaza.codigo}</div>
+      <div class="asignacion-details">
+        <span>Bloque ${plaza.letra_bloque}</span>
+        <span class="asignacion-sep">·</span>
+        <span>Plaza N° ${plaza.numero_plaza}</span>
+      </div>
+    </div>
   `;
 
-  if (!autoMarcadoActivo) return;
-
-  document.getElementById('plazaInfoTitle').textContent = `Plaza: ${plaza.codigo}`;
-  document.getElementById('plazaInfoDetail').textContent =
-    `Bloque ${plaza.letra_bloque} - Plaza N° ${plaza.numero_plaza} (${plaza.estado})`;
-  toggleBtn.style.display = 'inline-block';
-  toggleBtn.textContent = 'Ocultar ruta';
-  plazaInfoEl.style.display = 'flex';
   rutaVisible = true;
-
   mostrarRuta(plaza.codigo);
   colorearPlazas();
 }
@@ -240,59 +237,8 @@ function ocultarRuta() {
   });
 }
 
-function toggleAutoMarcado() {
-  autoMarcadoActivo = !autoMarcadoActivo;
-  const btn = document.getElementById('autoMarkerBtn');
-  if (autoMarcadoActivo) {
-    btn.classList.add('active');
-    btn.textContent = 'Auto: ON';
-    if (plazaAsignadaId) marcarPlazaAsignada();
-  } else {
-    btn.classList.remove('active');
-    btn.textContent = 'Auto: OFF';
-    ocultarAutoMarcado();
-  }
-}
-
-function ocultarAutoMarcado() {
-  document.getElementById('plazaInfo').style.display = 'none';
-  ocultarRuta();
-}
-
-function toggleRuta() {
-  if (!plazaAsignadaId) return;
-  const plaza = plazasData.find(p => String(p.id) === String(plazaAsignadaId));
-  if (!plaza) return;
-
-  rutaVisible = !rutaVisible;
-  const btn = document.getElementById('toggleRouteBtn');
-  if (rutaVisible) {
-    mostrarRuta(plaza.codigo);
-    btn.textContent = 'Ocultar ruta';
-  } else {
-    ocultarRuta();
-    btn.textContent = 'Mostrar ruta';
-  }
-}
-
 function onPlazaClick(plaza, rect) {
-  const title = document.getElementById('plazaInfoTitle');
-  const detail = document.getElementById('plazaInfoDetail');
-  const toggleBtn = document.getElementById('toggleRouteBtn');
-  const plazaInfoEl = document.getElementById('plazaInfo');
-
-  title.textContent = `Plaza: ${plaza.codigo}`;
-  detail.textContent = `Bloque ${plaza.letra_bloque} - Plaza N° ${plaza.numero_plaza} (${plaza.estado})`;
-
-  if (plazaAsignadaId && String(plaza.id) === String(plazaAsignadaId)) {
-    toggleBtn.style.display = 'inline-block';
-    toggleBtn.textContent = rutaVisible ? 'Ocultar ruta' : 'Mostrar ruta';
-  } else {
-    toggleBtn.style.display = 'none';
-  }
-
-  plazaInfoEl.style.display = 'flex';
-
+  ocultarRuta();
   if (!plazaAsignadaId || String(plaza.id) === String(plazaAsignadaId)) {
     mostrarRuta(plaza.codigo);
   }
