@@ -366,34 +366,35 @@ function renderGraficoOcupacion(data, tipo) {
       mostrarSinDatos('chartOcupacion');
       return;
     }
-    const mapa = {};
-    for (let h = 0; h < 24; h++) mapa[h] = 0;
-    raw.forEach(d => { mapa[d.hora] = Number(d.ocupadas); });
+
     const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-    const valores = Array.from({ length: 24 }, (_, i) => mapa[i]);
+    const estacionamientos = [...new Set(raw.map(d => d.estacionamiento))];
+    const datasets = estacionamientos.map((est, i) => {
+      const mapa = {};
+      for (let h = 0; h < 24; h++) mapa[h] = 0;
+      raw.filter(d => d.estacionamiento === est).forEach(d => { mapa[d.hora] = Number(d.ocupadas); });
+      return {
+        label: est,
+        data: Array.from({ length: 24 }, (_, i) => mapa[i]),
+        borderColor: COLORS[i % COLORS.length],
+        backgroundColor: tipo === 'line'
+          ? COLORS[i % COLORS.length] + '20'
+          : tipo === 'radar'
+            ? COLORS[i % COLORS.length] + '60'
+            : COLORS[i % COLORS.length],
+        borderWidth: 2,
+        fill: tipo === 'line' || tipo === 'radar',
+        tension: 0.3
+      };
+    });
 
     crearOActualizarGrafico('chartOcupacion', {
       type: tipo === 'radar' ? 'radar' : tipo,
-      data: {
-        labels,
-        datasets: [{
-          label: 'Plazas ocupadas',
-          data: valores,
-          borderColor: COLORS[0],
-          backgroundColor: tipo === 'line'
-            ? COLORS[0] + '20'
-            : tipo === 'radar'
-              ? COLORS[0] + '60'
-              : COLORS[0],
-          borderWidth: 2,
-          fill: tipo === 'line' || tipo === 'radar',
-          tension: 0.3
-        }]
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { legend: { position: 'top' } },
         scales: tipo !== 'radar' ? {
           y: { beginAtZero: true, title: { display: true, text: 'Plazas ocupadas' } }
         } : {}

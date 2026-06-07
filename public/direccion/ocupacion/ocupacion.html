@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ocupación | Dirección - UTP Parking</title>
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./ocupacion.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <main class="content">
+      <section class="card welcome-card">
+        <h1 id="welcomeText">Ocupación de Estacionamiento</h1>
+        <p>Análisis detallado de ocupación por estacionamiento</p>
+      </section>
+
+      <section class="card controls-card">
+        <div class="controls-row">
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="hora">Por hora</button>
+            <button class="mode-btn" data-mode="dia">Por día</button>
+            <button class="mode-btn" data-mode="semana">Por semana</button>
+          </div>
+          <div class="chart-type-selector" data-target="chartOcupacion">
+            <button class="chart-type-btn active" data-type="bar">Barra</button>
+            <button class="chart-type-btn" data-type="line">Línea</button>
+            <button class="chart-type-btn" data-type="radar">Radial</button>
+          </div>
+        </div>
+        <div class="filters-row">
+          <div class="filter-group" data-mode="hora">
+            <span class="filter-label">Día:</span>
+            <input type="date" id="fechaHora" class="filter-input">
+          </div>
+          <div class="filter-group d-none" data-mode="dia">
+            <span class="filter-label">Rango:</span>
+            <input type="date" id="fechaDiaInicio" class="filter-input">
+            <span class="filter-sep">→</span>
+            <input type="date" id="fechaDiaFin" class="filter-input">
+          </div>
+          <div class="filter-group d-none" data-mode="semana">
+            <span class="filter-label">Rango:</span>
+            <input type="date" id="fechaSemanaInicio" class="filter-input">
+            <span class="filter-sep">→</span>
+            <input type="date" id="fechaSemanaFin" class="filter-input">
+          </div>
+        </div>
+      </section>
+
+      <section class="card chart-card">
+        <div class="chart-container">
+          <canvas id="chartOcupacion"></canvas>
+        </div>
+        <p class="no-data d-none">Sin datos disponibles para el periodo indicado</p>
+        <p class="error-msg d-none">Error al cargar la gráfica</p>
+      </section>
+
+      <section class="card" id="tablaContainer">
+        <h3 class="table-title">Resumen por estacionamiento</h3>
+        <div id="tablaBody">
+          <p class="empty-message">Seleccione un período para ver el resumen.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/chartjs/chart.umd.min.js"></script>
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/shared/api/direccion.api.js"></script>
+  <script src="./ocupacion.js"></script>
+</body>
+</html>
