@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Dirección - UTP Parking</title>
+
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <main class="content">
+      <section class="card welcome-card">
+        <h1 id="welcomeText">Panel de Métricas</h1>
+        <p>Indicadores generales del estacionamiento</p>
+      </section>
+
+      <section class="stats-filter-bar card">
+        <span class="stats-filter-label">Resumen general</span>
+        <div class="stats-filter-dates">
+          <input type="date" id="statsFechaInicio" class="stats-date-input">
+          <span class="chart-date-sep">→</span>
+          <input type="date" id="statsFechaFin" class="stats-date-input">
+        </div>
+      </section>
+
+      <section id="statsContainer" class="stats-grid"></section>
+
+      <section class="charts-grid">
+        <div class="card chart-card" id="cardPermanencia">
+          <div class="chart-header">
+            <h3>Tiempo de permanencia promedio</h3>
+            <div class="chart-header-row">
+              <div class="chart-dates">
+                <input type="date" class="chart-date-inicio" data-target="chartPermanencia">
+                <span class="chart-date-sep">→</span>
+                <input type="date" class="chart-date-fin" data-target="chartPermanencia">
+              </div>
+              <div class="chart-type-selector" data-target="chartPermanencia">
+                <button class="chart-type-btn" data-type="bar">Barra</button>
+                <button class="chart-type-btn active" data-type="line">Línea</button>
+                <button class="chart-type-btn" data-type="radar">Radial</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-container">
+              <canvas id="chartPermanencia"></canvas>
+            </div>
+            <p class="no-data d-none">Sin datos disponibles para el periodo indicado</p>
+            <p class="error-msg d-none">Error al cargar la gráfica</p>
+          </div>
+        </div>
+
+        <div class="card chart-card" id="cardSolicitudes">
+          <div class="chart-header">
+            <h3>Solicitudes por hora del día</h3>
+            <div class="chart-header-row">
+              <div class="chart-dates">
+                <input type="date" class="chart-date-inicio" data-target="chartSolicitudes">
+                <span class="chart-date-sep">→</span>
+                <input type="date" class="chart-date-fin" data-target="chartSolicitudes">
+              </div>
+              <div class="chart-type-selector" data-target="chartSolicitudes">
+                <button class="chart-type-btn active" data-type="bar">Barra</button>
+                <button class="chart-type-btn" data-type="line">Línea</button>
+                <button class="chart-type-btn" data-type="radar">Radial</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-container">
+              <canvas id="chartSolicitudes"></canvas>
+            </div>
+            <p class="no-data d-none">Sin datos disponibles para el periodo indicado</p>
+            <p class="error-msg d-none">Error al cargar la gráfica</p>
+          </div>
+        </div>
+
+        <div class="card chart-card" id="cardOcupacion">
+          <div class="chart-header">
+            <h3>Ocupación de cocheras</h3>
+            <div class="chart-header-row">
+              <div class="ocupacion-mode-selector">
+                <button class="mode-btn active" data-mode="dia">Día</button>
+                <button class="mode-btn" data-mode="semana">Semana</button>
+                <button class="mode-btn" data-mode="custom">Personalizado</button>
+              </div>
+              <div class="chart-type-selector" data-target="chartOcupacion">
+                <button class="chart-type-btn active" data-type="bar">Barra</button>
+                <button class="chart-type-btn" data-type="line">Línea</button>
+                <button class="chart-type-btn" data-type="radar">Radial</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="ocupacion-inputs">
+              <div class="ocupacion-input-group" data-mode="dia">
+                <span class="input-label">Selecciona el día:</span>
+                <input type="date" class="ocupacion-date" id="ocupacionDia">
+              </div>
+              <div class="ocupacion-input-group d-none" data-mode="semana">
+                <span class="input-label">Selecciona la semana:</span>
+                <input type="week" class="ocupacion-week" id="ocupacionSemana">
+              </div>
+              <div class="ocupacion-input-group d-none" data-mode="custom">
+                <span class="input-label">Rango:</span>
+                <input type="date" class="ocupacion-range-inicio">
+                <span class="chart-date-sep">→</span>
+                <input type="date" class="ocupacion-range-fin">
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartOcupacion"></canvas>
+            </div>
+            <p class="no-data d-none">Sin datos disponibles para el periodo indicado</p>
+            <p class="error-msg d-none">Error al cargar la gráfica</p>
+          </div>
+        </div>
+
+        <div class="card chart-card" id="cardReportes">
+          <div class="chart-header">
+            <h3>Reportes de incidencias</h3>
+            <div class="chart-header-row">
+              <div class="chart-dates">
+                <input type="date" class="chart-date-inicio" data-target="chartReportes">
+                <span class="chart-date-sep">→</span>
+                <input type="date" class="chart-date-fin" data-target="chartReportes">
+              </div>
+              <div class="chart-type-selector" data-target="chartReportes">
+                <button class="chart-type-btn active" data-type="doughnut">Dona</button>
+                <button class="chart-type-btn" data-type="bar">Barra</button>
+                <button class="chart-type-btn" data-type="polarArea">Radial</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-container chart-container-sm">
+              <canvas id="chartReportes"></canvas>
+            </div>
+            <div id="reportesTabla" class="reportes-table"></div>
+            <p class="no-data d-none">Sin datos disponibles para el periodo indicado</p>
+            <p class="error-msg d-none">Error al cargar la gráfica</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/chartjs/chart.umd.min.js"></script>
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="/shared/api/direccion.api.js"></script>
+  <script src="./dashboard.js"></script>
+</body>
+</html>

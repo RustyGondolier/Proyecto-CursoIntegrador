@@ -32,7 +32,8 @@ async function loadLayout(){
     const dashboards = {
       usuario: '/usuario/dashboard/dashboard.html',
       supervisor: '/supervisor/dashboard/dashboard.html',
-      administrador: '/administrador/dashboard/dashboard.html'
+      administrador: '/administrador/dashboard/dashboard.html',
+      direccion: '/direccion/dashboard/dashboard.html'
     };
 
     logoLink.href =

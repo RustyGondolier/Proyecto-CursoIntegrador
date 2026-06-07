@@ -1,0 +1,414 @@
+.welcome-card {
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.welcome-card h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.welcome-card p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+/* ── Stats filter bar ── */
+
+.stats-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stats-filter-label {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.stats-filter-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-date-input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.stats-date-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ── Chart dates ── */
+
+.chart-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-date-inicio,
+.chart-date-fin {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 120px;
+}
+
+.chart-date-inicio:focus,
+.chart-date-fin:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.chart-date-sep {
+  color: var(--color-text-light);
+  font-size: 13px;
+}
+
+/* ── Stats grid ── */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.stat-card .stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.stat-card .stat-label {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.stat-card.stat-solicitudes .stat-number { color: var(--color-primary); }
+.stat-card.stat-ingresos .stat-number   { color: #2563EB; }
+.stat-card.stat-infracciones .stat-number { color: #DC2626; }
+.stat-card.stat-reportes .stat-number  { color: #D97706; }
+
+/* ── Charts grid ── */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chart-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chart-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.chart-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chart-type-selector {
+  display: flex;
+  gap: 4px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.chart-type-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: all 0.15s;
+  font-weight: 500;
+}
+
+.chart-type-btn:hover {
+  color: var(--color-text);
+}
+
+.chart-type-btn.active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* ── Ocupacion mode selector ── */
+
+.ocupacion-mode-selector {
+  display: flex;
+  gap: 4px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.mode-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: all 0.15s;
+  font-weight: 500;
+}
+
+.mode-btn:hover {
+  color: var(--color-text);
+}
+
+.mode-btn.active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ocupacion-inputs {
+  margin-bottom: 12px;
+}
+
+.ocupacion-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.input-label {
+  font-size: 12px;
+  color: var(--color-text-light);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ocupacion-date,
+.ocupacion-range-inicio,
+.ocupacion-range-fin {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 130px;
+}
+
+.ocupacion-date:focus,
+.ocupacion-range-inicio:focus,
+.ocupacion-range-fin:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.ocupacion-week {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 170px;
+}
+
+.ocupacion-week:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.ocupacion-sub {
+  margin-bottom: 0;
+}
+
+.chart-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  position: relative;
+  min-height: 250px;
+  flex: 1;
+}
+
+.chart-container-sm {
+  min-height: 200px;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Sub selector (dia/semana) ── */
+
+.chart-sub-selector {
+  display: flex;
+  gap: 4px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.sub-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: all 0.15s;
+  font-weight: 500;
+}
+
+.sub-btn.active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.sub-btn:hover {
+  color: var(--color-text);
+}
+
+/* ── Reportes table ── */
+
+.reportes-table {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.reportes-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.reportes-table th:first-child,
+.reportes-table td:first-child {
+  width: 75%;
+}
+
+.reportes-table th:last-child,
+.reportes-table td:last-child {
+  width: 25%;
+  text-align: center;
+}
+
+.reportes-table th,
+.reportes-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reportes-table th {
+  font-weight: 600;
+  color: var(--color-text-light);
+  font-size: 12px;
+}
+
+/* ── Empty / Error states ── */
+
+.no-data,
+.error-msg {
+  text-align: center;
+  color: var(--color-text-light);
+  padding: 40px 0;
+  font-size: 14px;
+}
+
+.error-msg {
+  color: #DC2626;
+}
+
+.d-none {
+  display: none;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stats-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chart-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-date-inicio,
+  .chart-date-fin {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

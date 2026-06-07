@@ -43,6 +43,16 @@ app.use(
 );
 
 app.use(
+  '/chartjs',
+  express.static(
+    path.join(
+      __dirname,
+      '../node_modules/chart.js/dist'
+    )
+  )
+);
+
+app.use(
   '/api/auth',
   require('./routes/auth.routes')
 );
@@ -93,6 +103,13 @@ app.use(
   '/api/administrador',
   require(
     './routes/administrador.routes'
+  )
+);
+
+app.use(
+  '/api/direccion',
+  require(
+    './routes/direccion.routes'
   )
 );
 
