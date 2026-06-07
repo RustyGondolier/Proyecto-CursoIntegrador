@@ -33,3 +33,10 @@ socket.on('salida:registrada', (data) => {
     window.onSalidaRegistrada(data);
   }
 });
+
+socket.on('reporte:actualizado', (data) => {
+  console.log('[WS] Reporte actualizado:', data);
+  if (typeof window.onReporteActualizado === 'function') {
+    window.onReporteActualizado(data);
+  }
+});

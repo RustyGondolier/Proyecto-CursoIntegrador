@@ -382,4 +382,8 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+window.onReporteActualizado = function () {
+  loadReportes();
+};
+
 init();
