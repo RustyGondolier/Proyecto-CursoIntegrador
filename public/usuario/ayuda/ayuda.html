@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayuda | UTP Parking</title>
+  <link rel="stylesheet" href="/shared/css/variables.css">
+  <link rel="stylesheet" href="/shared/css/layout.css">
+  <link rel="stylesheet" href="/shared/css/header.css">
+  <link rel="stylesheet" href="/shared/css/sidebar.css">
+  <link rel="stylesheet" href="/shared/css/buttons.css">
+  <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="./ayuda.css">
+</head>
+<body>
+  <div id="headerContainer"></div>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <main class="content">
+      <section class="card welcome-card">
+        <h1>Ayuda / Preguntas Frecuentes</h1>
+        <p>Información de uso del sistema</p>
+      </section>
+
+      <section class="card">
+        <div class="categorias-tabs" id="categoriasContainer">
+          <p class="empty-message">Cargando categorías...</p>
+        </div>
+        <div class="preguntas-content" id="preguntasContainer">
+          <p class="empty-message">Seleccione una categoría para ver las preguntas frecuentes.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/shared/api/api.js"></script>
+  <script src="/shared/js/auth.js"></script>
+  <script src="/shared/js/layout.js"></script>
+  <script src="/shared/js/sidebar.js"></script>
+  <script src="./ayuda.js"></script>
+</body>
+</html>
