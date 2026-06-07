@@ -23,6 +23,11 @@
   gap: 20px;
 }
 
+/*vitar que el cursor detecte el texto*/
+svg text {
+    pointer-events: none;
+}
+
 .svg-wrapper {
   flex: 1;
   background: #fff;
