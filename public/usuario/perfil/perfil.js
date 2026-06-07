@@ -78,6 +78,8 @@ function renderProfile(p) {
   setField('infoTelefono', p.telefono || '—');
   setField('infoDni', p.dni || '—');
 
+  renderEstadoCuenta(p);
+
   setField('licenciaNumero', p.nro_licencia || '—');
   renderLicenciaVence(p.licencia_fecha_vencimiento);
 
@@ -96,6 +98,32 @@ function renderVerificacion(p) {
   }
 
   return el;
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderEstadoCuenta(p) {
+  var container = document.getElementById('profileStatusContainer');
+  if (!container) return;
+
+  if (p.estado_cuenta === 'suspendida') {
+    container.innerHTML =
+      '<div class="account-suspended-banner">' +
+        '<strong>Cuenta suspendida</strong>' +
+        '<p>' + escapeHtml(p.motivo_suspension || 'Sin motivo registrado') + '</p>' +
+        '<small>No puedes solicitar plazas de estacionamiento hasta que tu cuenta sea reactivada por el administrador.</small>' +
+      '</div>';
+  } else {
+    container.innerHTML = '';
+  }
 }
 
 function renderLicenciaVence(fecha) {

@@ -133,6 +133,10 @@ async function getProfileWithVehicles(
         u.licencia_fecha_vencimiento,
         u.verificado,
         u.requiere_reverificacion,
+        u.estado_cuenta,
+        u.motivo_suspension,
+        u.codigo_conadis,
+        u.conadis_verificado,
         json_agg(
           json_build_object(
             'id', v.id,
