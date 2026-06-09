@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/shared/css/sidebar.css">
   <link rel="stylesheet" href="/shared/css/buttons.css">
   <link rel="stylesheet" href="/shared/css/cards.css">
+  <link rel="stylesheet" href="/shared/css/modal.css">
   <link rel="stylesheet" href="./historial.css">
 </head>
 <body>
@@ -34,6 +35,17 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="modal" id="detailModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="modal-head">
+        <h2>Detalle de acceso</h2>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
   </div>
 
   <script src="/shared/api/api.js"></script>
