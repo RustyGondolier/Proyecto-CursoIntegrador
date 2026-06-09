@@ -42,7 +42,30 @@ async function notificarAdministradores({ tipo_codigo, titulo, mensaje, url_dest
   return results;
 }
 
+async function notificarSupervisores({ tipo_codigo, titulo, mensaje, url_destino }) {
+  const supervisores = await notificacionRepository.findSupervisores();
+  const tipo = await notificacionRepository.findTipoByCodigo(tipo_codigo);
+  if (!tipo) return [];
+
+  const results = [];
+  for (const sup of supervisores) {
+    const notificacion = await notificacionRepository.create({
+      usuario_id: sup.id,
+      tipo_id: tipo.id,
+      titulo,
+      mensaje,
+      url_destino
+    });
+    try {
+      getIO().to(`user:${sup.id}`).emit('notificacion:nueva', notificacion);
+    } catch (_) {}
+    results.push(notificacion);
+  }
+  return results;
+}
+
 module.exports = {
   notificar,
-  notificarAdministradores
+  notificarAdministradores,
+  notificarSupervisores
 };

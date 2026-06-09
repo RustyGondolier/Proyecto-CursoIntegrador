@@ -113,6 +113,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/notificaciones',
+  require(
+    './routes/notificacion.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

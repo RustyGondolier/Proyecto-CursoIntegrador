@@ -51,13 +51,24 @@ async function crear({ usuario_id, estacionamiento_id, descripcion }) {
 
   const activa = await solicitudRepository.findActiveByUser(usuario_id);
 
-  return reporteRepository.create({
+  const reporte = await reporteRepository.create({
     usuario_id,
     estacionamiento_id,
     solicitud_id: activa?.id ?? null,
     plaza_id: activa?.plaza_asignada_id ?? null,
     descripcion: descripcion.trim()
   });
+
+  try {
+    await notificacionService.notificarSupervisores({
+      tipo_codigo: 'reporte',
+      titulo: 'Nuevo reporte de incidencia',
+      mensaje: `Un usuario ha reportado una incidencia. Revisa los reportes pendientes.`,
+      url_destino: `/supervisor/incidencias/incidencias.html`
+    });
+  } catch (_) {}
+
+  return reporte;
 }
 
 async function responder({ id, supervisor_id, respuesta }) {

@@ -62,6 +62,38 @@ async function loadLayout(){
 
   bindSidebar();
 
+  cargarNotificaciones();
+
+}
+
+async function cargarNotificaciones() {
+  try {
+    const panelResponse = await fetch('/shared/components/notification-panel.html');
+    document.getElementById('notificationPanelContainer').innerHTML = await panelResponse.text();
+
+    if (!window.listarNotificaciones) {
+      await new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = '/shared/api/notificacion.api.js';
+        s.onload = resolve;
+        s.onerror = resolve;
+        document.head.appendChild(s);
+      });
+    }
+
+    await new Promise(function(resolve, reject) {
+      var s = document.createElement('script');
+      s.src = '/shared/js/notification.js';
+      s.onload = function() {
+        if (typeof initNotifications === 'function') {
+          initNotifications();
+        }
+        resolve();
+      };
+      s.onerror = resolve;
+      document.head.appendChild(s);
+    });
+  } catch (_) {}
 }
 
 function loadUserInfo(){

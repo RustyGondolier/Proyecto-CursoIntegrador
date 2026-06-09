@@ -25,8 +25,56 @@ async function findAdmins() {
   return result.rows;
 }
 
+async function findSupervisores() {
+  const result = await pool.query(
+    `SELECT id FROM usuarios WHERE rol = 'supervisor' AND estado_cuenta = 'activa'`
+  );
+  return result.rows;
+}
+
+async function findByUserId(usuario_id, limite = 50) {
+  const result = await pool.query(
+    `SELECT n.*, tn.descripcion AS tipo_descripcion
+     FROM notificaciones n
+     JOIN tipos_notificacion tn ON tn.id = n.tipo_id
+     WHERE n.usuario_id = $1
+     ORDER BY n.creado_en DESC
+     LIMIT $2`,
+    [usuario_id, limite]
+  );
+  return result.rows;
+}
+
+async function countUnread(usuario_id) {
+  const result = await pool.query(
+    `SELECT COUNT(*)::int AS total FROM notificaciones WHERE usuario_id = $1 AND leida = false`,
+    [usuario_id]
+  );
+  return result.rows[0].total;
+}
+
+async function markAsRead(id, usuario_id) {
+  const result = await pool.query(
+    `UPDATE notificaciones SET leida = true WHERE id = $1 AND usuario_id = $2 RETURNING *`,
+    [id, usuario_id]
+  );
+  return result.rows[0] || null;
+}
+
+async function markAllAsRead(usuario_id) {
+  await pool.query(
+    `UPDATE notificaciones SET leida = true WHERE usuario_id = $1 AND leida = false`,
+    [usuario_id]
+  );
+}
+
 module.exports = {
   create,
   findTipoByCodigo,
-  findAdmins
+  findAdmins,
+  findSupervisores,
+  findByUserId,
+  countUnread,
+  markAsRead,
+  markAllAsRead
 };
