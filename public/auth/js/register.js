@@ -111,6 +111,11 @@ form.addEventListener(
       return;
     }
 
+    if (dni && !/^\d{8}$/.test(dni.trim())) {
+      mensaje.textContent = 'El DNI debe tener 8 dígitos';
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
     if (!emailRegex.test(correo.trim())) {
       mensaje.textContent = 'El correo debe ser institucional (@utp.edu.pe)';

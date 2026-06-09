@@ -132,6 +132,14 @@ const PLACA_REGEX = {
   mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
 };
 
+function normalizarPlaca(tipo, placa) {
+  const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
+  if (tipo === 'auto') {
+    return limpia.replace(/^([A-Z]{3})(\d{3})$/, '$1-$2');
+  }
+  return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
+}
+
 async function getVehicles(
   userId
 ){
@@ -155,10 +163,12 @@ async function createVehicle(
     throw error;
   }
 
+  const placaNormalizada = normalizarPlaca(tipo, body.placa);
+
   const existente =
     await vehiculoRepository
       .existsByPlate(
-        body.placa.toUpperCase()
+        placaNormalizada
       );
 
   if(existente){
@@ -176,7 +186,7 @@ async function createVehicle(
         tipo_vehiculo_id: tipo,
 
         placa:
-          body.placa.toUpperCase(),
+          placaNormalizada,
 
         modelo:
           body.modelo
@@ -235,10 +245,14 @@ async function updateVehicle(
       throw error;
     }
 
-    const duplicado = await vehiculoRepository.findByPlaca(body.placa.toUpperCase());
+    const placaNormalizada = normalizarPlaca(tipo, body.placa);
+
+    const duplicado = await vehiculoRepository.findByPlaca(placaNormalizada);
     if (duplicado && String(duplicado.id) !== String(vehicleId)) {
       throw new Error('La placa ya está registrada');
     }
+
+    body.placa = placaNormalizada;
   }
 
   await vehiculoRepository

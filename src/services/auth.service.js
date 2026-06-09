@@ -118,6 +118,14 @@ const PLACA_REGEX = {
   mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
 };
 
+function normalizarPlaca(tipo, placa) {
+  const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
+  if (tipo === 'auto') {
+    return limpia.replace(/^([A-Z]{3})(\d{3})$/, '$1-$2');
+  }
+  return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
+}
+
 async function register(
   body
 ){
@@ -130,6 +138,12 @@ async function register(
 
   if (body.password.length < 6) {
     throw new Error('La contraseña debe tener al menos 6 caracteres');
+  }
+
+  if (body.dni !== undefined && body.dni !== null && body.dni !== '') {
+    if (!/^\d{8}$/.test(body.dni.trim())) {
+      throw new Error('El DNI debe tener 8 dígitos');
+    }
   }
 
   const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
@@ -153,6 +167,8 @@ async function register(
     const formato = tipoVehiculo === 'auto' ? 'ABC-123' : 'AB-1234';
     throw new Error(`La placa no tiene un formato válido (ej: ${formato})`);
   }
+
+  const placaNormalizada = normalizarPlaca(tipoVehiculo, body.placa);
 
   const codigo =
     body.codigo_universitario
@@ -208,8 +224,7 @@ async function register(
   const vehiculoExiste =
     await vehiculoRepository
       .findByPlaca(
-        body.placa
-          .toUpperCase()
+        placaNormalizada
       );
 
   if(vehiculoExiste){
@@ -274,8 +289,7 @@ async function register(
         body.tipo_vehiculo_id,
 
       placa:
-        body.placa
-          .toUpperCase(),
+        placaNormalizada,
 
       modelo:
         body.modelo.trim()

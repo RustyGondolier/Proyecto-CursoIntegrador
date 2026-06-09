@@ -39,6 +39,15 @@ function bindSearch() {
   });
 }
 
+function normalizarPlaca(placa) {
+  var limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
+  var matchAuto = limpia.match(/^([A-Z]{3})(\d{3})$/);
+  if (matchAuto) return matchAuto[1] + '-' + matchAuto[2];
+  var matchMoto = limpia.match(/^([A-Z]{2})(\d{4})$/);
+  if (matchMoto) return matchMoto[1] + '-' + matchMoto[2];
+  return limpia;
+}
+
 async function buscarVehiculo() {
   var placa = document.getElementById('placaInput').value.trim();
   var errorBox = document.getElementById('searchError');
@@ -50,12 +59,14 @@ async function buscarVehiculo() {
     return;
   }
 
+  var placaNormalizada = normalizarPlaca(placa);
+
   var btn = document.getElementById('buscarBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="inf-loading"></span> Buscando...';
 
   try {
-    var response = await apiFetch('/api/supervisor/buscar?placa=' + encodeURIComponent(placa));
+    var response = await apiFetch('/api/supervisor/buscar?placa=' + encodeURIComponent(placaNormalizada));
 
     if (response.status === 404) {
       errorBox.textContent = 'Vehículo no encontrado. La placa no está registrada en el sistema.';

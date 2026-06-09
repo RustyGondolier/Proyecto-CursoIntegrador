@@ -70,17 +70,19 @@ async function buscarPorPlaca() {
     return;
   }
 
-  const formatoValido = /^[A-Z]{2,3}-\d{3,4}$/.test(placa);
+  const formatoValido = /^[A-Z]{2,3}[-\s]?\d{3,4}$/.test(placa);
   if (!formatoValido) {
     mostrarError('Formato inválido. Use formato: ABC-123 o AB-1234');
     return;
   }
 
+  const placaNormalizada = placa.replace(/[\s-]/g, '').replace(/^([A-Z]{3})(\d{3})$/, '$1-$2').replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
+
   limpiarError();
   ocultarResultados();
 
   try {
-    const response = await apiFetch(`/api/supervisor/buscar?placa=${encodeURIComponent(placa)}`);
+    const response = await apiFetch(`/api/supervisor/buscar?placa=${encodeURIComponent(placaNormalizada)}`);
     if (!response.ok) {
       const err = await response.json();
       mostrarError(err.error || 'Vehículo no encontrado');

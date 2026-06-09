@@ -65,8 +65,18 @@ async function getDashboard() {
   };
 }
 
+function normalizarPlaca(placa) {
+  const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
+  const matchAuto = limpia.match(/^([A-Z]{3})(\d{3})$/);
+  if (matchAuto) return `${matchAuto[1]}-${matchAuto[2]}`;
+  const matchMoto = limpia.match(/^([A-Z]{2})(\d{4})$/);
+  if (matchMoto) return `${matchMoto[1]}-${matchMoto[2]}`;
+  return limpia;
+}
+
 async function buscarPorPlaca(placa) {
-  const resultado = await supervisorRepository.buscarPorPlaca(placa);
+  const placaNormalizada = normalizarPlaca(placa);
+  const resultado = await supervisorRepository.buscarPorPlaca(placaNormalizada);
   if (!resultado) {
     const error = new Error('Vehículo no encontrado');
     error.status = 404;
