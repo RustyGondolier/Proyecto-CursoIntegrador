@@ -42,7 +42,7 @@ async function obtenerDetalle(id) {
   return reporte;
 }
 
-async function crear({ usuario_id, estacionamiento_id, descripcion }) {
+async function crear({ usuario_id, descripcion }) {
   if (!descripcion || descripcion.trim().length < 10) {
     const error = new Error('La descripción debe tener al menos 10 caracteres');
     error.status = 400;
@@ -50,12 +50,17 @@ async function crear({ usuario_id, estacionamiento_id, descripcion }) {
   }
 
   const activa = await solicitudRepository.findActiveByUser(usuario_id);
+  if (!activa) {
+    const error = new Error('No tienes una solicitud activa');
+    error.status = 400;
+    throw error;
+  }
 
   const reporte = await reporteRepository.create({
     usuario_id,
-    estacionamiento_id,
-    solicitud_id: activa?.id ?? null,
-    plaza_id: activa?.plaza_asignada_id ?? null,
+    estacionamiento_id: activa.estacionamiento_id,
+    solicitud_id: activa.id,
+    plaza_id: activa.plaza_asignada_id,
     descripcion: descripcion.trim()
   });
 

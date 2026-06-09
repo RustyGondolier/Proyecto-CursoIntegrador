@@ -9,6 +9,9 @@ const cors =
 const helmet =
   require('helmet');
 
+const rateLimit =
+  require('express-rate-limit');
+
 const path =
   require('path');
 
@@ -22,6 +25,26 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+const windowMs =
+  (parseInt(process.env.RATE_LIMIT_WINDOW_MIN) || 15) * 60 * 1000;
+
+const limiterGlobal = rateLimit({
+  windowMs,
+  max: parseInt(process.env.RATE_LIMIT_GLOBAL_MAX) || 200,
+  standardHeaders: true,
+  message: { error: 'Demasiadas peticiones. Intenta de nuevo más tarde.' }
+});
+
+const limiterLogin = rateLimit({
+  windowMs,
+  max: parseInt(process.env.RATE_LIMIT_LOGIN_MAX) || 10,
+  standardHeaders: true,
+  message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.' }
+});
+
+app.use(limiterGlobal);
+app.use('/api/auth/login', limiterLogin);
 
 app.use(
   express.static(

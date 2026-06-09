@@ -1,5 +1,4 @@
 let allReportes = [];
-let allEstacionamientos = [];
 
 const TIPOS = {
   lugar_ocupado:    { icon: '🚗', label: 'Otra persona ocupa mi lugar' },
@@ -30,27 +29,28 @@ async function init() {
   bindScrollToForm();
 
   await Promise.all([
-    loadEstacionamientos(),
-    loadReportes()
+    loadReportes(),
+    cargarPlazaAsignada()
   ]);
 }
 
 /* CARGA DE DATOS */
 
-async function loadEstacionamientos() {
-  const select = document.getElementById('formEstacionamiento');
+async function cargarPlazaAsignada() {
+  const plazaInfo = document.getElementById('plazaInfo');
+  const plazaInfoText = document.getElementById('plazaInfoText');
   try {
-    const response = await apiFetch('/api/estacionamientos');
-    if (!response.ok) throw new Error();
-    allEstacionamientos = await response.json();
-  } catch {
-    allEstacionamientos = [];
-  }
-
-  select.innerHTML = '<option value="">Selecciona el estacionamiento</option>' +
-    allEstacionamientos.map(e =>
-      `<option value="${e.id}">${escapeHtml(e.nombre)}</option>`
-    ).join('');
+    const response = await apiFetch('/api/solicitudes/activa');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.plaza_codigo) {
+        plazaInfoText.textContent = data.plaza_codigo + (data.estacionamiento_nombre ? ' — ' + data.estacionamiento_nombre : '');
+        plazaInfo.style.display = '';
+        return;
+      }
+    }
+  } catch (_) {}
+  plazaInfo.style.display = 'none';
 }
 
 async function loadReportes() {
@@ -98,16 +98,17 @@ function bindNewReportForm() {
     errBox.style.display = 'none';
 
     const tipo = document.getElementById('formTipo').value;
-    const estacionamientoId = document.getElementById('formEstacionamiento').value;
     const descripcion = document.getElementById('formDescripcion').value.trim();
 
-    if (!tipo) {
-      errBox.textContent = 'Selecciona el tipo de incidencia que quieres reportar.';
+    const plazaInfo = document.getElementById('plazaInfo');
+    if (!plazaInfo || plazaInfo.style.display === 'none') {
+      errBox.textContent = 'Debes tener una plaza asignada para reportar una incidencia. Solicita una plaza primero.';
       errBox.style.display = 'block';
       return;
     }
-    if (!estacionamientoId) {
-      errBox.textContent = 'Indica en qué estacionamiento ocurrió el problema.';
+
+    if (!tipo) {
+      errBox.textContent = 'Selecciona el tipo de incidencia que quieres reportar.';
       errBox.style.display = 'block';
       return;
     }
@@ -128,7 +129,6 @@ function bindNewReportForm() {
       const response = await apiFetch('/api/reportes', {
         method: 'POST',
         body: JSON.stringify({
-          estacionamiento_id: Number(estacionamientoId),
           descripcion: descripcionCompleta
         })
       });

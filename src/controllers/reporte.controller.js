@@ -12,11 +12,7 @@ async function listar(req, res) {
 
 async function crear(req, res) {
   try {
-    const { estacionamiento_id, descripcion } = req.body;
-
-    if (!estacionamiento_id || typeof estacionamiento_id !== 'number') {
-      return res.status(400).json({ error: 'estacionamiento_id es requerido y debe ser un número' });
-    }
+    const { descripcion } = req.body;
 
     if (!descripcion || typeof descripcion !== 'string') {
       return res.status(400).json({ error: 'descripcion es requerida' });
@@ -24,7 +20,6 @@ async function crear(req, res) {
 
     const data = await reporteService.crear({
       usuario_id: req.usuario.id,
-      estacionamiento_id,
       descripcion
     });
 

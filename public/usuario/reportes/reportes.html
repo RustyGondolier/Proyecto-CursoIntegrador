@@ -83,11 +83,14 @@
                 <input type="hidden" name="tipo_incidencia" id="formTipo" value="">
               </div>
 
-              <div class="form-block">
-                <label class="form-label" for="formEstacionamiento">Estacionamiento <span class="required">*</span></label>
-                <select name="estacionamiento_id" id="formEstacionamiento" required>
-                  <option value="">Selecciona el estacionamiento</option>
-                </select>
+              <div id="plazaInfo" class="form-block" style="display:none">
+                <div class="plaza-info-card">
+                  <span class="plaza-info-icon">🅿️</span>
+                  <div class="plaza-info-text">
+                    <span class="plaza-info-label">Tu plaza asignada</span>
+                    <span id="plazaInfoText" class="plaza-info-value">—</span>
+                  </div>
+                </div>
               </div>
 
               <div class="form-block">
