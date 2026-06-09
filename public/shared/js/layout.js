@@ -71,6 +71,16 @@ async function cargarNotificaciones() {
     const panelResponse = await fetch('/shared/components/notification-panel.html');
     document.getElementById('notificationPanelContainer').innerHTML = await panelResponse.text();
 
+    if (typeof io === 'undefined') {
+      await new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = '/socket.io/socket.io.min.js';
+        s.onload = resolve;
+        s.onerror = resolve;
+        document.head.appendChild(s);
+      });
+    }
+
     if (!window.listarNotificaciones) {
       await new Promise(function(resolve, reject) {
         var s = document.createElement('script');

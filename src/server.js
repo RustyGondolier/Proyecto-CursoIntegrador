@@ -143,6 +143,13 @@ app.use(
   )
 );
 
+app.use(
+  '/api/faq',
+  require(
+    './routes/faq.routes'
+  )
+);
+
 /* LANDING PAGE */
 
 app.get(

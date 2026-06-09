@@ -1,12 +1,3 @@
-const CATEGORIAS = [
-  { id: 1, nombre: 'General' },
-  { id: 2, nombre: 'Solicitudes' },
-  { id: 3, nombre: 'Incidencias' },
-  { id: 4, nombre: 'Cuentas' }
-];
-
-let categoriaActiva = null;
-
 async function init() {
   if (!isAuthenticated()) {
     window.location.href = '/auth/login.html';
@@ -17,39 +8,83 @@ async function init() {
   renderCategorias();
 }
 
-function renderCategorias() {
+async function renderCategorias() {
   const container = document.getElementById('categoriasContainer');
-  container.innerHTML = CATEGORIAS.map(c => `
-    <button class="categoria-btn${categoriaActiva === c.id ? ' active' : ''}"
-            data-id="${c.id}">
-      ${c.nombre}
-    </button>
-  `).join('');
 
-  container.querySelectorAll('.categoria-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = Number(btn.dataset.id);
-      categoriaActiva = id;
-      document.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderPreguntas(id);
+  try {
+    const resp = await apiFetch('/api/faq');
+    if (!resp.ok) throw new Error();
+    const categorias = await resp.json();
+
+    container.innerHTML = categorias.map(c => `
+      <button class="categoria-btn" data-id="${c.id}">
+        ${escapeHtml(c.nombre)}
+      </button>
+    `).join('');
+
+    container.querySelectorAll('.categoria-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        cargarPreguntas(Number(btn.dataset.id));
+      });
     });
-  });
 
-  if (!categoriaActiva && CATEGORIAS.length > 0) {
-    document.querySelector('.categoria-btn').click();
+    if (categorias.length > 0) {
+      container.querySelector('.categoria-btn').classList.add('active');
+      cargarPreguntas(categorias[0].id);
+    }
+  } catch {
+    container.innerHTML = '<p class="empty-message">No se pudieron cargar las categorías. Verifica tu conexión.</p>';
   }
 }
 
-function renderPreguntas(categoriaId) {
+async function cargarPreguntas(categoriaId) {
   const container = document.getElementById('preguntasContainer');
-  const categoria = CATEGORIAS.find(c => c.id === categoriaId);
+  container.innerHTML = '<p class="empty-message">Cargando preguntas...</p>';
 
-  container.innerHTML = `
-    <p class="empty-message">
-      No hay preguntas disponibles para la categoría <strong>${categoria ? categoria.nombre : ''}</strong>.
-    </p>
-  `;
+  try {
+    const resp = await apiFetch(`/api/faq/${categoriaId}/preguntas`);
+    if (!resp.ok) throw new Error();
+    const preguntas = await resp.json();
+
+    if (preguntas.length === 0) {
+      container.innerHTML = '<p class="empty-message">No hay preguntas disponibles para esta categoría.</p>';
+      return;
+    }
+
+    container.innerHTML = preguntas.map((p, i) => `
+      <div class="pregunta-item">
+        <button class="pregunta-header" data-index="${i}">
+          <span>${escapeHtml(p.pregunta)}</span>
+        </button>
+        <div class="pregunta-answer" id="answer-${i}">
+          <p>${escapeHtml(p.respuesta)}</p>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.pregunta-header').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = btn.dataset.index;
+        const answer = document.getElementById(`answer-${idx}`);
+        answer.classList.toggle('open');
+        btn.classList.toggle('open');
+      });
+    });
+  } catch {
+    container.innerHTML = '<p class="empty-message">No se pudieron cargar las preguntas. Verifica tu conexión.</p>';
+  }
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 init();
