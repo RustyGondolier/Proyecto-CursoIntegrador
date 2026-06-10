@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const reporteService = require('../services/reporte.service');
 
 async function listar(req, res) {
@@ -5,7 +6,7 @@ async function listar(req, res) {
     const reportes = await reporteService.listar(req.usuario.id);
     res.json(reportes);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener los reportes: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al obtener los reportes' });
   }
 }
@@ -25,7 +26,7 @@ async function crear(req, res) {
 
     res.status(201).json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al crear reporte: ' + err.message, { stack: err.stack, usuario_id: req.usuario?.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al crear el reporte' });
   }
 }
@@ -36,7 +37,7 @@ async function listarTodos(req, res) {
     const reportes = await reporteService.listarTodos(estado_id ? Number(estado_id) : null);
     res.json(reportes);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener los reportes: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al obtener los reportes' });
   }
 }
@@ -50,7 +51,7 @@ async function marcarEnRevision(req, res) {
     });
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al actualizar reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al actualizar el reporte' });
   }
 }
@@ -61,7 +62,7 @@ async function obtener(req, res) {
     const reporte = await reporteService.obtenerDetalle(Number(id));
     res.json(reporte);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al obtener el reporte' });
   }
 }
@@ -83,7 +84,7 @@ async function responder(req, res) {
 
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al responder reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al responder el reporte' });
   }
 }
@@ -105,7 +106,7 @@ async function marcarPrioritario(req, res) {
 
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al marcar prioritario: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al marcar como prioritario' });
   }
 }

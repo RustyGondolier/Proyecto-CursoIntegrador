@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const supervisorService = require('../services/supervisor.service');
 
 async function asignarPlaza(req, res) {
@@ -9,7 +10,7 @@ async function asignarPlaza(req, res) {
     const data = await supervisorService.asignarPlaza(solicitud_id, plaza_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error asignarPlaza: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -19,7 +20,7 @@ async function dashboard(req, res) {
     const data = await supervisorService.getDashboard();
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al cargar dashboard: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al cargar dashboard' });
   }
 }
@@ -33,7 +34,7 @@ async function buscar(req, res) {
     const data = await supervisorService.buscarPorPlaca(placa);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al buscar por placa: ' + err.message, { stack: err.stack, placa: req.query.placa });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -47,7 +48,7 @@ async function buscarSolicitud(req, res) {
     const data = await supervisorService.buscarPorSolicitudId(id);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al buscar solicitud: ' + err.message, { stack: err.stack, solicitud_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -61,7 +62,7 @@ async function plazasDisponibles(req, res) {
     const data = await supervisorService.obtenerPlazasDisponibles(estacionamiento_id, categoria_plaza);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener plazas: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al obtener plazas' });
   }
 }
@@ -75,7 +76,7 @@ async function confirmarIngreso(req, res) {
     const data = await supervisorService.confirmarIngreso(solicitud_id, plaza_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error confirmarIngreso: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -89,7 +90,7 @@ async function registrarSalida(req, res) {
     const data = await supervisorService.registrarSalida(solicitud_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error registrarSalida: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -103,7 +104,7 @@ async function buscarIdentificador(req, res) {
     const data = await supervisorService.buscarPorIdentificador(estacionamiento_id, tipo_vehiculo, codigo);
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error buscarIdentificador: ' + err.message, { stack: err.stack });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }

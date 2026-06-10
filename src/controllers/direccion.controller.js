@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const direccionService = require('../services/direccion.service');
 
 async function dashboard(req, res) {
@@ -22,7 +23,7 @@ async function dashboard(req, res) {
     const data = await direccionService.getDashboard(fecha_inicio, fecha_fin);
     res.json(data);
   } catch (err) {
-    console.error('Error en dashboard direccion:', err);
+    logger.error('Error en dashboard direccion: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al cargar las métricas del dashboard' });
   }
 }

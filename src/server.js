@@ -1,5 +1,8 @@
 require('dotenv').config();
 
+const logger =
+  require('./config/logger');
+
 const express =
   require('express');
 
@@ -196,7 +199,7 @@ const server =
     PORT,
     () => {
 
-      console.log(
+      logger.info(
         `Servidor iniciado en puerto ${PORT}`
       );
 

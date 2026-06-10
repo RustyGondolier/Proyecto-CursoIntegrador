@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const faqRepository = require('../repositories/faq.repository');
 
 async function listar(req, res) {
@@ -5,7 +6,7 @@ async function listar(req, res) {
     const categorias = await faqRepository.getCategorias();
     res.json(categorias);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al cargar categorías: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al cargar categorías' });
   }
 }
@@ -16,7 +17,7 @@ async function preguntas(req, res) {
     const preguntas = await faqRepository.getByCategoria(id);
     res.json(preguntas);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al cargar preguntas: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al cargar preguntas' });
   }
 }

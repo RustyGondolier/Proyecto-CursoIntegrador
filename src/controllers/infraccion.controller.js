@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const infraccionService = require('../services/infraccion.service');
 
 async function obtenerTipos(req, res) {
@@ -5,7 +6,7 @@ async function obtenerTipos(req, res) {
     const tipos = await infraccionService.obtenerTipos();
     res.json(tipos);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener tipos de infracción: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al obtener tipos de infracción' });
   }
 }
@@ -31,7 +32,7 @@ async function registrar(req, res) {
 
     res.status(201).json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al registrar infracción: ' + err.message, { stack: err.stack, placa: req.body.placa });
     res.status(err.status || 500).json({ error: err.message || 'Error al registrar la infracción' });
   }
 }
@@ -42,7 +43,7 @@ async function listar(req, res) {
     const infracciones = await infraccionService.listar(supervisor_id);
     res.json(infracciones);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener infracciones: ' + err.message, { stack: err.stack });
     res.status(500).json({ error: 'Error al obtener infracciones' });
   }
 }
@@ -52,7 +53,7 @@ async function obtenerPorId(req, res) {
     const data = await infraccionService.obtenerPorId(Number(req.params.id));
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error('Error al obtener infracción: ' + err.message, { stack: err.stack, infraccion_id: req.params.id });
     res.status(err.status || 500).json({ error: err.message || 'Error al obtener infracción' });
   }
 }

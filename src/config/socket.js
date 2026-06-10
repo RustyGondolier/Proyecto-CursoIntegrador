@@ -1,3 +1,5 @@
+const logger = require('./logger');
+
 let io = null;
 
 function initSocket(server){
@@ -14,10 +16,7 @@ function initSocket(server){
     'connection',
     socket => {
 
-      console.log(
-        'Socket conectado:',
-        socket.id
-      );
+      logger.info('Socket conectado: ' + socket.id);
 
       const token = socket.handshake.auth?.token || socket.handshake.query?.token;
       if (token) {
@@ -25,17 +24,14 @@ function initSocket(server){
           const jwt = require('jsonwebtoken');
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
           socket.join(`user:${decoded.id}`);
-          console.log(`Socket ${socket.id} unido a sala user:${decoded.id}`);
+          logger.info('Socket ' + socket.id + ' unido a sala user:' + decoded.id);
         } catch (_) {}
       }
 
       socket.on(
         'disconnect',
         () => {
-          console.log(
-            'Socket desconectado:',
-            socket.id
-          );
+          logger.info('Socket desconectado: ' + socket.id);
         }
       );
 
