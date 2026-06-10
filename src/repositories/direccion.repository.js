@@ -128,6 +128,34 @@ async function getReportesInfo(fechaInicio, fechaFin) {
   };
 }
 
+async function getSolicitudesExport(fechaInicio, fechaFin) {
+  const result = await pool.query(
+    `SELECT hora_solicitud
+     FROM solicitudes_estacionamiento
+     WHERE hora_solicitud >= $1::timestamp
+       AND hora_solicitud < ($2::timestamp + INTERVAL '1 day')
+     ORDER BY hora_solicitud`,
+    [fechaInicio, fechaFin]
+  );
+  return result.rows;
+}
+
+async function getOcupacionExport(fechaInicio, fechaFin) {
+  const result = await pool.query(
+    `SELECT s.hora_ingreso, e.nombre AS estacionamiento
+     FROM solicitudes_estacionamiento s
+     JOIN plazas p ON p.id = s.plaza_asignada_id
+     JOIN bloques b ON b.id = p.bloque_id
+     JOIN estacionamientos e ON e.id = b.estacionamiento_id
+     WHERE s.estado IN ('ingresado', 'finalizado')
+       AND s.hora_ingreso >= $1::timestamp
+       AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
+     ORDER BY s.hora_ingreso`,
+    [fechaInicio, fechaFin]
+  );
+  return result.rows;
+}
+
 async function getResumen(fechaInicio, fechaFin) {
   const result = await pool.query(
     `SELECT
@@ -148,9 +176,11 @@ async function getResumen(fechaInicio, fechaFin) {
 module.exports = {
   getTiempoPermanencia,
   getSolicitudesPorHora,
+  getSolicitudesExport,
   getOcupacionPorDia,
   getOcupacionPorSemana,
   getOcupacionPorHora,
+  getOcupacionExport,
   getReportesInfo,
   getResumen
 };

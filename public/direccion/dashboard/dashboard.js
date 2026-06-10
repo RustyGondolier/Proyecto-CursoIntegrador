@@ -34,6 +34,7 @@ async function init() {
   document.getElementById('statsFechaFin').value = fmtFecha(hoy());
   document.getElementById('statsFechaInicio').addEventListener('change', cargarStats);
   document.getElementById('statsFechaFin').addEventListener('change', cargarStats);
+  document.getElementById('exportarBtn').addEventListener('click', exportarExcel);
 
   document.getElementById('ocupacionDia').value = fmtFecha(hoy());
   const semana = fmtFecha(hoy());
@@ -578,6 +579,26 @@ function onToggleOcupacionMode(e) {
   });
 
   cargarGrafico('chartOcupacion');
+}
+
+async function exportarExcel() {
+  const fechaInicio = document.getElementById('statsFechaInicio').value;
+  const fechaFin = document.getElementById('statsFechaFin').value;
+  try {
+    const resp = await apiFetch(`/api/direccion/exportar?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+    if (!resp.ok) throw new Error();
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${fechaInicio}-${fechaFin}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    alert('Error al exportar el dashboard');
+  }
 }
 
 init();

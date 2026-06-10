@@ -6,5 +6,6 @@ const { requireRole } = require('../middleware/roles');
 const router = express.Router();
 
 router.get('/dashboard', authJWT, requireRole('direccion', 'administrador'), controller.dashboard);
+router.get('/exportar', authJWT, requireRole('direccion', 'administrador'), controller.exportarDashboard);
 
 module.exports = router;

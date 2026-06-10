@@ -16,3 +16,32 @@
 {"level":"info","message":"Socket 6JgsG4BZOrUJFsWDAAAJ unido a sala user:19","timestamp":"2026-06-09 19:04:49"}
 {"level":"info","message":"Socket desconectado: 6JgsG4BZOrUJFsWDAAAJ","timestamp":"2026-06-09 19:04:54"}
 {"level":"info","message":"Socket desconectado: jJnEwSYjoitv7SITAAAH","timestamp":"2026-06-09 19:04:54"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 19:55:54"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 19:56:45"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 19:57:10"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 19:57:38"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 19:59:14"}
+{"level":"info","message":"Socket conectado: 7-tLEs1hEQyeGoMLAAAB","timestamp":"2026-06-09 19:59:21"}
+{"level":"info","message":"Socket 7-tLEs1hEQyeGoMLAAAB unido a sala user:19","timestamp":"2026-06-09 19:59:21"}
+{"level":"info","message":"Socket conectado: AipivARZGMz2v-d1AAAD","timestamp":"2026-06-09 19:59:21"}
+{"level":"info","message":"Socket AipivARZGMz2v-d1AAAD unido a sala user:19","timestamp":"2026-06-09 19:59:21"}
+{"level":"info","message":"Socket desconectado: 7-tLEs1hEQyeGoMLAAAB","timestamp":"2026-06-09 19:59:28"}
+{"level":"info","message":"Socket desconectado: AipivARZGMz2v-d1AAAD","timestamp":"2026-06-09 19:59:28"}
+{"level":"info","message":"Socket conectado: U3NQb38wnhF-RNVMAAAF","timestamp":"2026-06-09 19:59:46"}
+{"level":"info","message":"Socket U3NQb38wnhF-RNVMAAAF unido a sala user:3","timestamp":"2026-06-09 19:59:46"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 20:02:35"}
+{"level":"info","message":"Socket conectado: Q3olqWtZ1Wt5GQO3AAAB","timestamp":"2026-06-09 20:02:36"}
+{"level":"info","message":"Socket Q3olqWtZ1Wt5GQO3AAAB unido a sala user:3","timestamp":"2026-06-09 20:02:36"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 20:02:59"}
+{"level":"info","message":"Socket desconectado: Q3olqWtZ1Wt5GQO3AAAB","timestamp":"2026-06-09 20:03:02"}
+{"level":"info","message":"Socket conectado: qF2wvlONqEvyeRaKAAAD","timestamp":"2026-06-09 20:03:02"}
+{"level":"info","message":"Socket qF2wvlONqEvyeRaKAAAD unido a sala user:3","timestamp":"2026-06-09 20:03:02"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 20:11:15"}
+{"level":"info","message":"Socket conectado: RfyjiyUPOnfC-x4FAAAB","timestamp":"2026-06-09 20:11:17"}
+{"level":"info","message":"Socket RfyjiyUPOnfC-x4FAAAB unido a sala user:3","timestamp":"2026-06-09 20:11:17"}
+{"level":"info","message":"Servidor iniciado en puerto 3000","timestamp":"2026-06-09 20:14:11"}
+{"level":"info","message":"Socket conectado: iGOO70EYd7xSXOozAAAB","timestamp":"2026-06-09 20:14:16"}
+{"level":"info","message":"Socket iGOO70EYd7xSXOozAAAB unido a sala user:3","timestamp":"2026-06-09 20:14:16"}
+{"level":"info","message":"Socket desconectado: iGOO70EYd7xSXOozAAAB","timestamp":"2026-06-09 20:14:17"}
+{"level":"info","message":"Socket conectado: uILnPNWLAOR_tceQAAAD","timestamp":"2026-06-09 20:14:17"}
+{"level":"info","message":"Socket uILnPNWLAOR_tceQAAAD unido a sala user:3","timestamp":"2026-06-09 20:14:17"}

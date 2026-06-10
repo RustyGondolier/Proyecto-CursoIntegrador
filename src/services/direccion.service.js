@@ -37,6 +37,16 @@ async function getDashboard(fechaInicio, fechaFin) {
   };
 }
 
+async function getSolicitudesExport(fechaInicio, fechaFin) {
+  return direccionRepository.getSolicitudesExport(fechaInicio, fechaFin);
+}
+
+async function getOcupacionExport(fechaInicio, fechaFin) {
+  return direccionRepository.getOcupacionExport(fechaInicio, fechaFin);
+}
+
 module.exports = {
-  getDashboard
+  getDashboard,
+  getSolicitudesExport,
+  getOcupacionExport
 };
