@@ -1,7 +1,0 @@
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "codigo_universitario":"U25469852",
-  "password":"123456"
-}
