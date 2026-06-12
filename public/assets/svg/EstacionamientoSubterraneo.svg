@@ -23,15 +23,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="610.94026"
-     inkscape:cy="497.44962"
+     inkscape:zoom="2.8284272"
+     inkscape:cx="580.53465"
+     inkscape:cy="2116.5473"
      inkscape:window-width="2560"
      inkscape:window-height="1494"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer11" />
+     inkscape:current-layer="layer1" />
   <defs
      id="defs1">
     <rect
@@ -58,7 +58,7 @@
      inkscape:groupmode="layer"
      id="layer9"
      inkscape:label="Rutas"
-     style="display:inline"
+     style="display:none"
      sodipodi:insensitive="true">
     <path
        style="display:none;opacity:0.325;fill:none;fill-opacity:0.531525;stroke:#0f1da1;stroke-width:3.99441;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
@@ -723,6 +723,35 @@
        d="m 138.73593,566.64538 v -65.1503 l -61.61381,-0.10141 -0.0663,-390.6957 -50.80177,0.0673"
        id="ruta-E1-M-E-08"
        sodipodi:nodetypes="ccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="NodoEntrada">
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:2.62422;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       id="path2"
+       cx="138.81979"
+       cy="566.17706"
+       rx="1.3426983"
+       ry="1.2959262" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.37953px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;opacity:0.667387;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.25438;stroke-dasharray:none;stroke-opacity:1"
+       x="153.53604"
+       y="524.27429"
+       id="text156-8"
+       transform="scale(0.90411263,1.1060569)"><tspan
+         sodipodi:role="line"
+         style="fill:#000000;fill-opacity:1;stroke-width:0.25438;stroke-dasharray:none"
+         x="153.53604"
+         y="524.27429"
+         id="tspan3">ENTRADA</tspan><tspan
+         sodipodi:role="line"
+         style="fill:#000000;fill-opacity:1;stroke-width:0.25438;stroke-dasharray:none"
+         x="153.53604"
+         y="530.99872"
+         id="tspan4">SALIDA</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
