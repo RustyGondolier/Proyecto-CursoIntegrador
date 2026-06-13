@@ -188,6 +188,13 @@ app.get(
   }
 );
 
+/* ERROR HANDLER */
+
+const errorHandler =
+  require('./middleware/errorHandler');
+
+app.use(errorHandler);
+
 const { initSocket } =
   require('./config/socket');
 
