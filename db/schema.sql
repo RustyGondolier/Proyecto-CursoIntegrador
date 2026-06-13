@@ -160,20 +160,7 @@ CREATE TABLE verificaciones_ubicacion (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 12. HISTORIAL DE ESTACIONAMIENTO
-CREATE TABLE historial_estacionamiento (
-    id SERIAL PRIMARY KEY,
-    solicitud_id INTEGER NOT NULL REFERENCES solicitudes_estacionamiento(id),
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
-    plaza_id INTEGER REFERENCES plazas(id),
-    estacionamiento_id INTEGER REFERENCES estacionamientos(id),
-    hora_ingreso TIMESTAMPTZ,
-    hora_salida TIMESTAMPTZ,
-    tiempo_permanencia_min INTEGER,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 13. TIPOS DE INFRACCION
+-- 12. TIPOS DE INFRACCION
 CREATE TABLE tipos_infraccion (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(30) UNIQUE NOT NULL,
@@ -187,7 +174,7 @@ VALUES ('mal_estacionado', 'Vehículo mal estacionado'),
        ('obstruccion', 'Obstrucción de tránsito'),
        ('conduccion_riesgosa', 'Conducción riesgosa');
 
--- 14. INFRACCIONES
+-- 13. INFRACCIONES
 CREATE TABLE infracciones (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
@@ -200,7 +187,7 @@ CREATE TABLE infracciones (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 15. ESTADOS DE REPORTE
+-- 14. ESTADOS DE REPORTE
 CREATE TABLE estados_reporte (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
@@ -210,7 +197,7 @@ CREATE TABLE estados_reporte (
 INSERT INTO estados_reporte (codigo, descripcion)
 VALUES ('enviado', 'Enviado'), ('en_revision', 'En revisión'), ('resuelto', 'Resuelto'), ('prioritario', 'Prioritario'), ('cancelado', 'Cancelado');
 
--- 16. REPORTES DE INCIDENCIAS
+-- 15. REPORTES DE INCIDENCIAS
 CREATE TABLE reportes_incidencias (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
@@ -228,7 +215,7 @@ CREATE TABLE reportes_incidencias (
     actualizado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 17. FAQ
+-- 16. FAQ
 CREATE TABLE faq_categorias (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(80) UNIQUE NOT NULL
@@ -245,18 +232,7 @@ CREATE TABLE faq (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 18. MENSAJES SOPORTE
-CREATE TABLE mensajes_soporte (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
-    asunto VARCHAR(150) NOT NULL,
-    descripcion TEXT NOT NULL,
-    respondido BOOLEAN DEFAULT false,
-    respuesta TEXT,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 19. TIPOS NOTIFICACION
+-- 17. TIPOS NOTIFICACION
 CREATE TABLE tipos_notificacion (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(30) UNIQUE NOT NULL,
@@ -266,7 +242,7 @@ CREATE TABLE tipos_notificacion (
 INSERT INTO tipos_notificacion (codigo, descripcion)
 VALUES ('solicitud', 'Solicitud de estacionamiento'), ('reporte', 'Reporte de incidencia'), ('infraccion', 'Infracción'), ('sistema', 'Sistema'), ('soporte', 'Soporte');
 
--- 20. NOTIFICACIONES
+-- 18. NOTIFICACIONES
 CREATE TABLE notificaciones (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -278,7 +254,7 @@ CREATE TABLE notificaciones (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 21. ACCIONES ADMINISTRATIVAS
+-- 19. ACCIONES ADMINISTRATIVAS
 CREATE TABLE acciones_administrativas (
     id SERIAL PRIMARY KEY,
     administrador_id INTEGER NOT NULL REFERENCES usuarios(id),
@@ -288,37 +264,7 @@ CREATE TABLE acciones_administrativas (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 22. EVENTOS DEL SISTEMA
-CREATE TABLE eventos_sistema (
-    id BIGSERIAL PRIMARY KEY,
-    tipo VARCHAR(40) NOT NULL,
-    usuario_id INTEGER REFERENCES usuarios(id),
-    solicitud_id INTEGER REFERENCES solicitudes_estacionamiento(id),
-    plaza_id INTEGER REFERENCES plazas(id),
-    sede_id INTEGER REFERENCES sedes(id),
-    metadata JSONB,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_eventos_tipo ON eventos_sistema(tipo);
-CREATE INDEX idx_eventos_fecha ON eventos_sistema(creado_en);
-
--- 23. ESTADISTICAS DIARIAS
-CREATE TABLE estadisticas_diarias (
-    id SERIAL PRIMARY KEY,
-    fecha DATE UNIQUE NOT NULL,
-    solicitudes_totales INTEGER DEFAULT 0,
-    ingresos_totales INTEGER DEFAULT 0,
-    salidas_totales INTEGER DEFAULT 0,
-    solicitudes_expiradas INTEGER DEFAULT 0,
-    infracciones_totales INTEGER DEFAULT 0,
-    reportes_totales INTEGER DEFAULT 0,
-    tiempo_promedio_permanencia INTEGER DEFAULT 0,
-    ocupacion_promedio DECIMAL(5,2) DEFAULT 0,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 24. VISTAS ANALYTICS
+-- 20. VISTAS ANALYTICS
 CREATE VIEW v_ocupacion_actual AS
 SELECT
     e.nombre AS estacionamiento,

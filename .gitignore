@@ -3,3 +3,4 @@ node_modules/
 db/schema.dev.sql
 pnpm-debug.log
 migrate-timestamptz.sql
+seed-historial-test.sql
