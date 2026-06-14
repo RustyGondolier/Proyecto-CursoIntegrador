@@ -313,6 +313,7 @@ Socket.IO se utiliza para:
 - **Middleware global de manejo de errores** con logging estructurado (Winston)
 - **Función Haversine centralizada** en `src/utils/distance.js`
 - **Manejo de errores con logging** en lugar de `catch` silenciosos (backend y frontend)
+- **Migración de JWT a cookies httpOnly** eliminando la exposición del token en localStorage
 - **Protecciones de seguridad:** Helmet, CORS, rate limiting
 - **Persistencia de accesos:** historial de inicios de sesión exitosos y fallidos
 
@@ -341,7 +342,6 @@ Socket.IO se utiliza para:
 | **Sin tests automatizados** | No existe ningún test unitario, de integración o end-to-end |
 | **Sin linter ni formatter** | No hay ESLint ni Prettier; el estilo del código es inconsistente |
 | **Sin CI/CD** | No hay pipeline de integración o despliegue automatizado |
-| **JWT en localStorage** | El token se almacena en localStorage del navegador, vulnerable a XSS. Alternativa más segura: httpOnly cookies |
 | **Sin migraciones de BD** | Los cambios al esquema se aplican mediante scripts SQL manuales |
 | **Sin HTTPS** | El servidor no tiene configuración de TLS; depende del proxy (Heroku) |
 | **Sin bundler en frontend** | El JavaScript y CSS se sirven como archivos sueltos sin empaquetar |
@@ -424,7 +424,7 @@ pnpm run dev
 
 - [ ] **Implementar archivos pendientes:** validators con express-validator/Zod, centralizar constantes.
 - [ ] **Agregar tests:** Jest + Supertest para tests de integración de la API.
-- [ ] **Mejorar seguridad:** migrar JWT de localStorage a httpOnly cookies.
+- [x] **Mejorar seguridad:** migrar JWT de localStorage a httpOnly cookies.
 - [ ] **Agregar linter/formatter:** ESLint + Prettier con configuración estandarizada.
 - [ ] **Migraciones de BD:** usar Knex o similar para versionar el esquema.
 - [ ] **CI/CD:** GitHub Actions para correr tests y linter en cada push.
