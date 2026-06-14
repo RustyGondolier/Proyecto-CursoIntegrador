@@ -4,6 +4,9 @@ const express =
 const controller =
   require('../controllers/auth.controller');
 
+const { authJWT } =
+  require('../middleware/authJWT');
+
 const router =
   express.Router();
 
@@ -19,6 +22,21 @@ router.post(
 router.post(
   '/register',
   controller.register
+);
+
+/* LOGOUT (sin authJWT) */
+
+router.post(
+  '/logout',
+  controller.logout
+);
+
+/* ME */
+
+router.get(
+  '/me',
+  authJWT,
+  controller.me
 );
 
 module.exports =

@@ -1,8 +1,6 @@
-const token = localStorage.getItem('token');
-
 const socket = io(window.location.origin, {
   transports: ['websocket', 'polling'],
-  auth: { token }
+  withCredentials: true
 });
 
 socket.on('connect', () => {

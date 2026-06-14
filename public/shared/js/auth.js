@@ -1,41 +1,5 @@
 /*
 =================================
-GUARDAR SESIÓN
-=================================
-*/
-
-function saveSession(data){
-
-  localStorage.setItem(
-    'token',
-    data.token
-  );
-
-  localStorage.setItem(
-    'usuario',
-    JSON.stringify(
-      data.usuario
-    )
-  );
-
-}
-
-/*
-=================================
-OBTENER TOKEN
-=================================
-*/
-
-function getToken(){
-
-  return localStorage.getItem(
-    'token'
-  );
-
-}
-
-/*
-=================================
 OBTENER USUARIO
 =================================
 */
@@ -99,38 +63,9 @@ AUTENTICADO
 
 function isAuthenticated(){
 
-  const token = getToken();
-
-  if(!token){
-    return false;
-  }
-
-  try{
-
-    const payload =
-      JSON.parse(
-        atob(
-          token.split('.')[1]
-        )
-      );
-
-    if(
-      payload.exp &&
-      Date.now() >=
-        payload.exp * 1000
-    ){
-      logout();
-      return false;
-    }
-
-    return true;
-
-  }catch(e){
-
-    logout();
-    return false;
-
-  }
+  return localStorage.getItem(
+    'loggedIn'
+  ) === 'true';
 
 }
 
@@ -168,6 +103,8 @@ async function login(
       {
         method:'POST',
 
+        credentials:'include',
+
         headers:{
           'Content-Type':
             'application/json'
@@ -194,7 +131,21 @@ async function login(
 
   }
 
-  saveSession(data);
+  if(data.usuario){
+
+    localStorage.setItem(
+      'usuario',
+      JSON.stringify(
+        data.usuario
+      )
+    );
+
+    localStorage.setItem(
+      'loggedIn',
+      'true'
+    );
+
+  }
 
   window.location.href =
     '/auth/select-campus.html';
@@ -209,9 +160,27 @@ LOGOUT
 
 function logout(){
 
-  localStorage.clear();
+  fetch(
+    '/api/auth/logout',
+    {
+      method:'POST',
+      credentials:'include'
+    }
+  ).finally(
+    () => {
 
-  window.location.href =
-    '/auth/login.html';
+      localStorage.removeItem(
+        'usuario'
+      );
+
+      localStorage.removeItem(
+        'loggedIn'
+      );
+
+      window.location.href =
+        '/auth/login.html';
+
+    }
+  );
 
 }

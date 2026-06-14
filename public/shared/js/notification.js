@@ -2,9 +2,8 @@ let notifSocket = null;
 let notifPanelOpen = false;
 
 function initNotifications() {
-  const token = localStorage.getItem('token');
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  if (!token || !usuario.id) return;
+  if (!usuario.id) return;
 
   const panelHtml = document.getElementById('notificationPanelContainer');
   if (!panelHtml) return;
@@ -22,7 +21,7 @@ function initNotifications() {
   actualizarBadge(badge);
 
   notifSocket = io({
-    auth: { token }
+    withCredentials: true
   });
 
   notifSocket.on('notificacion:nueva', function(notificacion) {

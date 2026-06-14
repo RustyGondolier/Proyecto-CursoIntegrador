@@ -5,25 +5,17 @@ async function apiFetch(
   options = {}
 ){
 
-  const token =
-    localStorage.getItem(
-      'token'
-    );
-
   const response =
     await fetch(
       API_URL + endpoint,
       {
         ...options,
 
+        credentials:'include',
+
         headers:{
           'Content-Type':
             'application/json',
-
-          Authorization:
-            token
-            ? `Bearer ${token}`
-            : '',
 
           ...(options.headers || {})
         }
@@ -31,20 +23,25 @@ async function apiFetch(
     );
 
   if(
-    response.status === 401 ||
-    response.status === 403
+    (response.status === 401 ||
+     response.status === 403) &&
+    !endpoint.startsWith(
+      '/api/auth/'
+    )
   ){
 
-    if(
-      !endpoint.includes(
-        '/api/auth/login'
-      )
-    ){
-      localStorage.clear();
-      window.location.href =
-        '/auth/login.html';
-      return response;
-    }
+    localStorage.removeItem(
+      'usuario'
+    );
+
+    localStorage.removeItem(
+      'loggedIn'
+    );
+
+    window.location.href =
+      '/auth/login.html';
+
+    return response;
 
   }
 

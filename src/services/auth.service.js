@@ -303,7 +303,19 @@ async function register(
 
 }
 
+async function obtenerUsuario(id) {
+  const usuario = await usuarioRepository.findById(id);
+  if (!usuario) throw new Error('Usuario no encontrado');
+  return {
+    id: usuario.id,
+    nombre: usuario.nombre,
+    rol: usuario.rol,
+    codigo_universitario: usuario.codigo_universitario
+  };
+}
+
 module.exports = {
   login,
-  register
+  register,
+  obtenerUsuario
 };

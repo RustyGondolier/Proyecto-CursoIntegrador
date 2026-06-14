@@ -23,7 +23,14 @@ async function login(
         req.headers['user-agent']
       );
 
-    res.json(data);
+    res.cookie('token', data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60 * 1000
+    });
+
+    res.json({ usuario: data.usuario });
 
   }catch(err){
 
@@ -63,7 +70,27 @@ async function register(
 
 }
 
+/* LOGOUT */
+
+async function logout(req, res) {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  });
+  res.json({ mensaje: 'Sesión cerrada' });
+}
+
+/* ME */
+
+async function me(req, res) {
+  const usuario = await authService.obtenerUsuario(req.usuario.id);
+  res.json({ usuario });
+}
+
 module.exports = {
   login,
-  register
+  register,
+  logout,
+  me
 };

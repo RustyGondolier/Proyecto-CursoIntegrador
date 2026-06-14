@@ -6,11 +6,8 @@ function authJWT(
   next
 ){
 
-  const authHeader =
-    req.headers.authorization;
-
   const token =
-    authHeader?.split(' ')[1];
+    req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
   if(!token){
 

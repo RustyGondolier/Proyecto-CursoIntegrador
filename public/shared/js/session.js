@@ -1,24 +1,22 @@
 function saveSession(data){
 
   localStorage.setItem(
-    'token',
-    data.token
-  );
-
-  localStorage.setItem(
     'usuario',
     JSON.stringify(
       data.usuario
     )
   );
 
+  localStorage.setItem(
+    'loggedIn',
+    'true'
+  );
+
 }
 
 function getToken(){
 
-  return localStorage.getItem(
-    'token'
-  );
+  return null;
 
 }
 
@@ -70,9 +68,27 @@ function getMode(){
 
 function logout(){
 
-  localStorage.clear();
+  fetch(
+    '/api/auth/logout',
+    {
+      method:'POST',
+      credentials:'include'
+    }
+  ).finally(
+    () => {
 
-  location.href =
-    '/auth/login.html';
+      localStorage.removeItem(
+        'usuario'
+      );
+
+      localStorage.removeItem(
+        'loggedIn'
+      );
+
+      location.href =
+        '/auth/login.html';
+
+    }
+  );
 
 }

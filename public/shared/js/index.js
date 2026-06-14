@@ -1,11 +1,9 @@
-const token =
+const loggedIn =
   localStorage.getItem(
-    'token'
-  );
+    'loggedIn'
+  ) === 'true';
 
-/* Redireccion cuando se detecta un token */
-
-if(token){
+if(loggedIn){
 
   window.location.href =
     '/auth/select-campus.html';
