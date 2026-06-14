@@ -191,7 +191,7 @@ async function openDetalle(id) {
           allReportes[idx].estado_codigo = 'en_revision';
           renderReportes();
         }
-      }).catch(function(){});
+      }).catch(function(err) { console.warn('Error al actualizar reporte:', err); });
       r.estado_id = 2;
       r.estado_codigo = 'en_revision';
     }

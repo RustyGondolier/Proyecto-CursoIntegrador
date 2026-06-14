@@ -103,7 +103,7 @@ async function cargarNotificaciones() {
       s.onerror = resolve;
       document.head.appendChild(s);
     });
-  } catch (_) {}
+  } catch (err) { console.warn('Error al cargar script:', err); }
 }
 
 function loadUserInfo(){

@@ -49,7 +49,7 @@ async function cargarPlazaAsignada() {
         return;
       }
     }
-  } catch (_) {}
+  } catch (err) { console.warn('Error al cargar info de plaza:', err); }
   plazaInfo.style.display = 'none';
 }
 

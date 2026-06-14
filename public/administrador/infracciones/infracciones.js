@@ -229,7 +229,7 @@ function bindDetailActions() {
         var modal = document.getElementById('detailBody');
         var nameEl = modal.querySelector('.detail-field:first-child .detail-value');
         if (nameEl) userName = nameEl.textContent;
-      } catch (_) {}
+      } catch (err) { console.warn('Error al obtener nombre de usuario:', err); }
       document.getElementById('suspendUserName').textContent = userName;
       openModal('suspendModal');
     }
@@ -247,7 +247,7 @@ function getUserNameFromDetail() {
     var body = document.getElementById('detailBody');
     var nameEl = body.querySelector('.detail-card:first-of-type .detail-field:first-child .detail-value');
     return nameEl ? nameEl.textContent.trim() : null;
-  } catch (_) {
+  } catch (err) { console.warn('Error al obtener nombre desde detalle:', err);
     return null;
   }
 }

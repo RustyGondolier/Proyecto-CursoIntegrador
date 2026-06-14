@@ -56,7 +56,7 @@ function initNotifications() {
         badge.textContent = '0';
         badge.classList.add('hidden');
       }
-    } catch (_) {}
+    } catch (err) { console.warn('Error al marcar notificaciones como leídas:', err); }
   });
 
   document.addEventListener('keydown', function(e) {
@@ -75,7 +75,7 @@ function actualizarBadge(badge) {
     } else {
       badge.classList.add('hidden');
     }
-  }).catch(function() {});
+  }).catch(function(err) { console.warn('Error al contar no leídas:', err); });
 }
 
 async function togglePanel(panel, overlay, list, badge) {
@@ -97,7 +97,7 @@ async function togglePanel(panel, overlay, list, badge) {
         list.appendChild(crearElementoNotificacion(n, badge));
       });
     }
-  } catch (_) {
+  } catch (err) { console.warn('Error al cargar notificaciones:', err);
     list.innerHTML = '<div class="notification-empty">Error al cargar notificaciones</div>';
   }
 }
