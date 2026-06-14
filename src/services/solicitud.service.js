@@ -1,6 +1,7 @@
 const pool = require('../../db');
 const { getIO } = require('../config/socket');
 const logger = require('../config/logger');
+const { calcularDistancia } = require('../utils/distance');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
 
@@ -181,17 +182,6 @@ function formatearSolicitud(solicitud) {
     hora_solicitud: solicitud.hora_solicitud,
     hora_limite_ingreso: solicitud.hora_limite_ingreso
   };
-}
-
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
 }
 
 async function obtenerHistorial(usuarioId) {
