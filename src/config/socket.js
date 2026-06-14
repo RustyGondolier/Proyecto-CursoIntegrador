@@ -25,7 +25,9 @@ function initSocket(server){
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
           socket.join(`user:${decoded.id}`);
           logger.info('Socket ' + socket.id + ' unido a sala user:' + decoded.id);
-        } catch (_) {}
+        } catch (err) {
+          logger.warn('Error al autenticar socket por JWT', { error: err.message, socketId: socket.id });
+        }
       }
 
       socket.on(

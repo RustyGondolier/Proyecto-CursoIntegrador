@@ -1,5 +1,6 @@
 const pool = require('../../db');
 const { getIO } = require('../config/socket');
+const logger = require('../config/logger');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const plazaRepository = require('../repositories/plaza.repository');
 const supervisorRepository = require('../repositories/supervisor.repository');
@@ -35,7 +36,9 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
   await solicitudRepository.assignPlaza(solicitudId, plazaId);
   await plazaRepository.updateEstado(plazaId, 'ocupada');
 
-  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+  try { getIO().emit('ocupacion:updated'); } catch (err) {
+    logger.warn('Error al emitir ocupacion:updated al asignar plaza', { error: err.message });
+  }
 
   try {
     getIO().to(`user:${solicitud.usuario_id}`).emit('plaza:asignada', {
@@ -43,7 +46,9 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
       plaza_id: plazaId,
       plaza_codigo: plaza.rows[0].codigo
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir plaza:asignada', { error: err.message, usuario_id: solicitud.usuario_id });
+  }
 
   return { mensaje: 'Plaza asignada exitosamente' };
 }
@@ -125,7 +130,9 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
 
   await plazaRepository.updateEstado(plazaId, 'ocupada');
 
-  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+  try { getIO().emit('ocupacion:updated'); } catch (err) {
+    logger.warn('Error al emitir ocupacion:updated al confirmar ingreso', { error: err.message });
+  }
 
   try {
     getIO().to(`user:${solicitud.usuario_id}`).emit('plaza:asignada', {
@@ -133,7 +140,9 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
       plaza_id: plazaId,
       plaza_codigo: plaza.rows[0].codigo
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir plaza:asignada al confirmar ingreso', { error: err.message, usuario_id: solicitud.usuario_id });
+  }
 
   return {
     mensaje: 'Ingreso confirmado exitosamente',
@@ -165,14 +174,18 @@ async function registrarSalida(solicitudId, supervisorId) {
     await plazaRepository.updateEstado(solicitud.plaza_asignada_id, 'disponible');
   }
 
-  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+  try { getIO().emit('ocupacion:updated'); } catch (err) {
+    logger.warn('Error al emitir ocupacion:updated al registrar salida', { error: err.message });
+  }
 
   try {
     getIO().to(`user:${solicitud.usuario_id}`).emit('salida:registrada', {
       solicitud_id: solicitudId,
       mensaje: 'Su salida ha sido registrada'
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir salida:registrada', { error: err.message, usuario_id: solicitud.usuario_id });
+  }
 
   return {
     mensaje: 'Salida registrada exitosamente',

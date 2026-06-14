@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const notificacionRepository = require('../repositories/notificacion.repository');
 const { getIO } = require('../config/socket');
 
@@ -15,7 +16,9 @@ async function notificar({ usuario_id, tipo_codigo, titulo, mensaje, url_destino
 
   try {
     getIO().to(`user:${usuario_id}`).emit('notificacion:nueva', notificacion);
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir notificacion:nueva', { error: err.message, usuario_id });
+  }
 
   return notificacion;
 }
@@ -36,7 +39,9 @@ async function notificarAdministradores({ tipo_codigo, titulo, mensaje, url_dest
     });
     try {
       getIO().to(`user:${admin.id}`).emit('notificacion:nueva', notificacion);
-    } catch (_) {}
+    } catch (err) {
+      logger.warn('Error al emitir notificacion:nueva a administrador', { error: err.message, admin_id: admin.id });
+    }
     results.push(notificacion);
   }
   return results;
@@ -58,7 +63,9 @@ async function notificarSupervisores({ tipo_codigo, titulo, mensaje, url_destino
     });
     try {
       getIO().to(`user:${sup.id}`).emit('notificacion:nueva', notificacion);
-    } catch (_) {}
+    } catch (err) {
+      logger.warn('Error al emitir notificacion:nueva a supervisor', { error: err.message, supervisor_id: sup.id });
+    }
     results.push(notificacion);
   }
   return results;

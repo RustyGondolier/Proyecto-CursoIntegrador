@@ -1,5 +1,6 @@
 const pool = require('../../db');
 const { getIO } = require('../config/socket');
+const logger = require('../config/logger');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
 
@@ -116,7 +117,9 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     tiempo_limite_min: tiempoLimite
   });
 
-  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+  try { getIO().emit('ocupacion:updated'); } catch (err) {
+    logger.warn('Error al emitir ocupacion:updated tras crear solicitud', { error: err.message });
+  }
 
   return formatearSolicitud(solicitud);
 }
@@ -124,7 +127,9 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
 async function obtenerActiva(usuarioId) {
   const expiradas = await solicitudRepository.expireOlderThan(new Date());
   if (expiradas.length > 0) {
-    try { getIO().emit('ocupacion:updated'); } catch (_) {}
+    try { getIO().emit('ocupacion:updated'); } catch (err) {
+      logger.warn('Error al emitir ocupacion:updated al expirar solicitudes', { error: err.message });
+    }
   }
 
   const solicitud = await solicitudRepository.findActiveByUser(usuarioId);
@@ -148,7 +153,9 @@ async function cancelar(usuarioId) {
   }
 
   await solicitudRepository.cancel(solicitud.id);
-  try { getIO().emit('ocupacion:updated'); } catch (_) {}
+  try { getIO().emit('ocupacion:updated'); } catch (err) {
+    logger.warn('Error al emitir ocupacion:updated al cancelar solicitud', { error: err.message });
+  }
   return { mensaje: 'Solicitud cancelada exitosamente' };
 }
 

@@ -1,4 +1,5 @@
 const { getIO } = require('../config/socket');
+const logger = require('../config/logger');
 const reporteRepository = require('../repositories/reporte.repository');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const notificacionService = require('./notificacion.service');
@@ -27,7 +28,9 @@ async function marcarEnRevision({ id, supervisor_id }) {
       reporte_id: id,
       estado_id: 2
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir reporte:actualizado (en revisión)', { error: err.message, reporte_id: id });
+  }
 
   return actualizado;
 }
@@ -71,7 +74,9 @@ async function crear({ usuario_id, descripcion }) {
       mensaje: `Un usuario ha reportado una incidencia. Revisa los reportes pendientes.`,
       url_destino: `/supervisor/incidencias/incidencias.html`
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar supervisores sobre nuevo reporte', { error: err.message });
+  }
 
   return reporte;
 }
@@ -111,14 +116,18 @@ async function responder({ id, supervisor_id, respuesta }) {
       mensaje: `Tu reporte #REP-${String(id).padStart(5, '0')} ha sido resuelto por un supervisor.`,
       url_destino: `/usuario/reportes/reportes.html`
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar respuesta de reporte', { error: err.message, reporte_id: id });
+  }
 
   try {
     getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
       reporte_id: id,
       estado_id: 3
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir reporte:actualizado (resuelto)', { error: err.message, reporte_id: id });
+  }
 
   return actualizado;
 }
@@ -156,14 +165,18 @@ async function marcarPrioritario({ id, supervisor_id, razon }) {
       mensaje: `El reporte #REP-${String(id).padStart(5, '0')} ha sido marcado como prioritario por un supervisor. Razón: ${razon.trim()}`,
       url_destino: `/administrador/incidencias/incidencias.html`
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar administradores sobre reporte prioritario', { error: err.message, reporte_id: id });
+  }
 
   try {
     getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
       reporte_id: id,
       estado_id: 4
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al emitir reporte:actualizado (prioritario)', { error: err.message, reporte_id: id });
+  }
 
   return actualizado;
 }

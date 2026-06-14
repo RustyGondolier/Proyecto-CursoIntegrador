@@ -1,3 +1,4 @@
+const logger = require('../config/logger');
 const adminRepository = require('../repositories/administrador.repository');
 const notificacionService = require('./notificacion.service');
 
@@ -73,7 +74,9 @@ async function aprobarPerfil(adminId, userId) {
       mensaje: 'Tu perfil ha sido verificado correctamente. Ya puedes solicitar plazas de estacionamiento.',
       url_destino: '/usuario/dashboard/dashboard.html'
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar aprobación de perfil', { error: err.message, usuario_id: userId });
+  }
 
   return { mensaje: 'Perfil aprobado exitosamente', usuario: actualizado };
 }
@@ -119,7 +122,9 @@ async function suspenderCuenta(adminId, userId, motivo) {
       mensaje: `Tu cuenta ha sido suspendida. Motivo: ${motivo.trim()}. Revisa tu correo institucional para más información.`,
       url_destino: '/usuario/perfil/perfil.html'
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar suspensión de cuenta', { error: err.message, usuario_id: userId });
+  }
 
   return { mensaje: 'Cuenta suspendida exitosamente', usuario: actualizado };
 }
@@ -159,7 +164,9 @@ async function reactivarCuenta(adminId, userId) {
       mensaje: 'Tu cuenta ha sido reactivada. Ya puedes solicitar plazas de estacionamiento nuevamente.',
       url_destino: '/usuario/dashboard/dashboard.html'
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar reactivación de cuenta', { error: err.message, usuario_id: userId });
+  }
 
   return { mensaje: 'Cuenta reactivada exitosamente', usuario: actualizado };
 }
@@ -198,7 +205,9 @@ async function resolverReporte(adminId, reporteId) {
       mensaje: `Tu reporte prioritario #REP-${String(reporteId).padStart(5, '0')} ha sido resuelto por el administrador.`,
       url_destino: `/usuario/reportes/reportes.html`
     });
-  } catch (_) {}
+  } catch (err) {
+    logger.warn('Error al notificar resolución de reporte', { error: err.message, reporte_id: reporteId });
+  }
 
   return { mensaje: 'Reporte resuelto exitosamente', reporte };
 }
