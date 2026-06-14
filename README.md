@@ -310,6 +310,9 @@ Socket.IO se utiliza para:
 - **Notificaciones en tiempo real** vía Socket.IO (cambios de ocupación, asignación de plaza, registro de salida)
 - **Sección de FAQ** con categorías
 - **Logging** de errores y eventos en archivos (Winston)
+- **Middleware global de manejo de errores** con logging estructurado (Winston)
+- **Función Haversine centralizada** en `src/utils/distance.js`
+- **Manejo de errores con logging** en lugar de `catch` silenciosos (backend y frontend)
 - **Protecciones de seguridad:** Helmet, CORS, rate limiting
 - **Persistencia de accesos:** historial de inicios de sesión exitosos y fallidos
 
@@ -321,13 +324,11 @@ Socket.IO se utiliza para:
 
 | Archivo | Problema |
 |---|---|
-| `src/middleware/errorHandler.js` | No hay middleware global de errores; cada controller maneja errores individualmente |
 | `src/services/geolocation.service.js` | La lógica de geolocalización está inline en `solicitud.service.js` |
 | `src/services/websocket.service.js` | No hay un servicio centralizado para WebSockets |
 | `src/sockets/dashboard.socket.js` | Eventos Socket.IO del dashboard sin implementar |
 | `src/sockets/notification.socket.js` | Eventos Socket.IO de notificaciones sin implementar |
 | `src/sockets/solicitud.socket.js` | Eventos Socket.IO de solicitudes sin implementar |
-| `src/utils/distance.js` | La función Haversine está inline en `solicitud.service.js` en vez de en este archivo |
 | `src/utils/response.js` | No hay helpers estandarizados de respuesta HTTP |
 | `src/utils/validators.js` | No hay validadores reutilizables |
 | `src/config/constants.js` | Las constantes (roles, estados, límites) están hardcodeadas en lugar de centralizadas |
@@ -346,9 +347,8 @@ Socket.IO se utiliza para:
 | **Sin bundler en frontend** | El JavaScript y CSS se sirven como archivos sueltos sin empaquetar |
 | **Índices de BD incompletos** | Varias foreign keys en tablas grandes (`solicitudes_estacionamiento`, `infracciones`, `notificaciones`) carecen de índices |
 | **Validación ad-hoc** | No hay middleware de validación (express-validator, Joi, Zod); las validaciones están dispersas en los servicios |
-| **`catch (_) {}` silencioso** | Los errores de Socket.IO se tragan sin logging en varios servicios |
-| **Express 5** | Se usa Express v5 que tiene breaking changes respecto a v4 (manejo de errores asíncronos diferente) |
 | **Socket.IO CORS en `'*'`** | El CORS de Socket.IO está abierto a cualquier origen |
+| **Express 5** | Se usa Express v5 que tiene breaking changes respecto a v4 (manejo de errores asíncronos diferente) |
 
 ---
 
@@ -422,7 +422,7 @@ pnpm run dev
 
 ### Trabajo futuro
 
-- [ ] **Implementar archivos pendientes:** error handler global, validators con express-validator/Zod, centralizar constantes, mover Haversine a `distance.js`.
+- [ ] **Implementar archivos pendientes:** validators con express-validator/Zod, centralizar constantes.
 - [ ] **Agregar tests:** Jest + Supertest para tests de integración de la API.
 - [ ] **Mejorar seguridad:** migrar JWT de localStorage a httpOnly cookies.
 - [ ] **Agregar linter/formatter:** ESLint + Prettier con configuración estandarizada.
@@ -430,5 +430,5 @@ pnpm run dev
 - [ ] **CI/CD:** GitHub Actions para correr tests y linter en cada push.
 - [ ] **Optimizar BD:** agregar índices a foreign keys más consultadas.
 - [ ] **Empaquetar frontend:** considerar Vite para bundling y minificación.
-- [ ] **Mejorar manejo de errores:** reemplazar `catch (_) {}` con logging estructurado.
+- [x] **Mejorar manejo de errores:** reemplazar `catch (_) {}` con logging estructurado.
 - [ ] **TypeScript:** migrar el proyecto a TypeScript para mayor seguridad de tipos.
