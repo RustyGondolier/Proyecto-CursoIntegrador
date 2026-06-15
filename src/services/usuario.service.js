@@ -7,6 +7,8 @@ const usuarioRepository =
 const vehiculoRepository =
   require('../repositories/vehiculo.repository');
 
+const { TIPO_VEHICULO } = require('../config/constants');
+
 /* =====================================================
    PERFIL
    ===================================================== */
@@ -127,14 +129,14 @@ async function updateProfile(
    ===================================================== */
 
 const PLACA_REGEX = {
-  auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
-  moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
-  mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+  [TIPO_VEHICULO.AUTO]: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+  [TIPO_VEHICULO.MOTO]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/
 };
 
 function normalizarPlaca(tipo, placa) {
   const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
-  if (tipo === 'auto') {
+  if (tipo === TIPO_VEHICULO.AUTO) {
     return limpia.replace(/^([A-Z]{3})(\d{3})$/, '$1-$2');
   }
   return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
@@ -157,7 +159,7 @@ async function createVehicle(
   const tipo = body.tipo_vehiculo_id;
   const regex = PLACA_REGEX[tipo];
   if (!regex || !regex.test(body.placa.trim())) {
-    const formato = tipo === 'auto' ? 'ABC-123' : 'AB-1234';
+    const formato = tipo === TIPO_VEHICULO.AUTO ? 'ABC-123' : 'AB-1234';
     const error = new Error(`La placa no tiene un formato válido (ej: ${formato})`);
     error.status = 400;
     throw error;
@@ -239,7 +241,7 @@ async function updateVehicle(
     const tipo = body.tipo_vehiculo_id;
     const regex = PLACA_REGEX[tipo];
     if (!regex || !regex.test(body.placa.trim())) {
-      const formato = tipo === 'auto' ? 'ABC-123' : 'AB-1234';
+      const formato = tipo === TIPO_VEHICULO.AUTO ? 'ABC-123' : 'AB-1234';
       const error = new Error(`La placa no tiene un formato válido (ej: ${formato})`);
       error.status = 400;
       throw error;

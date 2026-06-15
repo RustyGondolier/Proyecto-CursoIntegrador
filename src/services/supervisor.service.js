@@ -4,6 +4,7 @@ const logger = require('../config/logger');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const plazaRepository = require('../repositories/plaza.repository');
 const supervisorRepository = require('../repositories/supervisor.repository');
+const { ESTADO_SOLICITUD, ESTADO_PLAZA } = require('../config/constants');
 
 async function asignarPlaza(solicitudId, plazaId, supervisorId) {
   const solicitud = await solicitudRepository.findById(solicitudId);
@@ -12,7 +13,7 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
     error.status = 404;
     throw error;
   }
-  if (solicitud.estado !== 'pendiente') {
+  if (solicitud.estado !== ESTADO_SOLICITUD.PENDIENTE) {
     const error = new Error('La solicitud no está pendiente');
     error.status = 400;
     throw error;
@@ -27,14 +28,14 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
     error.status = 404;
     throw error;
   }
-  if (plaza.rows[0].estado !== 'disponible') {
+  if (plaza.rows[0].estado !== ESTADO_PLAZA.DISPONIBLE) {
     const error = new Error('La plaza no está disponible');
     error.status = 409;
     throw error;
   }
 
   await solicitudRepository.assignPlaza(solicitudId, plazaId);
-  await plazaRepository.updateEstado(plazaId, 'ocupada');
+  await plazaRepository.updateEstado(plazaId, ESTADO_PLAZA.OCUPADA);
 
   try { getIO().emit('ocupacion:updated'); } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al asignar plaza', { error: err.message });
@@ -114,7 +115,7 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
     error.status = 404;
     throw error;
   }
-  if (plaza.rows[0].estado !== 'disponible') {
+  if (plaza.rows[0].estado !== ESTADO_PLAZA.DISPONIBLE) {
     const error = new Error('La plaza no está disponible');
     error.status = 409;
     throw error;
@@ -128,7 +129,7 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
     throw error;
   }
 
-  await plazaRepository.updateEstado(plazaId, 'ocupada');
+  await plazaRepository.updateEstado(plazaId, ESTADO_PLAZA.OCUPADA);
 
   try { getIO().emit('ocupacion:updated'); } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al confirmar ingreso', { error: err.message });
@@ -157,7 +158,7 @@ async function registrarSalida(solicitudId, supervisorId) {
     error.status = 404;
     throw error;
   }
-  if (solicitud.estado !== 'ingresado') {
+  if (solicitud.estado !== ESTADO_SOLICITUD.INGRESADO) {
     const error = new Error('La solicitud no tiene un ingreso confirmado');
     error.status = 400;
     throw error;
@@ -171,7 +172,7 @@ async function registrarSalida(solicitudId, supervisorId) {
   }
 
   if (solicitud.plaza_asignada_id) {
-    await plazaRepository.updateEstado(solicitud.plaza_asignada_id, 'disponible');
+    await plazaRepository.updateEstado(solicitud.plaza_asignada_id, ESTADO_PLAZA.DISPONIBLE);
   }
 
   try { getIO().emit('ocupacion:updated'); } catch (err) {

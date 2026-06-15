@@ -1,16 +1,24 @@
 const pool = require('../../db');
+const { ESTADO_SOLICITUD, ESTADO_PLAZA, ESTADO_REPORTE_CODIGO } = require('../config/constants');
 
 async function getDashboardData() {
   const result = await pool.query(`
     SELECT
-      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = 'pendiente') AS pendientes_count,
+      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = $1) AS pendientes_count,
       (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE hora_ingreso IS NOT NULL AND hora_ingreso::date = CURRENT_DATE) AS ingresos_hoy,
-      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = 'finalizado' AND hora_salida::date = CURRENT_DATE) AS salidas_hoy,
-      (SELECT COUNT(*) FROM reportes_incidencias r JOIN estados_reporte er ON er.id = r.estado_id WHERE er.codigo IN ('enviado', 'en_revision', 'prioritario')) AS incidencias_pendientes,
+      (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = $2 AND hora_salida::date = CURRENT_DATE) AS salidas_hoy,
+      (SELECT COUNT(*) FROM reportes_incidencias r JOIN estados_reporte er ON er.id = r.estado_id WHERE er.codigo IN ($3, $4, $5)) AS incidencias_pendientes,
       (SELECT ROUND(
-        (COUNT(*) FILTER (WHERE p.estado = 'ocupada')::DECIMAL / NULLIF(COUNT(*), 0)) * 100
+        (COUNT(*) FILTER (WHERE p.estado = $6)::DECIMAL / NULLIF(COUNT(*), 0)) * 100
       , 1) FROM plazas p) AS ocupacion_porcentaje
-  `);
+  `, [
+    ESTADO_SOLICITUD.PENDIENTE,
+    ESTADO_SOLICITUD.FINALIZADO,
+    ESTADO_REPORTE_CODIGO.ENVIADO,
+    ESTADO_REPORTE_CODIGO.EN_REVISION,
+    ESTADO_REPORTE_CODIGO.PRIORITARIO,
+    ESTADO_PLAZA.OCUPADA
+  ]);
   return result.rows[0];
 }
 
@@ -31,9 +39,9 @@ async function getSolicitudesPendientes() {
     JOIN vehiculos v ON v.id = s.vehiculo_id
     JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
     JOIN estacionamientos e ON e.id = s.estacionamiento_id
-    WHERE s.estado = 'pendiente'
+    WHERE s.estado = $1
     ORDER BY s.hora_limite_ingreso ASC
-  `);
+  `, [ESTADO_SOLICITUD.PENDIENTE]);
   return result.rows;
 }
 
@@ -53,10 +61,10 @@ async function getUltimosMovimientos(limite = 10) {
     JOIN vehiculos v ON v.id = s.vehiculo_id
     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
     JOIN estacionamientos e ON e.id = s.estacionamiento_id
-    WHERE s.estado IN ('ingresado', 'finalizado')
+    WHERE s.estado IN ($2, $3)
     ORDER BY COALESCE(s.hora_ingreso, s.hora_salida) DESC
     LIMIT $1
-  `, [limite]);
+  `, [limite, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]);
   return result.rows;
 }
 
@@ -83,12 +91,12 @@ async function buscarPorPlaca(placa) {
     JOIN usuarios u ON u.id = v.usuario_id
     JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
     LEFT JOIN solicitudes_estacionamiento s
-      ON s.vehiculo_id = v.id AND s.estado IN ('pendiente', 'ingresado')
+      ON s.vehiculo_id = v.id AND s.estado IN ($2, $3)
     LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
     WHERE v.placa = $1 AND v.activo = true
     LIMIT 1
-  `, [placa]);
+  `, [placa, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]);
   return result.rows[0] || null;
 }
 
@@ -102,9 +110,9 @@ async function plazasDisponibles(estacionamientoId, categoriaPlaza) {
     JOIN tipos_plaza tp ON tp.id = p.tipo_plaza_id
     WHERE b.estacionamiento_id = $1
       AND b.tipo_vehiculo = $2
-      AND p.estado = 'disponible'
+      AND p.estado = $3
     ORDER BY b.id, p.numero_plaza
-  `, [estacionamientoId, categoriaPlaza]);
+  `, [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE]);
   return result.rows;
 }
 
@@ -133,36 +141,36 @@ async function buscarPorSolicitudId(solicitudId) {
     JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
     LEFT JOIN estacionamientos e ON e.id = s.estacionamiento_id
     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
-    WHERE s.id = $1 AND s.estado IN ('pendiente', 'ingresado')
+    WHERE s.id = $1 AND s.estado IN ($2, $3)
     LIMIT 1
-  `, [solicitudId]);
+  `, [solicitudId, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]);
   return result.rows[0] || null;
 }
 
 async function confirmarIngreso(solicitudId, plazaId, supervisorId, identificadorCodigo) {
   const result = await pool.query(`
     UPDATE solicitudes_estacionamiento
-    SET estado = 'ingresado',
+    SET estado = $5,
         plaza_asignada_id = $2,
         hora_ingreso = NOW(),
         supervisor_ingreso_id = $3,
         identificador_codigo = $4
-    WHERE id = $1 AND estado = 'pendiente'
+    WHERE id = $1 AND estado = $6
     RETURNING *
-  `, [solicitudId, plazaId, supervisorId, identificadorCodigo]);
+  `, [solicitudId, plazaId, supervisorId, identificadorCodigo, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.PENDIENTE]);
   return result.rows[0] || null;
 }
 
 async function registrarSalida(solicitudId, supervisorId) {
   const result = await pool.query(`
     UPDATE solicitudes_estacionamiento
-    SET estado = 'finalizado',
+    SET estado = $3,
         hora_salida = NOW(),
         supervisor_salida_id = $2,
         tiempo_permanencia_min = EXTRACT(EPOCH FROM (NOW() - hora_ingreso)) / 60
-    WHERE id = $1 AND estado = 'ingresado'
+    WHERE id = $1 AND estado = $4
     RETURNING *
-  `, [solicitudId, supervisorId]);
+  `, [solicitudId, supervisorId, ESTADO_SOLICITUD.FINALIZADO, ESTADO_SOLICITUD.INGRESADO]);
   return result.rows[0] || null;
 }
 
@@ -189,13 +197,13 @@ async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, letraBloq
     JOIN plazas p ON p.id = s.plaza_asignada_id
     JOIN bloques b ON b.id = p.bloque_id
     JOIN estacionamientos e ON e.id = b.estacionamiento_id
-    WHERE s.estado = 'ingresado'
+    WHERE s.estado = $5
       AND b.estacionamiento_id = $1
       AND b.tipo_vehiculo = $2
       AND b.letra_bloque = $3
       AND p.numero_plaza = $4
     LIMIT 1
-  `, [estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza]);
+  `, [estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza, ESTADO_SOLICITUD.INGRESADO]);
   return result.rows[0] || null;
 }
 

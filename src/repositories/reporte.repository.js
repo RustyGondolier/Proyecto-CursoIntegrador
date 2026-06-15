@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ESTADO_REPORTE_ID } = require('../config/constants');
 
 async function findByUserId(usuario_id) {
   const result = await pool.query(
@@ -32,9 +33,9 @@ async function create({ usuario_id, estacionamiento_id, solicitud_id, plaza_id, 
   const result = await pool.query(
     `INSERT INTO reportes_incidencias
        (usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion, estado_id)
-     VALUES ($1, $2, $3, $4, $5, 1)
-     RETURNING *`,
-    [usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion]
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *`,
+    [usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion, ESTADO_REPORTE_ID.ENVIADO]
   );
 
   return result.rows[0];
@@ -129,12 +130,12 @@ async function findById(id) {
 async function marcarEnRevision({ id, supervisor_id }) {
   const result = await pool.query(
     `UPDATE reportes_incidencias
-     SET estado_id = 2,
+     SET estado_id = $3,
          supervisor_id = $2,
          actualizado_en = NOW()
-     WHERE id = $1 AND estado_id = 1
+     WHERE id = $1 AND estado_id = $4
      RETURNING *`,
-    [id, supervisor_id]
+    [id, supervisor_id, ESTADO_REPORTE_ID.EN_REVISION, ESTADO_REPORTE_ID.ENVIADO]
   );
   return result.rows[0] || null;
 }
@@ -156,14 +157,14 @@ async function updateEstado({ id, estado_id, supervisor_id, respuesta_supervisor
 async function marcarPrioritario({ id, supervisor_id, razon_prioridad }) {
   const result = await pool.query(
     `UPDATE reportes_incidencias
-     SET estado_id = 4,
+     SET estado_id = $4,
          es_prioritario = true,
          razon_prioridad = $3,
          supervisor_id = $2,
          actualizado_en = NOW()
      WHERE id = $1
      RETURNING *`,
-    [id, supervisor_id, razon_prioridad]
+    [id, supervisor_id, razon_prioridad, ESTADO_REPORTE_ID.PRIORITARIO]
   );
   return result.rows[0] || null;
 }

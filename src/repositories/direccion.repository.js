@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ESTADO_SOLICITUD } = require('../config/constants');
 
 async function getTiempoPermanencia(fechaInicio, fechaFin) {
   const result = await pool.query(
@@ -43,12 +44,12 @@ async function getOcupacionPorDia(fechaInicio, fechaFin) {
      JOIN plazas p ON p.id = s.plaza_asignada_id
      JOIN bloques b ON b.id = p.bloque_id
      JOIN estacionamientos e ON e.id = b.estacionamiento_id
-     WHERE s.estado IN ('ingresado', 'finalizado')
+     WHERE s.estado IN ($3, $4)
        AND s.hora_ingreso >= $1::timestamp
        AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
      GROUP BY e.nombre, DATE(s.hora_ingreso)
      ORDER BY dia, e.nombre`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
   );
   return result.rows;
 }
@@ -63,12 +64,12 @@ async function getOcupacionPorSemana(fechaInicio, fechaFin) {
      JOIN plazas p ON p.id = s.plaza_asignada_id
      JOIN bloques b ON b.id = p.bloque_id
      JOIN estacionamientos e ON e.id = b.estacionamiento_id
-     WHERE s.estado IN ('ingresado', 'finalizado')
-       AND s.hora_ingreso >= $1::timestamp
-       AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
-     GROUP BY e.nombre, TO_CHAR(s.hora_ingreso, 'IYYY-IW')
-     ORDER BY semana, e.nombre`,
-    [fechaInicio, fechaFin]
+    WHERE s.estado IN ($3, $4)
+        AND s.hora_ingreso >= $1::timestamp
+        AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
+      GROUP BY e.nombre, TO_CHAR(s.hora_ingreso, 'IYYY-IW')
+      ORDER BY semana, e.nombre`,
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
   );
   return result.rows;
 }
@@ -83,12 +84,12 @@ async function getOcupacionPorHora(fechaInicio, fechaFin) {
      JOIN plazas p ON p.id = s.plaza_asignada_id
      JOIN bloques b ON b.id = p.bloque_id
      JOIN estacionamientos e ON e.id = b.estacionamiento_id
-     WHERE s.estado IN ('ingresado', 'finalizado')
-       AND s.hora_ingreso >= $1::timestamp
-       AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
-     GROUP BY e.nombre, EXTRACT(HOUR FROM s.hora_ingreso)
-     ORDER BY hora, e.nombre`,
-    [fechaInicio, fechaFin]
+    WHERE s.estado IN ($3, $4)
+        AND s.hora_ingreso >= $1::timestamp
+        AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
+      GROUP BY e.nombre, EXTRACT(HOUR FROM s.hora_ingreso)
+      ORDER BY hora, e.nombre`,
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
   );
   return result.rows;
 }
@@ -147,11 +148,11 @@ async function getOcupacionExport(fechaInicio, fechaFin) {
      JOIN plazas p ON p.id = s.plaza_asignada_id
      JOIN bloques b ON b.id = p.bloque_id
      JOIN estacionamientos e ON e.id = b.estacionamiento_id
-     WHERE s.estado IN ('ingresado', 'finalizado')
-       AND s.hora_ingreso >= $1::timestamp
-       AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
-     ORDER BY s.hora_ingreso`,
-    [fechaInicio, fechaFin]
+    WHERE s.estado IN ($3, $4)
+        AND s.hora_ingreso >= $1::timestamp
+        AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
+      ORDER BY s.hora_ingreso`,
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
   );
   return result.rows;
 }

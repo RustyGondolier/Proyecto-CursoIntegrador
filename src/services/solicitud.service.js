@@ -4,6 +4,9 @@ const logger = require('../config/logger');
 const { calcularDistancia } = require('../utils/distance');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
+const {
+  ESTADO_SOLICITUD, ESTADO_CUENTA, ESTADO_PLAZA, TIEMPO_LIMITE_INGRESO_MIN
+} = require('../config/constants');
 
 async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   const usuarioResult = await pool.query(
@@ -15,7 +18,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     error.status = 404;
     throw error;
   }
-  if (usuarioResult.rows[0].estado_cuenta === 'suspendida') {
+  if (usuarioResult.rows[0].estado_cuenta === ESTADO_CUENTA.SUSPENDIDA) {
     const error = new Error('Tu cuenta está suspendida. No puedes solicitar plazas.');
     error.status = 403;
     throw error;
@@ -35,7 +38,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
 
   const activa = await solicitudRepository.findActiveByUser(usuarioId);
   if (activa) {
-    if (activa.estado === 'pendiente' || activa.estado === 'ingresado') {
+    if (activa.estado === ESTADO_SOLICITUD.PENDIENTE || activa.estado === ESTADO_SOLICITUD.INGRESADO) {
       const error = new Error('Ya tienes una solicitud activa');
       error.status = 409;
       throw error;
@@ -94,14 +97,14 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
      ) - (
        SELECT COUNT(*) FROM plazas p
        JOIN bloques b ON b.id = p.bloque_id
-       WHERE b.estacionamiento_id = $1 AND b.tipo_vehiculo = $2 AND p.estado = 'ocupada'
+       WHERE b.estacionamiento_id = $1 AND b.tipo_vehiculo = $2 AND p.estado = $3
      ) - (
        SELECT COUNT(*) FROM solicitudes_estacionamiento s
        JOIN vehiculos v ON v.id = s.vehiculo_id
        JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
-       WHERE s.estacionamiento_id = $1 AND s.estado = 'pendiente' AND tv.categoria_plaza = $2
+        WHERE s.estacionamiento_id = $1 AND s.estado = $4 AND tv.categoria_plaza = $2
      ) AS disponibles`,
-    [estacionamientoId, categoria]
+    [estacionamientoId, categoria, ESTADO_PLAZA.OCUPADA, ESTADO_SOLICITUD.PENDIENTE]
   );
   if (dispResult.rows[0].disponibles <= 0) {
     const error = new Error('No hay plazas disponibles en este estacionamiento');
@@ -109,7 +112,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     throw error;
   }
 
-  const tiempoLimite = parseInt(process.env.TIEMPO_LIMITE_INGRESO_MIN, 10) || 30;
+  const tiempoLimite = TIEMPO_LIMITE_INGRESO_MIN;
 
   const solicitud = await solicitudRepository.create({
     usuario_id: usuarioId,
@@ -147,7 +150,7 @@ async function cancelar(usuarioId) {
     throw error;
   }
 
-  if (solicitud.estado === 'ingresado') {
+  if (solicitud.estado === ESTADO_SOLICITUD.INGRESADO) {
     const error = new Error('El supervisor ya confirmó tu ingreso. No puedes cancelar desde la app, coordina con el supervisor.');
     error.status = 400;
     throw error;

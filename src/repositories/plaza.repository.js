@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ESTADO_PLAZA } = require('../config/constants');
 
 async function findAvailable(estacionamientoId, categoriaPlaza) {
   const result = await pool.query(
@@ -8,10 +9,10 @@ async function findAvailable(estacionamientoId, categoriaPlaza) {
      JOIN tipos_plaza tp ON tp.id = p.tipo_plaza_id
      WHERE b.estacionamiento_id = $1
        AND tp.codigo LIKE $2 || '%'
-       AND p.estado = 'disponible'
-     ORDER BY RANDOM()
-     LIMIT 1`,
-    [estacionamientoId, categoriaPlaza]
+       AND p.estado = $3
+      ORDER BY RANDOM()
+      LIMIT 1`,
+    [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE]
   );
   return result.rows[0] || null;
 }

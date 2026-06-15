@@ -16,6 +16,10 @@ const {
   generateToken
 } = require('../utils/jwt');
 
+const {
+  ROLES, ESTADO_CUENTA, ESTADO_ACCESO, TIPO_VEHICULO
+} = require('../config/constants');
+
 /* Login */
 
 async function login(
@@ -40,7 +44,7 @@ async function login(
 
   }
 
-  if(usuario.estado_cuenta === 'suspendida'){
+  if(usuario.estado_cuenta === ESTADO_CUENTA.SUSPENDIDA){
 
     throw new Error(
       'Tu cuenta ha sido suspendida. Revisa tu correo institucional para más información.'
@@ -59,7 +63,7 @@ async function login(
     await historialRepository
       .registrarAcceso(
         usuario.id,
-        'fallido',
+        ESTADO_ACCESO.FALLIDO,
         ip,
         userAgent
       );
@@ -76,7 +80,7 @@ async function login(
     await historialRepository
   .registrarAcceso(
     usuario.id,
-    'exitoso',
+    ESTADO_ACCESO.EXITOSO,
     ip,
     userAgent
   );
@@ -113,14 +117,14 @@ const REQUIRED_FIELDS = [
 ];
 
 const PLACA_REGEX = {
-  auto: /^[A-Za-z]{3}[-\s]?\d{3}$/,
-  moto: /^[A-Za-z]{2}[-\s]?\d{4}$/,
-  mototaxi: /^[A-Za-z]{2}[-\s]?\d{4}$/
+  [TIPO_VEHICULO.AUTO]: /^[A-Za-z]{3}[-\s]?\d{3}$/,
+  [TIPO_VEHICULO.MOTO]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
+  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/
 };
 
 function normalizarPlaca(tipo, placa) {
   const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
-  if (tipo === 'auto') {
+  if (tipo === TIPO_VEHICULO.AUTO) {
     return limpia.replace(/^([A-Z]{3})(\d{3})$/, '$1-$2');
   }
   return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
@@ -164,7 +168,7 @@ async function register(
     throw new Error('Tipo de vehículo no válido');
   }
   if (!regex.test(body.placa.trim())) {
-    const formato = tipoVehiculo === 'auto' ? 'ABC-123' : 'AB-1234';
+    const formato = tipoVehiculo === TIPO_VEHICULO.AUTO ? 'ABC-123' : 'AB-1234';
     throw new Error(`La placa no tiene un formato válido (ej: ${formato})`);
   }
 
@@ -176,14 +180,14 @@ async function register(
       .toUpperCase();
 
   let rol =
-    'estudiante';
+    ROLES.ESTUDIANTE;
 
   if(
     codigo.startsWith('C')
   ){
 
     rol =
-      'docente';
+      ROLES.DOCENTE;
 
   }
 

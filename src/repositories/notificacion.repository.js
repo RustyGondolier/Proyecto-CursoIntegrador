@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ROLES, ESTADO_CUENTA } = require('../config/constants');
 
 async function create({ usuario_id, tipo_id, titulo, mensaje, url_destino }) {
   const result = await pool.query(
@@ -20,14 +21,16 @@ async function findTipoByCodigo(codigo) {
 
 async function findAdmins() {
   const result = await pool.query(
-    `SELECT id FROM usuarios WHERE rol = 'administrador' AND estado_cuenta = 'activa'`
+    `SELECT id FROM usuarios WHERE rol = $1 AND estado_cuenta = $2`,
+    [ROLES.ADMINISTRADOR, ESTADO_CUENTA.ACTIVA]
   );
   return result.rows;
 }
 
 async function findSupervisores() {
   const result = await pool.query(
-    `SELECT id FROM usuarios WHERE rol = 'supervisor' AND estado_cuenta = 'activa'`
+    `SELECT id FROM usuarios WHERE rol = $1 AND estado_cuenta = $2`,
+    [ROLES.SUPERVISOR, ESTADO_CUENTA.ACTIVA]
   );
   return result.rows;
 }

@@ -2,20 +2,21 @@ const express = require('express');
 const controller = require('../controllers/administrador.controller');
 const { authJWT } = require('../middleware/authJWT');
 const { requireRole } = require('../middleware/roles');
+const { ROLES } = require('../config/constants');
 
 const router = express.Router();
 
-router.get('/dashboard', authJWT, requireRole('administrador'), controller.dashboard);
-router.get('/usuarios/pendientes', authJWT, requireRole('administrador'), controller.listarPendientes);
-router.get('/usuarios', authJWT, requireRole('administrador'), controller.listarUsuarios);
-router.get('/usuarios/:id', authJWT, requireRole('administrador'), controller.obtenerUsuario);
-router.put('/usuarios/:id/aprobar', authJWT, requireRole('administrador'), controller.aprobarPerfil);
-router.put('/usuarios/:id/suspender', authJWT, requireRole('administrador'), controller.suspenderCuenta);
-router.put('/usuarios/:id/reactivar', authJWT, requireRole('administrador'), controller.reactivarCuenta);
-router.get('/infracciones', authJWT, requireRole('administrador'), controller.listarInfracciones);
-router.get('/infracciones/:id', authJWT, requireRole('administrador'), controller.obtenerInfraccion);
-router.get('/reportes/prioritarios', authJWT, requireRole('administrador'), controller.listarReportesPrioritarios);
-router.put('/reportes/:id/resolver', authJWT, requireRole('administrador'), controller.resolverReporte);
-router.get('/acciones', authJWT, requireRole('administrador'), controller.listarAcciones);
+router.get('/dashboard', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.dashboard);
+router.get('/usuarios/pendientes', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.listarPendientes);
+router.get('/usuarios', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.listarUsuarios);
+router.get('/usuarios/:id', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.obtenerUsuario);
+router.put('/usuarios/:id/aprobar', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.aprobarPerfil);
+router.put('/usuarios/:id/suspender', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.suspenderCuenta);
+router.put('/usuarios/:id/reactivar', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.reactivarCuenta);
+router.get('/infracciones', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.listarInfracciones);
+router.get('/infracciones/:id', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.obtenerInfraccion);
+router.get('/reportes/prioritarios', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.listarReportesPrioritarios);
+router.put('/reportes/:id/resolver', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.resolverReporte);
+router.get('/acciones', authJWT, requireRole(ROLES.ADMINISTRADOR), controller.listarAcciones);
 
 module.exports = router;

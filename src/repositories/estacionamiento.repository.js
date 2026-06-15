@@ -1,5 +1,6 @@
 const pool =
   require('../../db');
+const { ESTADO_PLAZA, ESTADO_SOLICITUD, TIPO_VEHICULO } = require('../config/constants');
 
 async function getOcupacion(){
 
@@ -13,15 +14,15 @@ async function getOcupacion(){
 
         COUNT(
           CASE
-            WHEN b.tipo_vehiculo = 'auto'
+            WHEN b.tipo_vehiculo = $1
             THEN p.id
           END
         ) AS autos_total,
 
         COUNT(
           CASE
-            WHEN b.tipo_vehiculo = 'auto'
-            AND p.estado = 'ocupada'
+            WHEN b.tipo_vehiculo = $1
+            AND p.estado = $2
             THEN p.id
           END
         ) + COALESCE((
@@ -30,21 +31,21 @@ async function getOcupacion(){
           JOIN vehiculos v ON v.id = s.vehiculo_id
           JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
           WHERE s.estacionamiento_id = e.id
-            AND s.estado = 'pendiente'
-            AND tv.categoria_plaza = 'auto'
+            AND s.estado = $3
+            AND tv.categoria_plaza = $1
         ), 0) AS autos_ocupados,
 
         COUNT(
           CASE
-            WHEN b.tipo_vehiculo = 'moto'
+            WHEN b.tipo_vehiculo = $4
             THEN p.id
           END
         ) AS motos_total,
 
         COUNT(
           CASE
-            WHEN b.tipo_vehiculo = 'moto'
-            AND p.estado = 'ocupada'
+            WHEN b.tipo_vehiculo = $4
+            AND p.estado = $2
             THEN p.id
           END
         ) + COALESCE((
@@ -53,8 +54,8 @@ async function getOcupacion(){
           JOIN vehiculos v ON v.id = s.vehiculo_id
           JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
           WHERE s.estacionamiento_id = e.id
-            AND s.estado = 'pendiente'
-            AND tv.categoria_plaza = 'moto'
+            AND s.estado = $3
+            AND tv.categoria_plaza = $4
         ), 0) AS motos_ocupadas
 
       FROM estacionamientos e
@@ -70,8 +71,14 @@ async function getOcupacion(){
         e.nombre
 
       ORDER BY e.id
-      `
-    );
+      `,
+    [
+      TIPO_VEHICULO.AUTO,
+      ESTADO_PLAZA.OCUPADA,
+      ESTADO_SOLICITUD.PENDIENTE,
+      TIPO_VEHICULO.MOTO
+    ]
+  );
 
   return resultado.rows;
 

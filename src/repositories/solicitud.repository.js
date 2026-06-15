@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ESTADO_SOLICITUD } = require('../config/constants');
 
 async function create({ usuario_id, vehiculo_id, estacionamiento_id, tiempo_limite_min }) {
   const result = await pool.query(
@@ -19,10 +20,10 @@ async function findActiveByUser(usuario_id) {
      FROM solicitudes_estacionamiento s
      JOIN estacionamientos e ON e.id = s.estacionamiento_id
      LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
-     WHERE s.usuario_id = $1 AND s.estado IN ('pendiente', 'ingresado')
+     WHERE s.usuario_id = $1 AND s.estado IN ($2, $3)
      ORDER BY s.creado_en DESC
      LIMIT 1`,
-    [usuario_id]
+    [usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]
   );
   return result.rows[0] || null;
 }
@@ -41,10 +42,10 @@ async function findById(id) {
 async function cancel(id) {
   const result = await pool.query(
     `UPDATE solicitudes_estacionamiento
-     SET estado = 'cancelado'
-     WHERE id = $1 AND estado = 'pendiente'
+     SET estado = $2
+     WHERE id = $1 AND estado = $3
      RETURNING *`,
-    [id]
+    [id, ESTADO_SOLICITUD.CANCELADO, ESTADO_SOLICITUD.PENDIENTE]
   );
   return result.rows[0] || null;
 }
@@ -52,10 +53,10 @@ async function cancel(id) {
 async function expireOlderThan(timestamp) {
   const result = await pool.query(
     `UPDATE solicitudes_estacionamiento
-     SET estado = 'expirado'
-     WHERE estado = 'pendiente' AND hora_limite_ingreso < $1
+     SET estado = $2
+     WHERE estado = $3 AND hora_limite_ingreso < $1
      RETURNING *`,
-    [timestamp]
+    [timestamp, ESTADO_SOLICITUD.EXPIRADO, ESTADO_SOLICITUD.PENDIENTE]
   );
   return result.rows;
 }

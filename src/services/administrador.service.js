@@ -1,6 +1,9 @@
 const logger = require('../config/logger');
 const adminRepository = require('../repositories/administrador.repository');
 const notificacionService = require('./notificacion.service');
+const {
+  ESTADO_CUENTA, TIPO_ACCION_ADMIN, TIPO_NOTIFICACION
+} = require('../config/constants');
 
 async function getDashboard() {
   const data = await adminRepository.getDashboardData();
@@ -46,7 +49,7 @@ async function aprobarPerfil(adminId, userId) {
     error.status = 400;
     throw error;
   }
-  if (usuario.estado_cuenta !== 'activa') {
+  if (usuario.estado_cuenta !== ESTADO_CUENTA.ACTIVA) {
     const error = new Error('No se puede verificar un usuario con cuenta suspendida');
     error.status = 400;
     throw error;
@@ -62,14 +65,14 @@ async function aprobarPerfil(adminId, userId) {
   await adminRepository.registrarAccion({
     administrador_id: adminId,
     usuario_afectado_id: userId,
-    tipo: 'verificacion',
+    tipo: TIPO_ACCION_ADMIN.VERIFICACION,
     descripcion: 'Perfil aprobado'
   });
 
   try {
     await notificacionService.notificar({
       usuario_id: userId,
-      tipo_codigo: 'sistema',
+      tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Perfil verificado',
       mensaje: 'Tu perfil ha sido verificado correctamente. Ya puedes solicitar plazas de estacionamiento.',
       url_destino: '/usuario/dashboard/dashboard.html'
@@ -94,13 +97,13 @@ async function suspenderCuenta(adminId, userId, motivo) {
     error.status = 404;
     throw error;
   }
-  if (usuario.estado_cuenta === 'suspendida') {
+  if (usuario.estado_cuenta === ESTADO_CUENTA.SUSPENDIDA) {
     const error = new Error('La cuenta ya se encuentra suspendida');
     error.status = 400;
     throw error;
   }
 
-  const actualizado = await adminRepository.updateEstadoCuenta(userId, 'suspendida', motivo.trim());
+  const actualizado = await adminRepository.updateEstadoCuenta(userId, ESTADO_CUENTA.SUSPENDIDA, motivo.trim());
   if (!actualizado) {
     const error = new Error('Error al suspender la cuenta');
     error.status = 500;
@@ -110,14 +113,14 @@ async function suspenderCuenta(adminId, userId, motivo) {
   await adminRepository.registrarAccion({
     administrador_id: adminId,
     usuario_afectado_id: userId,
-    tipo: 'suspension',
+    tipo: TIPO_ACCION_ADMIN.SUSPENSION,
     descripcion: motivo.trim()
   });
 
   try {
     await notificacionService.notificar({
       usuario_id: userId,
-      tipo_codigo: 'sistema',
+      tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Cuenta suspendida',
       mensaje: `Tu cuenta ha sido suspendida. Motivo: ${motivo.trim()}. Revisa tu correo institucional para más información.`,
       url_destino: '/usuario/perfil/perfil.html'
@@ -136,13 +139,13 @@ async function reactivarCuenta(adminId, userId) {
     error.status = 404;
     throw error;
   }
-  if (usuario.estado_cuenta !== 'suspendida') {
+  if (usuario.estado_cuenta !== ESTADO_CUENTA.SUSPENDIDA) {
     const error = new Error('La cuenta no está suspendida');
     error.status = 400;
     throw error;
   }
 
-  const actualizado = await adminRepository.updateEstadoCuenta(userId, 'activa');
+  const actualizado = await adminRepository.updateEstadoCuenta(userId, ESTADO_CUENTA.ACTIVA);
   if (!actualizado) {
     const error = new Error('Error al reactivar la cuenta');
     error.status = 500;
@@ -152,14 +155,14 @@ async function reactivarCuenta(adminId, userId) {
   await adminRepository.registrarAccion({
     administrador_id: adminId,
     usuario_afectado_id: userId,
-    tipo: 'reactivacion',
+    tipo: TIPO_ACCION_ADMIN.REACTIVACION,
     descripcion: 'Cuenta reactivada'
   });
 
   try {
     await notificacionService.notificar({
       usuario_id: userId,
-      tipo_codigo: 'sistema',
+      tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Cuenta reactivada',
       mensaje: 'Tu cuenta ha sido reactivada. Ya puedes solicitar plazas de estacionamiento nuevamente.',
       url_destino: '/usuario/dashboard/dashboard.html'
@@ -200,7 +203,7 @@ async function resolverReporte(adminId, reporteId) {
   try {
     await notificacionService.notificar({
       usuario_id: reporte.usuario_id,
-      tipo_codigo: 'reporte',
+      tipo_codigo: TIPO_NOTIFICACION.REPORTE,
       titulo: 'Reporte prioritario resuelto',
       mensaje: `Tu reporte prioritario #REP-${String(reporteId).padStart(5, '0')} ha sido resuelto por el administrador.`,
       url_destino: `/usuario/reportes/reportes.html`

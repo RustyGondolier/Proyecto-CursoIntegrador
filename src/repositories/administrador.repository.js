@@ -1,4 +1,5 @@
 const pool = require('../../db');
+const { ROLES, ESTADO_CUENTA, ESTADO_REPORTE_ID } = require('../config/constants');
 
 async function findPendientes() {
   const result = await pool.query(
@@ -20,11 +21,12 @@ async function findPendientes() {
      FROM usuarios u
      LEFT JOIN vehiculos v ON v.usuario_id = u.id
      LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
-     WHERE u.verificado = false
-       AND u.estado_cuenta = 'activa'
-       AND u.rol IN ('estudiante', 'docente')
-     GROUP BY u.id
-     ORDER BY u.creado_en DESC`
+      WHERE u.verificado = false
+        AND u.estado_cuenta = $1
+        AND u.rol IN ($2, $3)
+      GROUP BY u.id
+      ORDER BY u.creado_en DESC`,
+    [ESTADO_CUENTA.ACTIVA, ROLES.ESTUDIANTE, ROLES.DOCENTE]
   );
   return result.rows;
 }
@@ -71,6 +73,9 @@ async function findUserDetail(id) {
 }
 
 async function findAllUsuarios({ search, rol, estado, fecha_desde, fecha_hasta } = {}) {
+  const params = [ROLES.ESTUDIANTE, ROLES.DOCENTE];
+  let idx = 3;
+
   let query = `
     SELECT
       u.id,
@@ -81,10 +86,8 @@ async function findAllUsuarios({ search, rol, estado, fecha_desde, fecha_hasta }
       u.verificado,
       u.creado_en
     FROM usuarios u
-    WHERE u.rol IN ('estudiante', 'docente')
+    WHERE u.rol IN ($1, $2)
   `;
-  const params = [];
-  let idx = 1;
 
   if (search) {
     query += ` AND (u.nombre ILIKE $${idx} OR u.codigo_universitario ILIKE $${idx})`;
@@ -328,8 +331,9 @@ async function findReportesPrioritarios() {
      LEFT JOIN bloques b ON b.id = p.bloque_id
      LEFT JOIN usuarios sup ON sup.id = r.supervisor_id
      WHERE r.es_prioritario = true
-       AND r.estado_id != 3
-     ORDER BY r.creado_en DESC`
+      AND r.estado_id != $1
+      ORDER BY r.creado_en DESC`,
+    [ESTADO_REPORTE_ID.RESUELTO]
   );
   return result.rows;
 }
@@ -337,11 +341,11 @@ async function findReportesPrioritarios() {
 async function resolverReporte(reporteId) {
   const result = await pool.query(
     `UPDATE reportes_incidencias
-     SET estado_id = 3,
+     SET estado_id = $2,
          actualizado_en = NOW()
      WHERE id = $1 AND es_prioritario = true
      RETURNING *`,
-    [reporteId]
+    [reporteId, ESTADO_REPORTE_ID.RESUELTO]
   );
   return result.rows[0] || null;
 }
@@ -349,11 +353,17 @@ async function resolverReporte(reporteId) {
 async function getDashboardData() {
   const result = await pool.query(`
     SELECT
-      (SELECT COUNT(*) FROM usuarios WHERE verificado = false AND estado_cuenta = 'activa' AND rol IN ('estudiante', 'docente')) AS pendientes_count,
-      (SELECT COUNT(*) FROM usuarios WHERE estado_cuenta = 'suspendida') AS suspendidas_count,
-      (SELECT COUNT(*) FROM reportes_incidencias WHERE es_prioritario = true AND estado_id != 3) AS prioritarios_count,
+      (SELECT COUNT(*) FROM usuarios WHERE verificado = false AND estado_cuenta = $1 AND rol IN ($2, $3)) AS pendientes_count,
+      (SELECT COUNT(*) FROM usuarios WHERE estado_cuenta = $4) AS suspendidas_count,
+      (SELECT COUNT(*) FROM reportes_incidencias WHERE es_prioritario = true AND estado_id != $5) AS prioritarios_count,
       (SELECT COUNT(*) FROM infracciones WHERE DATE_TRUNC('month', creado_en) = DATE_TRUNC('month', NOW())) AS infracciones_mes
-  `);
+  `, [
+    ESTADO_CUENTA.ACTIVA,
+    ROLES.ESTUDIANTE,
+    ROLES.DOCENTE,
+    ESTADO_CUENTA.SUSPENDIDA,
+    ESTADO_REPORTE_ID.RESUELTO
+  ]);
   return result.rows[0];
 }
 

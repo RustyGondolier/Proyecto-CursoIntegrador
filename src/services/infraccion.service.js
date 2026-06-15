@@ -1,5 +1,6 @@
 const pool = require('../../db');
 const infraccionRepository = require('../repositories/infraccion.repository');
+const { ESTADO_SOLICITUD } = require('../config/constants');
 
 async function obtenerTipos() {
   return infraccionRepository.findTipos();
@@ -37,9 +38,9 @@ async function registrar({ placa, tipo_infraccion_id, descripcion, supervisor_id
   const solicitud = await pool.query(
     `SELECT id, plaza_asignada_id
      FROM solicitudes_estacionamiento
-     WHERE usuario_id = $1 AND estado IN ('pendiente', 'ingresado')
+     WHERE usuario_id = $1 AND estado IN ($2, $3)
      LIMIT 1`,
-    [vehiculoData.usuario_id]
+    [vehiculoData.usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]
   );
 
   const solicitudData = solicitud.rows[0] || null;
