@@ -1,7 +1,10 @@
 node_modules/
 .env
+.env.test
 db/schema.dev.sql
 pnpm-debug.log
 logs/
 migrate-timestamptz.sql
 seed-historial-test.sql
+coverage/
+*.log
