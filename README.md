@@ -316,6 +316,7 @@ Socket.IO se utiliza para:
 - **Migración de JWT a cookies httpOnly** eliminando la exposición del token en localStorage
 - **Protecciones de seguridad:** Helmet, CORS, rate limiting
 - **Persistencia de accesos:** historial de inicios de sesión exitosos y fallidos
+- **Centralización de constantes** en `src/config/constants.js` con 10 grupos (ROLES, estados, tipos) usando `Object.freeze()` para evitar mutaciones accidentales
 
 ---
 
@@ -332,7 +333,7 @@ Socket.IO se utiliza para:
 | `src/sockets/solicitud.socket.js` | Eventos Socket.IO de solicitudes sin implementar |
 | `src/utils/response.js` | No hay helpers estandarizados de respuesta HTTP |
 | `src/utils/validators.js` | No hay validadores reutilizables |
-| `src/config/constants.js` | Las constantes (roles, estados, límites) están hardcodeadas en lugar de centralizadas |
+| `public/shared/js/constants.js` | Las constantes del frontend (~54 strings) aún no se centralizan (pendiente para Fase 5 con Vite) |
 | `public/shared/js/helpers.js` | Utilidades frontend sin implementar |
 
 ### Técnicas
@@ -422,7 +423,8 @@ pnpm run dev
 
 ### Trabajo futuro
 
-- [ ] **Implementar archivos pendientes:** validators con express-validator/Zod, centralizar constantes.
+- [x] **Centralizar constantes** del backend en `src/config/constants.js`
+- [ ] **Implementar validadores:** express-validator o Zod para validación de inputs
 - [ ] **Agregar tests:** Jest + Supertest para tests de integración de la API.
 - [x] **Mejorar seguridad:** migrar JWT de localStorage a httpOnly cookies.
 - [ ] **Agregar linter/formatter:** ESLint + Prettier con configuración estandarizada.
