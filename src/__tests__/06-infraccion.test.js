@@ -63,8 +63,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
 
     // Escenario de excepcion (E1): sin token de autenticacion
     test('E1: devuelve 401 sin autenticacion', async () => {
-      const res = await request(app)
-        .get('/api/infracciones/tipos');
+      const res = await request(app).get('/api/infracciones/tipos');
 
       expect(res.status).toBe(401);
     });
@@ -72,9 +71,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
     // Escenario de excepcion (E2): rol estudiante no autorizado
     test('E2: devuelve 403 con rol estudiante', async () => {
       const est = await createTestUser();
-      const res = await request(app)
-        .get('/api/infracciones/tipos')
-        .set(authCookie(est.token));
+      const res = await request(app).get('/api/infracciones/tipos').set(authCookie(est.token));
 
       expect(res.status).toBe(403);
     });
@@ -92,7 +89,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .send({
           placa: vehiculoPlaca,
           tipo_infraccion_id: tipoInfraccionId,
-          descripcion: 'Estacionado en zona prohibida'
+          descripcion: 'Estacionado en zona prohibida',
         });
 
       expect(res.status).toBe(201);
@@ -109,7 +106,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .set(authCookie(supervisorToken))
         .send({
           placa: vehiculoPlaca,
-          tipo_infraccion_id: tipoInfraccionId
+          tipo_infraccion_id: tipoInfraccionId,
         });
 
       expect(res.status).toBe(201);
@@ -124,7 +121,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .send({
           placa: 'XYZ-999',
           tipo_infraccion_id: tipoInfraccionId,
-          descripcion: 'Test'
+          descripcion: 'Test',
         });
 
       expect(res.status).toBe(404);
@@ -138,7 +135,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .set(authCookie(supervisorToken))
         .send({
           tipo_infraccion_id: tipoInfraccionId,
-          descripcion: 'Test'
+          descripcion: 'Test',
         });
 
       expect(res.status).toBe(400);
@@ -151,7 +148,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .set(authCookie(supervisorToken))
         .send({
           placa: vehiculoPlaca,
-          descripcion: 'Test'
+          descripcion: 'Test',
         });
 
       expect(res.status).toBe(400);
@@ -159,12 +156,10 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
 
     // Escenario de excepcion (E2): sin token de autenticacion en POST
     test('E2: devuelve 401 sin autenticacion', async () => {
-      const res = await request(app)
-        .post('/api/infracciones/')
-        .send({
-          placa: vehiculoPlaca,
-          tipo_infraccion_id: tipoInfraccionId
-        });
+      const res = await request(app).post('/api/infracciones/').send({
+        placa: vehiculoPlaca,
+        tipo_infraccion_id: tipoInfraccionId,
+      });
 
       expect(res.status).toBe(401);
     });
@@ -172,13 +167,10 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
     // Escenario de excepcion (E2): rol estudiante no autorizado en POST
     test('E2: devuelve 403 con rol estudiante', async () => {
       const est = await createTestUser();
-      const res = await request(app)
-        .post('/api/infracciones/')
-        .set(authCookie(est.token))
-        .send({
-          placa: vehiculoPlaca,
-          tipo_infraccion_id: tipoInfraccionId
-        });
+      const res = await request(app).post('/api/infracciones/').set(authCookie(est.token)).send({
+        placa: vehiculoPlaca,
+        tipo_infraccion_id: tipoInfraccionId,
+      });
 
       expect(res.status).toBe(403);
     });
@@ -196,7 +188,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .set(authCookie(supervisorToken))
         .send({
           placa: vehiculoPlaca,
-          tipo_infraccion_id: tipoInfraccionId
+          tipo_infraccion_id: tipoInfraccionId,
         });
       infraccion1Id = r1.body.id;
 
@@ -205,16 +197,14 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .set(authCookie(otroSupervisorToken))
         .send({
           placa: placaOtro,
-          tipo_infraccion_id: tipoInfraccionId
+          tipo_infraccion_id: tipoInfraccionId,
         });
       infraccion2Id = r2.body.id;
     });
 
     // Escenario exitoso: listar todas las infracciones registradas
     test('listar todas las infracciones', async () => {
-      const res = await request(app)
-        .get('/api/infracciones/')
-        .set(authCookie(supervisorToken));
+      const res = await request(app).get('/api/infracciones/').set(authCookie(supervisorToken));
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
@@ -229,15 +219,14 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
-      res.body.forEach(inf => {
+      res.body.forEach((inf) => {
         expect(inf.supervisor_nombre).toBe(supervisor.nombre);
       });
     });
 
     // Escenario de excepcion (E1): sin token de autenticacion al listar
     test('E1: devuelve 401 sin autenticacion', async () => {
-      const res = await request(app)
-        .get('/api/infracciones/');
+      const res = await request(app).get('/api/infracciones/');
 
       expect(res.status).toBe(401);
     });
@@ -245,9 +234,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
     // Escenario de excepcion (E1): rol estudiante no autorizado al listar
     test('E1: devuelve 403 con rol estudiante', async () => {
       const est = await createTestUser();
-      const res = await request(app)
-        .get('/api/infracciones/')
-        .set(authCookie(est.token));
+      const res = await request(app).get('/api/infracciones/').set(authCookie(est.token));
 
       expect(res.status).toBe(403);
     });
@@ -266,7 +253,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
         .send({
           placa: vehiculoPlaca,
           tipo_infraccion_id: tipoInfraccionId,
-          descripcion: 'Infraccion de prueba'
+          descripcion: 'Infraccion de prueba',
         });
       infraccionId = res.body.id;
     });
@@ -298,8 +285,7 @@ describe('RF14 - Registro de infracciones [CUS14]', () => {
 
     // Escenario de excepcion (E2): sin token de autenticacion al obtener por ID
     test('E2: devuelve 401 sin autenticacion', async () => {
-      const res = await request(app)
-        .get(`/api/infracciones/${infraccionId}`);
+      const res = await request(app).get(`/api/infracciones/${infraccionId}`);
 
       expect(res.status).toBe(401);
     });

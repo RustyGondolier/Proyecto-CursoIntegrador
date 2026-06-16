@@ -6,10 +6,7 @@
 const request = require('supertest');
 const app = require('../app');
 const pool = require('../../db');
-const {
-  createTestUser, createTestVehicle, createTestSolicitud,
-  authCookie
-} = require('./helpers');
+const { createTestUser, createTestVehicle, createTestSolicitud, authCookie } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
 // RNF03 — Cancelacion automatica de solicitud por vencimiento
@@ -22,7 +19,9 @@ describe('RNF03 - Cancelacion automatica por temporizador [RNF03]', () => {
   let token, usuario, vehiculo;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
     await pool.query(`UPDATE plazas SET estado = 'disponible' WHERE estado = 'ocupada'`);
 
     const data = await createTestUser({ verificado: true });
@@ -38,45 +37,42 @@ describe('RNF03 - Cancelacion automatica por temporizador [RNF03]', () => {
     const inicialRes = await request(app)
       .get('/api/estacionamientos/ocupacion')
       .set(authCookie(token));
-    const inicial = inicialRes.body.find(e => e.id === 1);
+    const inicial = inicialRes.body.find((e) => e.id === 1);
     const autosInicial = Number(inicial.autos_ocupados);
 
     // Crear solicitud con hora_limite en el pasado (ya expirada)
     const fechaExpirada = new Date(Date.now() - 60 * 1000).toISOString();
     const solicitud = await createTestSolicitud(usuario.id, vehiculo.id, {
       hora_limite_ingreso: fechaExpirada,
-      estado: 'pendiente'
+      estado: 'pendiente',
     });
 
     // Verificar que el contador aumento al crear la solicitud
     const conSolicitudRes = await request(app)
       .get('/api/estacionamientos/ocupacion')
       .set(authCookie(token));
-    const conSolicitud = conSolicitudRes.body.find(e => e.id === 1);
+    const conSolicitud = conSolicitudRes.body.find((e) => e.id === 1);
     const autosConSolicitud = Number(conSolicitud.autos_ocupados);
     expect(autosConSolicitud).toBe(autosInicial + 1);
 
     // Llamar a GET /api/solicitudes/activa para disparar expireOlderThan
-    const activaRes = await request(app)
-      .get('/api/solicitudes/activa')
-      .set(authCookie(token));
+    const activaRes = await request(app).get('/api/solicitudes/activa').set(authCookie(token));
 
     // La solicitud ya expiro, entonces devuelve 404
     expect(activaRes.status).toBe(404);
     expect(activaRes.body.error).toMatch(/activa/i);
 
     // Verificar en BD que la solicitud quedo como 'expirado'
-    const verif = await pool.query(
-      'SELECT estado FROM solicitudes_estacionamiento WHERE id = $1',
-      [solicitud.id]
-    );
+    const verif = await pool.query('SELECT estado FROM solicitudes_estacionamiento WHERE id = $1', [
+      solicitud.id,
+    ]);
     expect(verif.rows[0].estado).toBe('expirado');
 
     // Verificar que el contador se revirtio al valor inicial
     const finalRes = await request(app)
       .get('/api/estacionamientos/ocupacion')
       .set(authCookie(token));
-    const final = finalRes.body.find(e => e.id === 1);
+    const final = finalRes.body.find((e) => e.id === 1);
     expect(Number(final.autos_ocupados)).toBe(autosInicial);
   });
 
@@ -86,20 +82,16 @@ describe('RNF03 - Cancelacion automatica por temporizador [RNF03]', () => {
     const fechaFutura = new Date(Date.now() + 60 * 60 * 1000).toISOString();
     await createTestSolicitud(usuario.id, vehiculo.id, {
       hora_limite_ingreso: fechaFutura,
-      estado: 'pendiente'
+      estado: 'pendiente',
     });
 
     // Llamar a activa - debe encontrar la solicitud activa
-    const activaRes = await request(app)
-      .get('/api/solicitudes/activa')
-      .set(authCookie(token));
+    const activaRes = await request(app).get('/api/solicitudes/activa').set(authCookie(token));
     expect(activaRes.status).toBe(200);
     expect(activaRes.body).toHaveProperty('id');
 
     // Cancelar la solicitud para limpiar
-    await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(token));
+    await request(app).post('/api/solicitudes/cancelar').set(authCookie(token));
   });
 
   // Escenario de verificacion: contador de plazas no debe ser negativo
@@ -108,7 +100,7 @@ describe('RNF03 - Cancelacion automatica por temporizador [RNF03]', () => {
     const actualRes = await request(app)
       .get('/api/estacionamientos/ocupacion')
       .set(authCookie(token));
-    actualRes.body.forEach(c => {
+    actualRes.body.forEach((c) => {
       expect(Number(c.autos_ocupados)).toBeGreaterThanOrEqual(0);
       expect(Number(c.motos_ocupadas ?? c.motos_ocupados)).toBeGreaterThanOrEqual(0);
     });

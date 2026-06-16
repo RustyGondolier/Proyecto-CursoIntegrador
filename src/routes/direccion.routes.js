@@ -6,7 +6,17 @@ const { ROLES } = require('../config/constants');
 
 const router = express.Router();
 
-router.get('/dashboard', authJWT, requireRole(ROLES.DIRECCION, ROLES.ADMINISTRADOR), controller.dashboard);
-router.get('/exportar', authJWT, requireRole(ROLES.DIRECCION, ROLES.ADMINISTRADOR), controller.exportarDashboard);
+router.get(
+  '/dashboard',
+  authJWT,
+  requireRole(ROLES.DIRECCION, ROLES.ADMINISTRADOR),
+  controller.dashboard,
+);
+router.get(
+  '/exportar',
+  authJWT,
+  requireRole(ROLES.DIRECCION, ROLES.ADMINISTRADOR),
+  controller.exportarDashboard,
+);
 
 module.exports = router;

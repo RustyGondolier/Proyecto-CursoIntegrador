@@ -23,7 +23,7 @@ async function findByUserId(usuario_id) {
      LEFT JOIN usuarios u ON u.id = r.supervisor_id
      WHERE r.usuario_id = $1
      ORDER BY r.creado_en DESC`,
-    [usuario_id]
+    [usuario_id],
   );
 
   return result.rows;
@@ -35,7 +35,14 @@ async function create({ usuario_id, estacionamiento_id, solicitud_id, plaza_id, 
        (usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion, estado_id)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *`,
-    [usuario_id, estacionamiento_id, solicitud_id, plaza_id, descripcion, ESTADO_REPORTE_ID.ENVIADO]
+    [
+      usuario_id,
+      estacionamiento_id,
+      solicitud_id,
+      plaza_id,
+      descripcion,
+      ESTADO_REPORTE_ID.ENVIADO,
+    ],
   );
 
   return result.rows[0];
@@ -122,7 +129,7 @@ async function findById(id) {
      LEFT JOIN bloques b ON b.id = p.bloque_id
      LEFT JOIN usuarios sup ON sup.id = r.supervisor_id
      WHERE r.id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 }
@@ -135,7 +142,7 @@ async function marcarEnRevision({ id, supervisor_id }) {
          actualizado_en = NOW()
      WHERE id = $1 AND estado_id = $4
      RETURNING *`,
-    [id, supervisor_id, ESTADO_REPORTE_ID.EN_REVISION, ESTADO_REPORTE_ID.ENVIADO]
+    [id, supervisor_id, ESTADO_REPORTE_ID.EN_REVISION, ESTADO_REPORTE_ID.ENVIADO],
   );
   return result.rows[0] || null;
 }
@@ -149,7 +156,7 @@ async function updateEstado({ id, estado_id, supervisor_id, respuesta_supervisor
          actualizado_en = NOW()
      WHERE id = $1
      RETURNING *`,
-    [id, estado_id, supervisor_id, respuesta_supervisor]
+    [id, estado_id, supervisor_id, respuesta_supervisor],
   );
   return result.rows[0] || null;
 }
@@ -164,7 +171,7 @@ async function marcarPrioritario({ id, supervisor_id, razon_prioridad }) {
          actualizado_en = NOW()
      WHERE id = $1
      RETURNING *`,
-    [id, supervisor_id, razon_prioridad, ESTADO_REPORTE_ID.PRIORITARIO]
+    [id, supervisor_id, razon_prioridad, ESTADO_REPORTE_ID.PRIORITARIO],
   );
   return result.rows[0] || null;
 }
@@ -176,5 +183,5 @@ module.exports = {
   findById,
   marcarEnRevision,
   updateEstado,
-  marcarPrioritario
+  marcarPrioritario,
 };

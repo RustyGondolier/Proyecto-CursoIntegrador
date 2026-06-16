@@ -8,8 +8,11 @@ const request = require('supertest');
 const app = require('../app');
 const pool = require('../../db');
 const {
-  createTestUser, createTestVehicle, createTestSolicitud,
-  createTestIngreso, authCookie
+  createTestUser,
+  createTestVehicle,
+  createTestSolicitud,
+  createTestIngreso,
+  authCookie,
 } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
@@ -25,14 +28,14 @@ describe('RF10 - Registro de ingreso [CUS10]', () => {
   beforeAll(async () => {
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP`
+      codigo_universitario: `U${Date.now()}SUP`,
     });
     supToken = sup.token;
     supervisor = sup.usuario;
 
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR`
+      codigo_universitario: `U${Date.now()}USR`,
     });
     userToken = user.token;
     usuario = user.usuario;
@@ -43,16 +46,14 @@ describe('RF10 - Registro de ingreso [CUS10]', () => {
   test('confirmar ingreso exitosamente', async () => {
     const solicitud = await createTestSolicitud(usuario.id, vehiculo.id);
 
-    const plaza = await pool.query(
-      `SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`
-    );
+    const plaza = await pool.query(`SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`);
 
     const res = await request(app)
       .post('/api/supervisor/confirmar-ingreso')
       .set(authCookie(supToken))
       .send({
         solicitud_id: solicitud.id,
-        plaza_id: plaza.rows[0].id
+        plaza_id: plaza.rows[0].id,
       });
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toMatch(/confirmado/i);
@@ -62,22 +63,18 @@ describe('RF10 - Registro de ingreso [CUS10]', () => {
   test('E1: rechaza ingreso de solicitud ya confirmada', async () => {
     const otroUser = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}OTRO`
+      codigo_universitario: `U${Date.now()}OTRO`,
     });
     const otroVh = await createTestVehicle(otroUser.usuario.id);
     const solicitud = await createTestSolicitud(otroUser.usuario.id, otroVh.id);
-    const plaza = await pool.query(
-      `SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`
-    );
+    const plaza = await pool.query(`SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`);
 
     await request(app)
       .post('/api/supervisor/confirmar-ingreso')
       .set(authCookie(supToken))
       .send({ solicitud_id: solicitud.id, plaza_id: plaza.rows[0].id });
 
-    const otraPlaza = await pool.query(
-      `SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`
-    );
+    const otraPlaza = await pool.query(`SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`);
     const res = await request(app)
       .post('/api/supervisor/confirmar-ingreso')
       .set(authCookie(supToken))
@@ -108,14 +105,14 @@ describe('RF11 - Registro de salida [CUS11]', () => {
   beforeAll(async () => {
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP2`
+      codigo_universitario: `U${Date.now()}SUP2`,
     });
     supToken = sup.token;
     supervisor = sup.usuario;
 
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR2`
+      codigo_universitario: `U${Date.now()}USR2`,
     });
     userToken = user.token;
     usuario = user.usuario;
@@ -133,10 +130,9 @@ describe('RF11 - Registro de salida [CUS11]', () => {
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toMatch(/salida/i);
 
-    const sol = await pool.query(
-      'SELECT estado FROM solicitudes_estacionamiento WHERE id = $1',
-      [ingreso.id]
-    );
+    const sol = await pool.query('SELECT estado FROM solicitudes_estacionamiento WHERE id = $1', [
+      ingreso.id,
+    ]);
     expect(sol.rows[0].estado).toBe('finalizado');
   });
 
@@ -186,17 +182,17 @@ describe('RF12 - Busqueda por placa [CUS12]', () => {
   beforeAll(async () => {
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP3`
+      codigo_universitario: `U${Date.now()}SUP3`,
     });
     supToken = sup.token;
 
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR3`
+      codigo_universitario: `U${Date.now()}USR3`,
     });
     usuario = user.usuario;
     vehiculo = await createTestVehicle(usuario.id, {
-      placa: `SUP-${String(Date.now()).slice(-3)}`
+      placa: `SUP-${String(Date.now()).slice(-3)}`,
     });
   });
 
@@ -221,9 +217,7 @@ describe('RF12 - Busqueda por placa [CUS12]', () => {
 
   // Escenario de excepcion: buscar sin proporcionar placa en query
   test('rechaza busqueda sin parametro placa', async () => {
-    const res = await request(app)
-      .get('/api/supervisor/buscar')
-      .set(authCookie(supToken));
+    const res = await request(app).get('/api/supervisor/buscar').set(authCookie(supToken));
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/placa/i);
   });

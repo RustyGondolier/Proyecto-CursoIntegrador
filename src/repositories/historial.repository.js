@@ -1,13 +1,6 @@
-const pool =
-  require('../../db');
+const pool = require('../../db');
 
-async function registrarAcceso(
-  usuarioId,
-  estado,
-  ip,
-  userAgent
-){
-
+async function registrarAcceso(usuarioId, estado, ip, userAgent) {
   await pool.query(
     `
     INSERT INTO historial_accesos(
@@ -20,16 +13,10 @@ async function registrarAcceso(
       $1,$2,$3,$4
     )
     `,
-    [
-      usuarioId,
-      estado,
-      ip,
-      userAgent
-    ]
+    [usuarioId, estado, ip, userAgent],
   );
-
 }
 
 module.exports = {
-  registrarAcceso
+  registrarAcceso,
 };

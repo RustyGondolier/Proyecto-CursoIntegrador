@@ -5,13 +5,16 @@ const { calcularDistancia } = require('../utils/distance');
 const solicitudRepository = require('../repositories/solicitud.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
 const {
-  ESTADO_SOLICITUD, ESTADO_CUENTA, ESTADO_PLAZA, TIEMPO_LIMITE_INGRESO_MIN
+  ESTADO_SOLICITUD,
+  ESTADO_CUENTA,
+  ESTADO_PLAZA,
+  TIEMPO_LIMITE_INGRESO_MIN,
 } = require('../config/constants');
 
 async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   const usuarioResult = await pool.query(
     `SELECT verificado, estado_cuenta FROM usuarios WHERE id = $1`,
-    [usuarioId]
+    [usuarioId],
   );
   if (!usuarioResult.rows[0]) {
     const error = new Error('Usuario no encontrado');
@@ -38,7 +41,10 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
 
   const activa = await solicitudRepository.findActiveByUser(usuarioId);
   if (activa) {
-    if (activa.estado === ESTADO_SOLICITUD.PENDIENTE || activa.estado === ESTADO_SOLICITUD.INGRESADO) {
+    if (
+      activa.estado === ESTADO_SOLICITUD.PENDIENTE ||
+      activa.estado === ESTADO_SOLICITUD.INGRESADO
+    ) {
       const error = new Error('Ya tienes una solicitud activa');
       error.status = 409;
       throw error;
@@ -56,7 +62,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
      FROM estacionamientos e
      JOIN sedes s ON s.id = e.sede_id
      WHERE e.id = $1`,
-    [estacionamientoId]
+    [estacionamientoId],
   );
   if (!sedeResult.rows[0]) {
     const error = new Error('Estacionamiento no encontrado');
@@ -67,7 +73,9 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   const distancia = calcularDistancia(latitud, longitud, lat, lng);
   const permitido = distancia <= radio_permitido_metros;
   if (!permitido) {
-    const error = new Error(`Debes estar dentro del campus (${radio_permitido_metros}m) para solicitar una plaza`);
+    const error = new Error(
+      `Debes estar dentro del campus (${radio_permitido_metros}m) para solicitar una plaza`,
+    );
     error.status = 400;
     throw error;
   }
@@ -75,12 +83,12 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
   await pool.query(
     `INSERT INTO verificaciones_ubicacion (usuario_id, latitud, longitud, distancia_metros, permitido)
      VALUES ($1, $2, $3, $4, $5)`,
-    [usuarioId, lat, lng, Math.round(distancia), permitido]
+    [usuarioId, lat, lng, Math.round(distancia), permitido],
   );
 
   const tipoResult = await pool.query(
     `SELECT tv.categoria_plaza FROM tipos_vehiculo tv WHERE tv.id = $1`,
-    [vehiculo.tipo_vehiculo_id]
+    [vehiculo.tipo_vehiculo_id],
   );
   const categoria = tipoResult.rows[0]?.categoria_plaza;
   if (!categoria) {
@@ -104,7 +112,7 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
        JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
         WHERE s.estacionamiento_id = $1 AND s.estado = $4 AND tv.categoria_plaza = $2
      ) AS disponibles`,
-    [estacionamientoId, categoria, ESTADO_PLAZA.OCUPADA, ESTADO_SOLICITUD.PENDIENTE]
+    [estacionamientoId, categoria, ESTADO_PLAZA.OCUPADA, ESTADO_SOLICITUD.PENDIENTE],
   );
   if (dispResult.rows[0].disponibles <= 0) {
     const error = new Error('No hay plazas disponibles en este estacionamiento');
@@ -118,10 +126,12 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
     usuario_id: usuarioId,
     vehiculo_id: vehiculo.id,
     estacionamiento_id: estacionamientoId,
-    tiempo_limite_min: tiempoLimite
+    tiempo_limite_min: tiempoLimite,
   });
 
-  try { getIO().emit('ocupacion:updated'); } catch (err) {
+  try {
+    getIO().emit('ocupacion:updated');
+  } catch (err) {
     logger.warn('Error al emitir ocupacion:updated tras crear solicitud', { error: err.message });
   }
 
@@ -131,13 +141,19 @@ async function crear(usuarioId, estacionamientoId, ubicacion = {}) {
 async function obtenerActiva(usuarioId) {
   const expiradas = await solicitudRepository.expireOlderThan(new Date());
   if (expiradas.length > 0) {
-    try { getIO().emit('ocupacion:updated'); } catch (err) {
-      logger.warn('Error al emitir ocupacion:updated al expirar solicitudes', { error: err.message });
+    try {
+      getIO().emit('ocupacion:updated');
+    } catch (err) {
+      logger.warn('Error al emitir ocupacion:updated al expirar solicitudes', {
+        error: err.message,
+      });
     }
   }
 
   const solicitud = await solicitudRepository.findActiveByUser(usuarioId);
-  if (!solicitud) return null;
+  if (!solicitud) {
+    return null;
+  }
 
   return formatearSolicitud(solicitud);
 }
@@ -151,13 +167,17 @@ async function cancelar(usuarioId) {
   }
 
   if (solicitud.estado === ESTADO_SOLICITUD.INGRESADO) {
-    const error = new Error('El supervisor ya confirmó tu ingreso. No puedes cancelar desde la app, coordina con el supervisor.');
+    const error = new Error(
+      'El supervisor ya confirmó tu ingreso. No puedes cancelar desde la app, coordina con el supervisor.',
+    );
     error.status = 400;
     throw error;
   }
 
   await solicitudRepository.cancel(solicitud.id);
-  try { getIO().emit('ocupacion:updated'); } catch (err) {
+  try {
+    getIO().emit('ocupacion:updated');
+  } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al cancelar solicitud', { error: err.message });
   }
   return { mensaje: 'Solicitud cancelada exitosamente' };
@@ -183,13 +203,13 @@ function formatearSolicitud(solicitud) {
     plaza_codigo: solicitud.plaza_codigo || null,
     plaza_asignada_id: solicitud.plaza_asignada_id || null,
     hora_solicitud: solicitud.hora_solicitud,
-    hora_limite_ingreso: solicitud.hora_limite_ingreso
+    hora_limite_ingreso: solicitud.hora_limite_ingreso,
   };
 }
 
 async function obtenerHistorial(usuarioId) {
   const registros = await solicitudRepository.findHistorialByUser(usuarioId);
-  return registros.map(r => ({
+  return registros.map((r) => ({
     id: r.id,
     estacionamiento: r.estacionamiento_nombre,
     plaza_codigo: r.plaza_codigo || '—',
@@ -197,7 +217,7 @@ async function obtenerHistorial(usuarioId) {
     hora_solicitud: r.hora_solicitud,
     hora_ingreso: r.hora_ingreso,
     hora_salida: r.hora_salida,
-    tiempo_permanencia_min: r.tiempo_permanencia_min
+    tiempo_permanencia_min: r.tiempo_permanencia_min,
   }));
 }
 
@@ -205,5 +225,5 @@ module.exports = {
   crear,
   obtenerActiva,
   cancelar,
-  obtenerHistorial
+  obtenerHistorial,
 };

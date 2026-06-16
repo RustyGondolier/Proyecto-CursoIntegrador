@@ -19,7 +19,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
   beforeAll(async () => {
     await pool.query(`UPDATE plazas SET estado = 'disponible'`);
     await pool.query(
-      `UPDATE solicitudes_estacionamiento SET estado = 'cancelado' WHERE estado = 'pendiente'`
+      `UPDATE solicitudes_estacionamiento SET estado = 'cancelado' WHERE estado = 'pendiente'`,
     );
     const data = await createTestUser();
     token = data.token;
@@ -27,14 +27,12 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
 
   // Escenario exitoso: obtener ocupacion de las 2 cocheras con sus contadores
   test('obtener ocupacion de todas las cocheras', async () => {
-    const res = await request(app)
-      .get('/api/estacionamientos/ocupacion')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBe(2);
 
-    res.body.forEach(cochera => {
+    res.body.forEach((cochera) => {
       expect(cochera).toHaveProperty('id');
       expect(cochera).toHaveProperty('nombre');
       expect(cochera).toHaveProperty('autos_total');
@@ -46,27 +44,21 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
 
   // Escenario de verificacion: ocupados no debe superar el total de plazas
   test('contadores coherentes (ocupados no excede total)', async () => {
-    const res = await request(app)
-      .get('/api/estacionamientos/ocupacion')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
     expect(res.status).toBe(200);
 
-    res.body.forEach(cochera => {
-      expect(Number(cochera.autos_ocupados))
-        .toBeLessThanOrEqual(Number(cochera.autos_total));
-      expect(Number(cochera.motos_ocupadas))
-        .toBeLessThanOrEqual(Number(cochera.motos_total));
+    res.body.forEach((cochera) => {
+      expect(Number(cochera.autos_ocupados)).toBeLessThanOrEqual(Number(cochera.autos_total));
+      expect(Number(cochera.motos_ocupadas)).toBeLessThanOrEqual(Number(cochera.motos_total));
     });
   });
 
   // Escenario de verificacion: contadores no deben ser negativos
   test('contadores nunca son negativos', async () => {
-    const res = await request(app)
-      .get('/api/estacionamientos/ocupacion')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
     expect(res.status).toBe(200);
 
-    res.body.forEach(cochera => {
+    res.body.forEach((cochera) => {
       expect(Number(cochera.autos_ocupados)).toBeGreaterThanOrEqual(0);
       expect(Number(cochera.motos_ocupadas)).toBeGreaterThanOrEqual(0);
     });
@@ -76,21 +68,17 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
   test('contadores reflejan plazas ocupadas en BD', async () => {
     await seedPlazasOcupadas(1, 3);
 
-    const res = await request(app)
-      .get('/api/estacionamientos/ocupacion')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
     expect(res.status).toBe(200);
 
-    const est1 = res.body.find(e => e.nombre === 'Estacionamiento 1');
+    const est1 = res.body.find((e) => e.nombre === 'Estacionamiento 1');
     expect(est1).toBeDefined();
     expect(Number(est1.autos_ocupados)).toBe(3);
   });
 
   // Escenario exitoso: listar todos los estacionamientos registrados
   test('listar estacionamientos disponibles', async () => {
-    const res = await request(app)
-      .get('/api/estacionamientos/')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/estacionamientos/').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(2);
@@ -98,8 +86,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
 
   // Escenario de excepcion (E1): sin token de autenticacion
   test('E1: devuelve 401 sin autenticacion', async () => {
-    const res = await request(app)
-      .get('/api/estacionamientos/ocupacion');
+    const res = await request(app).get('/api/estacionamientos/ocupacion');
     expect(res.status).toBe(401);
   });
 

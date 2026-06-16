@@ -27,25 +27,25 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   beforeAll(async () => {
     const est = await createTestUser({
       codigo_universitario: `U${Date.now()}EST`,
-      rol: 'estudiante'
+      rol: 'estudiante',
     });
     tokenEstudiante = est.token;
 
     const sup = await createTestUser({
       codigo_universitario: `U${Date.now()}SUP`,
-      rol: 'supervisor'
+      rol: 'supervisor',
     });
     tokenSupervisor = sup.token;
 
     const adm = await createTestUser({
       codigo_universitario: `U${Date.now()}ADM`,
-      rol: 'administrador'
+      rol: 'administrador',
     });
     tokenAdmin = adm.token;
 
     const dir = await createTestUser({
       codigo_universitario: `U${Date.now()}DIR`,
-      rol: 'direccion'
+      rol: 'direccion',
     });
     tokenDireccion = dir.token;
   });
@@ -76,30 +76,22 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   // ─── TOKEN INVALIDO (E1) ────────────────────────────────
   describe('token invalido', () => {
     test('403 con token invalido en ruta de usuario', async () => {
-      const res = await request(app)
-        .get(RUTA_USUARIO)
-        .set({ Cookie: 'token=token-malo' });
+      const res = await request(app).get(RUTA_USUARIO).set({ Cookie: 'token=token-malo' });
       expect(res.status).toBe(403);
     });
 
     test('403 con token invalido en ruta de supervisor', async () => {
-      const res = await request(app)
-        .get(RUTA_SUPERVISOR)
-        .set({ Cookie: 'token=token-malo' });
+      const res = await request(app).get(RUTA_SUPERVISOR).set({ Cookie: 'token=token-malo' });
       expect(res.status).toBe(403);
     });
 
     test('403 con token invalido en ruta de administrador', async () => {
-      const res = await request(app)
-        .get(RUTA_ADMIN)
-        .set({ Cookie: 'token=token-malo' });
+      const res = await request(app).get(RUTA_ADMIN).set({ Cookie: 'token=token-malo' });
       expect(res.status).toBe(403);
     });
 
     test('403 con token invalido en ruta de direccion', async () => {
-      const res = await request(app)
-        .get(RUTA_DIRECCION)
-        .set({ Cookie: 'token=token-malo' });
+      const res = await request(app).get(RUTA_DIRECCION).set({ Cookie: 'token=token-malo' });
       expect(res.status).toBe(403);
     });
   });
@@ -107,32 +99,24 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   // ─── ROL ESTUDIANTE (1 acceso permitido, 3 denegados) ──
   describe('rol estudiante', () => {
     test('accede a ruta de usuario', async () => {
-      const res = await request(app)
-        .get(RUTA_USUARIO)
-        .set(authCookie(tokenEstudiante));
+      const res = await request(app).get(RUTA_USUARIO).set(authCookie(tokenEstudiante));
       expect(res.status).toBe(200);
     });
 
     test('denegado en ruta de supervisor', async () => {
-      const res = await request(app)
-        .get(RUTA_SUPERVISOR)
-        .set(authCookie(tokenEstudiante));
+      const res = await request(app).get(RUTA_SUPERVISOR).set(authCookie(tokenEstudiante));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
 
     test('denegado en ruta de administrador', async () => {
-      const res = await request(app)
-        .get(RUTA_ADMIN)
-        .set(authCookie(tokenEstudiante));
+      const res = await request(app).get(RUTA_ADMIN).set(authCookie(tokenEstudiante));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
 
     test('denegado en ruta de direccion', async () => {
-      const res = await request(app)
-        .get(RUTA_DIRECCION)
-        .set(authCookie(tokenEstudiante));
+      const res = await request(app).get(RUTA_DIRECCION).set(authCookie(tokenEstudiante));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
@@ -141,31 +125,23 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   // ─── ROL SUPERVISOR (2 accesos permitidos, 2 denegados) ─
   describe('rol supervisor', () => {
     test('accede a ruta de usuario', async () => {
-      const res = await request(app)
-        .get(RUTA_USUARIO)
-        .set(authCookie(tokenSupervisor));
+      const res = await request(app).get(RUTA_USUARIO).set(authCookie(tokenSupervisor));
       expect(res.status).toBe(200);
     });
 
     test('accede a ruta de supervisor', async () => {
-      const res = await request(app)
-        .get(RUTA_SUPERVISOR)
-        .set(authCookie(tokenSupervisor));
+      const res = await request(app).get(RUTA_SUPERVISOR).set(authCookie(tokenSupervisor));
       expect(res.status).toBe(200);
     });
 
     test('denegado en ruta de administrador', async () => {
-      const res = await request(app)
-        .get(RUTA_ADMIN)
-        .set(authCookie(tokenSupervisor));
+      const res = await request(app).get(RUTA_ADMIN).set(authCookie(tokenSupervisor));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
 
     test('denegado en ruta de direccion', async () => {
-      const res = await request(app)
-        .get(RUTA_DIRECCION)
-        .set(authCookie(tokenSupervisor));
+      const res = await request(app).get(RUTA_DIRECCION).set(authCookie(tokenSupervisor));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
@@ -174,30 +150,22 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   // ─── ROL ADMINISTRADOR (4 accesos permitidos) ──────────
   describe('rol administrador', () => {
     test('accede a ruta de usuario', async () => {
-      const res = await request(app)
-        .get(RUTA_USUARIO)
-        .set(authCookie(tokenAdmin));
+      const res = await request(app).get(RUTA_USUARIO).set(authCookie(tokenAdmin));
       expect(res.status).toBe(200);
     });
 
     test('accede a ruta de supervisor', async () => {
-      const res = await request(app)
-        .get(RUTA_SUPERVISOR)
-        .set(authCookie(tokenAdmin));
+      const res = await request(app).get(RUTA_SUPERVISOR).set(authCookie(tokenAdmin));
       expect(res.status).toBe(200);
     });
 
     test('accede a ruta de administrador', async () => {
-      const res = await request(app)
-        .get(RUTA_ADMIN)
-        .set(authCookie(tokenAdmin));
+      const res = await request(app).get(RUTA_ADMIN).set(authCookie(tokenAdmin));
       expect(res.status).toBe(200);
     });
 
     test('accede a ruta de direccion', async () => {
-      const res = await request(app)
-        .get(RUTA_DIRECCION)
-        .set(authCookie(tokenAdmin));
+      const res = await request(app).get(RUTA_DIRECCION).set(authCookie(tokenAdmin));
       expect(res.status).toBe(200);
     });
   });
@@ -205,32 +173,24 @@ describe('RNF06 - Seguridad de acceso y roles', () => {
   // ─── ROL DIRECCION (2 accesos permitidos, 2 denegados) ─
   describe('rol direccion', () => {
     test('accede a ruta de usuario', async () => {
-      const res = await request(app)
-        .get(RUTA_USUARIO)
-        .set(authCookie(tokenDireccion));
+      const res = await request(app).get(RUTA_USUARIO).set(authCookie(tokenDireccion));
       expect(res.status).toBe(200);
     });
 
     test('denegado en ruta de supervisor', async () => {
-      const res = await request(app)
-        .get(RUTA_SUPERVISOR)
-        .set(authCookie(tokenDireccion));
+      const res = await request(app).get(RUTA_SUPERVISOR).set(authCookie(tokenDireccion));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
 
     test('denegado en ruta de administrador', async () => {
-      const res = await request(app)
-        .get(RUTA_ADMIN)
-        .set(authCookie(tokenDireccion));
+      const res = await request(app).get(RUTA_ADMIN).set(authCookie(tokenDireccion));
       expect(res.status).toBe(403);
       expect(res.body.error).toMatch(/denegado/i);
     });
 
     test('accede a ruta de direccion', async () => {
-      const res = await request(app)
-        .get(RUTA_DIRECCION)
-        .set(authCookie(tokenDireccion));
+      const res = await request(app).get(RUTA_DIRECCION).set(authCookie(tokenDireccion));
       expect(res.status).toBe(200);
     });
   });

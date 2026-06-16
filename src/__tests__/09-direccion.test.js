@@ -19,21 +19,19 @@ describe('RF22 - Dashboard de metricas [CUS22]', () => {
   beforeAll(async () => {
     const dir = await createTestUser({
       rol: 'direccion',
-      codigo_universitario: `U${Date.now()}DIR`
+      codigo_universitario: `U${Date.now()}DIR`,
     });
     dirToken = dir.token;
 
     const est = await createTestUser({
-      codigo_universitario: `U${Date.now()}EST`
+      codigo_universitario: `U${Date.now()}EST`,
     });
     estToken = est.token;
   });
 
   // Escenario exitoso: dashboard con periodo default de 30 dias
   test('obtener dashboard sin filtros de fecha', async () => {
-    const res = await request(app)
-      .get('/api/direccion/dashboard')
-      .set(authCookie(dirToken));
+    const res = await request(app).get('/api/direccion/dashboard').set(authCookie(dirToken));
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('resumen');
     expect(res.body).toHaveProperty('permanencia');
@@ -85,16 +83,13 @@ describe('RF22 - Dashboard de metricas [CUS22]', () => {
 
   // Escenario de excepcion (E1): sin token de autenticacion
   test('401 sin autenticacion al obtener dashboard', async () => {
-    const res = await request(app)
-      .get('/api/direccion/dashboard');
+    const res = await request(app).get('/api/direccion/dashboard');
     expect(res.status).toBe(401);
   });
 
   // Escenario de excepcion (E2): rol estudiante no autorizado
   test('403 con rol estudiante al obtener dashboard', async () => {
-    const res = await request(app)
-      .get('/api/direccion/dashboard')
-      .set(authCookie(estToken));
+    const res = await request(app).get('/api/direccion/dashboard').set(authCookie(estToken));
     expect(res.status).toBe(403);
     expect(res.body.error).toMatch(/denegado/i);
   });

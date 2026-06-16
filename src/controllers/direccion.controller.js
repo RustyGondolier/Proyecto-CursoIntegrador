@@ -43,7 +43,7 @@ async function exportarDashboard(req, res) {
     const [data, solicitudesExport, ocupacionExport] = await Promise.all([
       direccionService.getDashboard(fecha_inicio, fecha_fin),
       direccionService.getSolicitudesExport(fecha_inicio, fecha_fin),
-      direccionService.getOcupacionExport(fecha_inicio, fecha_fin)
+      direccionService.getOcupacionExport(fecha_inicio, fecha_fin),
     ]);
 
     const hojas = [
@@ -51,91 +51,92 @@ async function exportarDashboard(req, res) {
         nombre: 'Resumen',
         columnas: [
           { header: 'Metrica', key: 'metrica' },
-          { header: 'Cantidad', key: 'cantidad' }
+          { header: 'Cantidad', key: 'cantidad' },
         ],
         datos: [
           { metrica: 'Solicitudes', cantidad: data.resumen.total_solicitudes },
           { metrica: 'Ingresos', cantidad: data.resumen.total_ingresos },
           { metrica: 'Infracciones', cantidad: data.resumen.total_infracciones },
-          { metrica: 'Reportes', cantidad: data.resumen.total_reportes }
-        ]
+          { metrica: 'Reportes', cantidad: data.resumen.total_reportes },
+        ],
       },
       {
         nombre: 'Permanencia',
         columnas: [
           { header: 'Dia', key: 'dia' },
-          { header: 'Promedio (min)', key: 'promedio_minutos' }
+          { header: 'Promedio (min)', key: 'promedio_minutos' },
         ],
-        datos: data.permanencia.map(d => ({
+        datos: data.permanencia.map((d) => ({
           dia: new Date(d.dia).toLocaleDateString('es-PE'),
-          promedio_minutos: d.promedio_minutos
-        }))
+          promedio_minutos: d.promedio_minutos,
+        })),
       },
       {
         nombre: 'Solicitudes por hora',
-        columnas: [
-          { header: 'Fecha y hora', key: 'hora' }
-        ],
-        datos: solicitudesExport.map(d => ({
-          hora: new Date(d.hora_solicitud).toLocaleString('es-PE')
-        }))
+        columnas: [{ header: 'Fecha y hora', key: 'hora' }],
+        datos: solicitudesExport.map((d) => ({
+          hora: new Date(d.hora_solicitud).toLocaleString('es-PE'),
+        })),
       },
       {
         nombre: 'Ocupacion por dia',
         columnas: [
           { header: 'Estacionamiento', key: 'estacionamiento' },
           { header: 'Dia', key: 'dia' },
-          { header: 'Ocupadas', key: 'ocupadas' }
+          { header: 'Ocupadas', key: 'ocupadas' },
         ],
-        datos: data.ocupacion.por_dia.map(d => ({
+        datos: data.ocupacion.por_dia.map((d) => ({
           estacionamiento: d.estacionamiento,
           dia: new Date(d.dia).toLocaleDateString('es-PE'),
-          ocupadas: d.ocupadas
-        }))
+          ocupadas: d.ocupadas,
+        })),
       },
       {
         nombre: 'Ocupacion por semana',
         columnas: [
           { header: 'Estacionamiento', key: 'estacionamiento' },
           { header: 'Semana', key: 'semana' },
-          { header: 'Ocupadas', key: 'ocupadas' }
+          { header: 'Ocupadas', key: 'ocupadas' },
         ],
-        datos: data.ocupacion.por_semana
+        datos: data.ocupacion.por_semana,
       },
       {
         nombre: 'Ocupacion por hora',
         columnas: [
           { header: 'Estacionamiento', key: 'estacionamiento' },
-          { header: 'Fecha y hora de ingreso', key: 'hora' }
+          { header: 'Fecha y hora de ingreso', key: 'hora' },
         ],
-        datos: ocupacionExport.map(d => ({
+        datos: ocupacionExport.map((d) => ({
           estacionamiento: d.estacionamiento,
-          hora: new Date(d.hora_ingreso).toLocaleString('es-PE')
-        }))
+          hora: new Date(d.hora_ingreso).toLocaleString('es-PE'),
+        })),
       },
       {
         nombre: 'Reportes por estado',
         columnas: [
           { header: 'Estado', key: 'estado' },
-          { header: 'Total', key: 'total' }
+          { header: 'Total', key: 'total' },
         ],
-        datos: data.reportes.por_estado
+        datos: data.reportes.por_estado,
       },
       {
         nombre: 'Infracciones por tipo',
         columnas: [
           { header: 'Tipo', key: 'tipo' },
-          { header: 'Total', key: 'total' }
+          { header: 'Total', key: 'total' },
         ],
-        datos: data.reportes.por_tipo
-      }
+        datos: data.reportes.por_tipo,
+      },
     ];
 
     const buffer = buildWorkbook(hojas);
 
     const filename = `dashboard-${fecha_inicio}-${fecha_fin}.xlsx`;
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
     res.send(buffer);
   } catch (err) {
     logger.error('Error al exportar dashboard: ' + err.message, { stack: err.stack });
@@ -145,5 +146,5 @@ async function exportarDashboard(req, res) {
 
 module.exports = {
   dashboard,
-  exportarDashboard
+  exportarDashboard,
 };

@@ -1,14 +1,7 @@
-const estacionamientoRepository =
-  require(
-    '../repositories/estacionamiento.repository'
-  );
+const estacionamientoRepository = require('../repositories/estacionamiento.repository');
 
-async function obtenerOcupacion(){
-
-  return await
-    estacionamientoRepository
-      .getOcupacion();
-
+async function obtenerOcupacion() {
+  return await estacionamientoRepository.getOcupacion();
 }
 
 async function listar() {
@@ -22,5 +15,5 @@ async function obtenerPlazas(estacionamientoId) {
 module.exports = {
   obtenerOcupacion,
   listar,
-  obtenerPlazas
+  obtenerPlazas,
 };

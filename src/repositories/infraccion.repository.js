@@ -2,18 +2,34 @@ const pool = require('../../db');
 
 async function findTipos() {
   const result = await pool.query(
-    'SELECT id, codigo, descripcion FROM tipos_infraccion ORDER BY id'
+    'SELECT id, codigo, descripcion FROM tipos_infraccion ORDER BY id',
   );
   return result.rows;
 }
 
-async function create({ usuario_id, vehiculo_id, plaza_id, solicitud_id, supervisor_id, tipo_infraccion_id, descripcion }) {
+async function create({
+  usuario_id,
+  vehiculo_id,
+  plaza_id,
+  solicitud_id,
+  supervisor_id,
+  tipo_infraccion_id,
+  descripcion,
+}) {
   const result = await pool.query(
     `INSERT INTO infracciones
        (usuario_id, vehiculo_id, plaza_id, solicitud_id, supervisor_id, tipo_infraccion_id, descripcion)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [usuario_id, vehiculo_id, plaza_id, solicitud_id, supervisor_id, tipo_infraccion_id, descripcion]
+    [
+      usuario_id,
+      vehiculo_id,
+      plaza_id,
+      solicitud_id,
+      supervisor_id,
+      tipo_infraccion_id,
+      descripcion,
+    ],
   );
   return result.rows[0];
 }
@@ -76,7 +92,7 @@ async function findById(id) {
      JOIN usuarios s ON s.id = i.supervisor_id
      LEFT JOIN plazas p ON p.id = i.plaza_id
      WHERE i.id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 }
@@ -85,5 +101,5 @@ module.exports = {
   findTipos,
   create,
   findAll,
-  findById
+  findById,
 };

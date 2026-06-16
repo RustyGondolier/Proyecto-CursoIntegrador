@@ -1,43 +1,25 @@
-const express =
-  require('express');
+const express = require('express');
 
-const controller =
-  require('../controllers/auth.controller');
+const controller = require('../controllers/auth.controller');
 
-const { authJWT } =
-  require('../middleware/authJWT');
+const { authJWT } = require('../middleware/authJWT');
 
-const router =
-  express.Router();
+const router = express.Router();
 
 /* LOGIN */
 
-router.post(
-  '/login',
-  controller.login
-);
+router.post('/login', controller.login);
 
 /* REGISTER */
 
-router.post(
-  '/register',
-  controller.register
-);
+router.post('/register', controller.register);
 
 /* LOGOUT (sin authJWT) */
 
-router.post(
-  '/logout',
-  controller.logout
-);
+router.post('/logout', controller.logout);
 
 /* ME */
 
-router.get(
-  '/me',
-  authJWT,
-  controller.me
-);
+router.get('/me', authJWT, controller.me);
 
-module.exports =
-  router;
+module.exports = router;

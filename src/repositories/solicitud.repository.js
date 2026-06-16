@@ -7,7 +7,7 @@ async function create({ usuario_id, vehiculo_id, estacionamiento_id, tiempo_limi
      (usuario_id, vehiculo_id, estacionamiento_id, hora_limite_ingreso)
      VALUES ($1, $2, $3, NOW() + ($4 || ' minutes')::INTERVAL)
      RETURNING *`,
-    [usuario_id, vehiculo_id, estacionamiento_id, tiempo_limite_min]
+    [usuario_id, vehiculo_id, estacionamiento_id, tiempo_limite_min],
   );
   return result.rows[0];
 }
@@ -23,7 +23,7 @@ async function findActiveByUser(usuario_id) {
      WHERE s.usuario_id = $1 AND s.estado IN ($2, $3)
      ORDER BY s.creado_en DESC
      LIMIT 1`,
-    [usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]
+    [usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO],
   );
   return result.rows[0] || null;
 }
@@ -34,7 +34,7 @@ async function findById(id) {
      FROM solicitudes_estacionamiento s
      JOIN estacionamientos e ON e.id = s.estacionamiento_id
      WHERE s.id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 }
@@ -45,7 +45,7 @@ async function cancel(id) {
      SET estado = $2
      WHERE id = $1 AND estado = $3
      RETURNING *`,
-    [id, ESTADO_SOLICITUD.CANCELADO, ESTADO_SOLICITUD.PENDIENTE]
+    [id, ESTADO_SOLICITUD.CANCELADO, ESTADO_SOLICITUD.PENDIENTE],
   );
   return result.rows[0] || null;
 }
@@ -56,7 +56,7 @@ async function expireOlderThan(timestamp) {
      SET estado = $2
      WHERE estado = $3 AND hora_limite_ingreso < $1
      RETURNING *`,
-    [timestamp, ESTADO_SOLICITUD.EXPIRADO, ESTADO_SOLICITUD.PENDIENTE]
+    [timestamp, ESTADO_SOLICITUD.EXPIRADO, ESTADO_SOLICITUD.PENDIENTE],
   );
   return result.rows;
 }
@@ -64,7 +64,7 @@ async function expireOlderThan(timestamp) {
 async function assignPlaza(id, plazaId) {
   const result = await pool.query(
     `UPDATE solicitudes_estacionamiento SET plaza_asignada_id = $1 WHERE id = $2 RETURNING *`,
-    [plazaId, id]
+    [plazaId, id],
   );
   return result.rows[0] || null;
 }
@@ -81,7 +81,7 @@ async function findHistorialByUser(usuarioId) {
      WHERE s.usuario_id = $1
      ORDER BY s.hora_solicitud DESC
      LIMIT 50`,
-    [usuarioId]
+    [usuarioId],
   );
   return result.rows;
 }
@@ -93,5 +93,5 @@ module.exports = {
   cancel,
   expireOlderThan,
   assignPlaza,
-  findHistorialByUser
+  findHistorialByUser,
 };

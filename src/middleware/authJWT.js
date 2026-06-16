@@ -1,45 +1,27 @@
 const jwt = require('jsonwebtoken');
 
-function authJWT(
-  req,
-  res,
-  next
-){
+function authJWT(req, res, next) {
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
-  const token =
-    req.cookies?.token || req.headers.authorization?.split(' ')[1];
-
-  if(!token){
-
+  if (!token) {
     return res.status(401).json({
-      error:'Token requerido'
+      error: 'Token requerido',
     });
-
   }
 
-  try{
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const decoded =
-      jwt.verify(
-        token,
-        process.env.JWT_SECRET
-      );
-
-    req.usuario =
-      decoded;
+    req.usuario = decoded;
 
     next();
-
-  }catch(err){
-
+  } catch (err) {
     return res.status(403).json({
-      error:'Token inválido'
+      error: 'Token inválido',
     });
-
   }
-
 }
 
 module.exports = {
-  authJWT
+  authJWT,
 };

@@ -10,8 +10,11 @@ const request = require('supertest');
 const app = require('../app');
 const pool = require('../../db');
 const {
-  createTestUser, createTestVehicle, createTestSolicitud,
-  createTestIngreso, authCookie
+  createTestUser,
+  createTestVehicle,
+  createTestSolicitud,
+  createTestIngreso,
+  authCookie,
 } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
@@ -22,19 +25,21 @@ describe('RF15 - Verificacion de datos [CUS15]', () => {
   let adminToken, userPendiente;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
     await pool.query(`UPDATE plazas SET estado = 'disponible'`);
 
     const admin = await createTestUser({
       rol: 'administrador',
-      codigo_universitario: `U${Date.now()}ADM`
+      codigo_universitario: `U${Date.now()}ADM`,
     });
     adminToken = admin.token;
 
     userPendiente = await createTestUser({
       verificado: false,
       requiere_reverificacion: true,
-      codigo_universitario: `U${Date.now()}PEND`
+      codigo_universitario: `U${Date.now()}PEND`,
     });
   });
 
@@ -86,8 +91,7 @@ describe('RF15 - Verificacion de datos [CUS15]', () => {
 
   // Escenario de excepcion (E1): sin token de autenticacion
   test('E1: 401 sin autenticacion', async () => {
-    const res = await request(app)
-      .get('/api/administrador/usuarios/pendientes');
+    const res = await request(app).get('/api/administrador/usuarios/pendientes');
     expect(res.status).toBe(401);
   });
 });
@@ -100,24 +104,26 @@ describe('RF16 - Suspension y reactivacion [CUS16]', () => {
   let adminToken, userActivo, userSuspendido;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
 
     const admin = await createTestUser({
       rol: 'administrador',
-      codigo_universitario: `U${Date.now()}ADM2`
+      codigo_universitario: `U${Date.now()}ADM2`,
     });
     adminToken = admin.token;
 
     userActivo = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}ACT`
+      codigo_universitario: `U${Date.now()}ACT`,
     });
 
     userSuspendido = await createTestUser({
       verificado: false,
       estado_cuenta: 'suspendida',
       motivo_suspension: 'Documentacion incorrecta',
-      codigo_universitario: `U${Date.now()}SUS`
+      codigo_universitario: `U${Date.now()}SUS`,
     });
   });
 
@@ -173,7 +179,7 @@ describe('RF16 - Suspension y reactivacion [CUS16]', () => {
   // Escenario de excepcion (E1): reactivar cuenta que no esta suspendida
   test('E1: 400 al reactivar cuenta no suspendida', async () => {
     const userNormal = await createTestUser({
-      codigo_universitario: `U${Date.now()}NORM`
+      codigo_universitario: `U${Date.now()}NORM`,
     });
     const res = await request(app)
       .put(`/api/administrador/usuarios/${userNormal.usuario.id}/reactivar`)
@@ -192,24 +198,26 @@ describe('RF17 - Gestion de infracciones [CUS17]', () => {
   let infraccionId;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
     await pool.query(`UPDATE plazas SET estado = 'disponible'`);
 
     const admin = await createTestUser({
       rol: 'administrador',
-      codigo_universitario: `U${Date.now()}ADM3`
+      codigo_universitario: `U${Date.now()}ADM3`,
     });
     adminToken = admin.token;
 
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP3`
+      codigo_universitario: `U${Date.now()}SUP3`,
     });
     supToken = sup.token;
 
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR3`
+      codigo_universitario: `U${Date.now()}USR3`,
     });
     userToken = user.token;
     usuario = user.usuario;
@@ -222,7 +230,7 @@ describe('RF17 - Gestion de infracciones [CUS17]', () => {
       .send({
         placa: vehiculo.placa,
         tipo_infraccion_id: 1,
-        descripcion: 'Vehiculo estacionado en zona prohibida'
+        descripcion: 'Vehiculo estacionado en zona prohibida',
       });
     infraccionId = infraccion.body.id;
   });
@@ -257,9 +265,7 @@ describe('RF17 - Gestion de infracciones [CUS17]', () => {
 
   // Escenario exitoso: dashboard panel con metricas consolidadas
   test('dashboard panel con metricas', async () => {
-    const res = await request(app)
-      .get('/api/administrador/dashboard')
-      .set(authCookie(adminToken));
+    const res = await request(app).get('/api/administrador/dashboard').set(authCookie(adminToken));
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('pendientes_count');
     expect(res.body).toHaveProperty('suspendidas_count');
@@ -279,25 +285,27 @@ describe('RF18 - Reportes prioritarios [CUS18]', () => {
   let adminToken, supToken, reporteId;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
     await pool.query(`UPDATE plazas SET estado = 'disponible'`);
 
     const admin = await createTestUser({
       rol: 'administrador',
-      codigo_universitario: `U${Date.now()}ADM4`
+      codigo_universitario: `U${Date.now()}ADM4`,
     });
     adminToken = admin.token;
 
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP4`
+      codigo_universitario: `U${Date.now()}SUP4`,
     });
     supToken = sup.token;
 
     // Crear usuario con reporte prioritario
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR4`
+      codigo_universitario: `U${Date.now()}USR4`,
     });
     const vh = await createTestVehicle(user.usuario.id);
     await createTestSolicitud(user.usuario.id, vh.id);
@@ -344,9 +352,7 @@ describe('RF18 - Reportes prioritarios [CUS18]', () => {
 
   // Escenario exitoso: listar historial de acciones del administrador
   test('listar acciones administrativas', async () => {
-    const res = await request(app)
-      .get('/api/administrador/acciones')
-      .set(authCookie(adminToken));
+    const res = await request(app).get('/api/administrador/acciones').set(authCookie(adminToken));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });

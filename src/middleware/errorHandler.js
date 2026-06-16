@@ -8,7 +8,7 @@ function errorHandler(err, req, res, next) {
     stack: err.stack,
     method: req.method,
     url: req.originalUrl,
-    ip: req.ip
+    ip: req.ip,
   });
 
   res.status(status).json({ error: message });

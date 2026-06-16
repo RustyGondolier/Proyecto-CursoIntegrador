@@ -26,7 +26,7 @@ async function findPendientes() {
         AND u.rol IN ($2, $3)
       GROUP BY u.id
       ORDER BY u.creado_en DESC`,
-    [ESTADO_CUENTA.ACTIVA, ROLES.ESTUDIANTE, ROLES.DOCENTE]
+    [ESTADO_CUENTA.ACTIVA, ROLES.ESTUDIANTE, ROLES.DOCENTE],
   );
   return result.rows;
 }
@@ -67,7 +67,7 @@ async function findUserDetail(id) {
      LEFT JOIN tipos_vehiculo tv ON tv.id = v.tipo_vehiculo_id
      WHERE u.id = $1
      GROUP BY u.id`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 }
@@ -131,7 +131,7 @@ async function findUserByPlaca(placa) {
      JOIN vehiculos v ON v.usuario_id = u.id
      WHERE v.placa = $1
      LIMIT 1`,
-    [placa]
+    [placa],
   );
   return result.rows[0] || null;
 }
@@ -145,7 +145,7 @@ async function updateVerificacion(userId, adminId) {
          requiere_reverificacion = false
      WHERE id = $1
      RETURNING *`,
-    [userId, adminId]
+    [userId, adminId],
   );
   return result.rows[0] || null;
 }
@@ -158,7 +158,7 @@ async function updateEstadoCuenta(userId, estado, motivo) {
            motivo_suspension = $3
        WHERE id = $1
        RETURNING *`,
-      [userId, estado, motivo]
+      [userId, estado, motivo],
     );
     return result.rows[0] || null;
   }
@@ -168,7 +168,7 @@ async function updateEstadoCuenta(userId, estado, motivo) {
          motivo_suspension = NULL
      WHERE id = $1
      RETURNING *`,
-    [userId, estado]
+    [userId, estado],
   );
   return result.rows[0] || null;
 }
@@ -179,7 +179,7 @@ async function registrarAccion({ administrador_id, usuario_afectado_id, tipo, de
        (administrador_id, usuario_afectado_id, tipo, descripcion)
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [administrador_id, usuario_afectado_id, tipo, descripcion]
+    [administrador_id, usuario_afectado_id, tipo, descripcion],
   );
   return result.rows[0];
 }
@@ -200,12 +200,18 @@ async function findAcciones(limit = 10) {
      LEFT JOIN usuarios u ON u.id = aa.usuario_afectado_id
      ORDER BY aa.creado_en DESC
      LIMIT $1`,
-    [limit]
+    [limit],
   );
   return result.rows;
 }
 
-async function findAllInfracciones({ tipo_id, usuario_search, fecha_desde, fecha_hasta, usuario_estado } = {}) {
+async function findAllInfracciones({
+  tipo_id,
+  usuario_search,
+  fecha_desde,
+  fecha_hasta,
+  usuario_estado,
+} = {}) {
   let query = `
     SELECT
       i.id,
@@ -299,7 +305,7 @@ async function findInfraccionDetail(id) {
      LEFT JOIN estacionamientos e ON e.id = b.estacionamiento_id
      JOIN usuarios s ON s.id = i.supervisor_id
      WHERE i.id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 }
@@ -333,7 +339,7 @@ async function findReportesPrioritarios() {
      WHERE r.es_prioritario = true
       AND r.estado_id != $1
       ORDER BY r.creado_en DESC`,
-    [ESTADO_REPORTE_ID.RESUELTO]
+    [ESTADO_REPORTE_ID.RESUELTO],
   );
   return result.rows;
 }
@@ -345,25 +351,28 @@ async function resolverReporte(reporteId) {
          actualizado_en = NOW()
      WHERE id = $1 AND es_prioritario = true
      RETURNING *`,
-    [reporteId, ESTADO_REPORTE_ID.RESUELTO]
+    [reporteId, ESTADO_REPORTE_ID.RESUELTO],
   );
   return result.rows[0] || null;
 }
 
 async function getDashboardData() {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       (SELECT COUNT(*) FROM usuarios WHERE verificado = false AND estado_cuenta = $1 AND rol IN ($2, $3)) AS pendientes_count,
       (SELECT COUNT(*) FROM usuarios WHERE estado_cuenta = $4) AS suspendidas_count,
       (SELECT COUNT(*) FROM reportes_incidencias WHERE es_prioritario = true AND estado_id != $5) AS prioritarios_count,
       (SELECT COUNT(*) FROM infracciones WHERE DATE_TRUNC('month', creado_en) = DATE_TRUNC('month', NOW())) AS infracciones_mes
-  `, [
-    ESTADO_CUENTA.ACTIVA,
-    ROLES.ESTUDIANTE,
-    ROLES.DOCENTE,
-    ESTADO_CUENTA.SUSPENDIDA,
-    ESTADO_REPORTE_ID.RESUELTO
-  ]);
+  `,
+    [
+      ESTADO_CUENTA.ACTIVA,
+      ROLES.ESTUDIANTE,
+      ROLES.DOCENTE,
+      ESTADO_CUENTA.SUSPENDIDA,
+      ESTADO_REPORTE_ID.RESUELTO,
+    ],
+  );
   return result.rows[0];
 }
 
@@ -380,5 +389,5 @@ module.exports = {
   findInfraccionDetail,
   findReportesPrioritarios,
   resolverReporte,
-  getDashboardData
+  getDashboardData,
 };

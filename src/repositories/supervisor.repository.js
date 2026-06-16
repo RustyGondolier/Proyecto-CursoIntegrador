@@ -2,7 +2,8 @@ const pool = require('../../db');
 const { ESTADO_SOLICITUD, ESTADO_PLAZA, ESTADO_REPORTE_CODIGO } = require('../config/constants');
 
 async function getDashboardData() {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE estado = $1) AS pendientes_count,
       (SELECT COUNT(*) FROM solicitudes_estacionamiento WHERE hora_ingreso IS NOT NULL AND hora_ingreso::date = CURRENT_DATE) AS ingresos_hoy,
@@ -11,19 +12,22 @@ async function getDashboardData() {
       (SELECT ROUND(
         (COUNT(*) FILTER (WHERE p.estado = $6)::DECIMAL / NULLIF(COUNT(*), 0)) * 100
       , 1) FROM plazas p) AS ocupacion_porcentaje
-  `, [
-    ESTADO_SOLICITUD.PENDIENTE,
-    ESTADO_SOLICITUD.FINALIZADO,
-    ESTADO_REPORTE_CODIGO.ENVIADO,
-    ESTADO_REPORTE_CODIGO.EN_REVISION,
-    ESTADO_REPORTE_CODIGO.PRIORITARIO,
-    ESTADO_PLAZA.OCUPADA
-  ]);
+  `,
+    [
+      ESTADO_SOLICITUD.PENDIENTE,
+      ESTADO_SOLICITUD.FINALIZADO,
+      ESTADO_REPORTE_CODIGO.ENVIADO,
+      ESTADO_REPORTE_CODIGO.EN_REVISION,
+      ESTADO_REPORTE_CODIGO.PRIORITARIO,
+      ESTADO_PLAZA.OCUPADA,
+    ],
+  );
   return result.rows[0];
 }
 
 async function getSolicitudesPendientes() {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       s.id,
       s.estado,
@@ -41,12 +45,15 @@ async function getSolicitudesPendientes() {
     JOIN estacionamientos e ON e.id = s.estacionamiento_id
     WHERE s.estado = $1
     ORDER BY s.hora_limite_ingreso ASC
-  `, [ESTADO_SOLICITUD.PENDIENTE]);
+  `,
+    [ESTADO_SOLICITUD.PENDIENTE],
+  );
   return result.rows;
 }
 
 async function getUltimosMovimientos(limite = 10) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       s.id,
       s.estado,
@@ -64,12 +71,15 @@ async function getUltimosMovimientos(limite = 10) {
     WHERE s.estado IN ($2, $3)
     ORDER BY COALESCE(s.hora_ingreso, s.hora_salida) DESC
     LIMIT $1
-  `, [limite, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]);
+  `,
+    [limite, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO],
+  );
   return result.rows;
 }
 
 async function buscarPorPlaca(placa) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       u.id AS usuario_id,
       u.nombre AS usuario_nombre,
@@ -96,12 +106,15 @@ async function buscarPorPlaca(placa) {
     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
     WHERE v.placa = $1 AND v.activo = true
     LIMIT 1
-  `, [placa, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]);
+  `,
+    [placa, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO],
+  );
   return result.rows[0] || null;
 }
 
 async function plazasDisponibles(estacionamientoId, categoriaPlaza) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT p.id, p.codigo, p.numero_plaza, p.estado,
            b.letra_bloque, b.codigo AS bloque_codigo, b.tipo_vehiculo,
            tp.codigo AS tipo_plaza, tp.descripcion AS tipo_plaza_descripcion
@@ -112,12 +125,15 @@ async function plazasDisponibles(estacionamientoId, categoriaPlaza) {
       AND b.tipo_vehiculo = $2
       AND p.estado = $3
     ORDER BY b.id, p.numero_plaza
-  `, [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE]);
+  `,
+    [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE],
+  );
   return result.rows;
 }
 
 async function buscarPorSolicitudId(solicitudId) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       u.id AS usuario_id,
       u.nombre AS usuario_nombre,
@@ -143,12 +159,15 @@ async function buscarPorSolicitudId(solicitudId) {
     LEFT JOIN plazas p ON p.id = s.plaza_asignada_id
     WHERE s.id = $1 AND s.estado IN ($2, $3)
     LIMIT 1
-  `, [solicitudId, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]);
+  `,
+    [solicitudId, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO],
+  );
   return result.rows[0] || null;
 }
 
 async function confirmarIngreso(solicitudId, plazaId, supervisorId, identificadorCodigo) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     UPDATE solicitudes_estacionamiento
     SET estado = $5,
         plaza_asignada_id = $2,
@@ -157,12 +176,22 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId, identificado
         identificador_codigo = $4
     WHERE id = $1 AND estado = $6
     RETURNING *
-  `, [solicitudId, plazaId, supervisorId, identificadorCodigo, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.PENDIENTE]);
+  `,
+    [
+      solicitudId,
+      plazaId,
+      supervisorId,
+      identificadorCodigo,
+      ESTADO_SOLICITUD.INGRESADO,
+      ESTADO_SOLICITUD.PENDIENTE,
+    ],
+  );
   return result.rows[0] || null;
 }
 
 async function registrarSalida(solicitudId, supervisorId) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     UPDATE solicitudes_estacionamiento
     SET estado = $3,
         hora_salida = NOW(),
@@ -170,12 +199,15 @@ async function registrarSalida(solicitudId, supervisorId) {
         tiempo_permanencia_min = EXTRACT(EPOCH FROM (NOW() - hora_ingreso)) / 60
     WHERE id = $1 AND estado = $4
     RETURNING *
-  `, [solicitudId, supervisorId, ESTADO_SOLICITUD.FINALIZADO, ESTADO_SOLICITUD.INGRESADO]);
+  `,
+    [solicitudId, supervisorId, ESTADO_SOLICITUD.FINALIZADO, ESTADO_SOLICITUD.INGRESADO],
+  );
   return result.rows[0] || null;
 }
 
 async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza) {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       s.id AS solicitud_id,
       s.estado AS solicitud_estado,
@@ -203,7 +235,9 @@ async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, letraBloq
       AND b.letra_bloque = $3
       AND p.numero_plaza = $4
     LIMIT 1
-  `, [estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza, ESTADO_SOLICITUD.INGRESADO]);
+  `,
+    [estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza, ESTADO_SOLICITUD.INGRESADO],
+  );
   return result.rows[0] || null;
 }
 
@@ -216,5 +250,5 @@ module.exports = {
   confirmarIngreso,
   buscarPorSolicitudId,
   registrarSalida,
-  buscarPorIdentificador
+  buscarPorIdentificador,
 };

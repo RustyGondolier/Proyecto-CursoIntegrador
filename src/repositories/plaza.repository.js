@@ -12,19 +12,16 @@ async function findAvailable(estacionamientoId, categoriaPlaza) {
        AND p.estado = $3
       ORDER BY RANDOM()
       LIMIT 1`,
-    [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE]
+    [estacionamientoId, categoriaPlaza, ESTADO_PLAZA.DISPONIBLE],
   );
   return result.rows[0] || null;
 }
 
 async function updateEstado(id, estado) {
-  await pool.query(
-    `UPDATE plazas SET estado = $1 WHERE id = $2`,
-    [estado, id]
-  );
+  await pool.query(`UPDATE plazas SET estado = $1 WHERE id = $2`, [estado, id]);
 }
 
 module.exports = {
   findAvailable,
-  updateEstado
+  updateEstado,
 };

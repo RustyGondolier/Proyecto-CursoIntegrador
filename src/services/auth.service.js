@@ -1,104 +1,52 @@
-const bcrypt =
-  require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
-const usuarioRepository =
-  require('../repositories/usuario.repository');
+const usuarioRepository = require('../repositories/usuario.repository');
 
-const vehiculoRepository =
-  require('../repositories/vehiculo.repository');
+const vehiculoRepository = require('../repositories/vehiculo.repository');
 
-  const historialRepository =
-  require(
-    '../repositories/historial.repository'
-  );
+const historialRepository = require('../repositories/historial.repository');
 
-const {
-  generateToken
-} = require('../utils/jwt');
+const { generateToken } = require('../utils/jwt');
 
-const {
-  ROLES, ESTADO_CUENTA, ESTADO_ACCESO, TIPO_VEHICULO
-} = require('../config/constants');
+const { ROLES, ESTADO_CUENTA, ESTADO_ACCESO, TIPO_VEHICULO } = require('../config/constants');
 
 /* Login */
 
-async function login(
-  codigo,
-  password,
-  ip,
-  userAgent
-){
+async function login(codigo, password, ip, userAgent) {
+  const usuario = await usuarioRepository.findByCodigo(codigo.trim().toUpperCase());
 
-  const usuario =
-    await usuarioRepository.findByCodigo(
-      codigo
-        .trim()
-        .toUpperCase()
-    );
-
-  if(!usuario){
-
-    throw new Error(
-      'Credenciales incorrectas'
-    );
-
+  if (!usuario) {
+    throw new Error('Credenciales incorrectas');
   }
 
-  if(usuario.estado_cuenta === ESTADO_CUENTA.SUSPENDIDA){
-
+  if (usuario.estado_cuenta === ESTADO_CUENTA.SUSPENDIDA) {
     throw new Error(
-      'Tu cuenta ha sido suspendida. Revisa tu correo institucional para más información.'
+      'Tu cuenta ha sido suspendida. Revisa tu correo institucional para más información.',
     );
-
   }
 
-  const valido =
-    await bcrypt.compare(
-      password,
-      usuario.password_hash
-    );
+  const valido = await bcrypt.compare(password, usuario.password_hash);
 
-  if(!valido){
+  if (!valido) {
+    await historialRepository.registrarAcceso(usuario.id, ESTADO_ACCESO.FALLIDO, ip, userAgent);
 
-    await historialRepository
-      .registrarAcceso(
-        usuario.id,
-        ESTADO_ACCESO.FALLIDO,
-        ip,
-        userAgent
-      );
-
-    throw new Error(
-      'Credenciales incorrectas'
-    );
-
+    throw new Error('Credenciales incorrectas');
   }
 
-  const token =
-    generateToken(usuario);
+  const token = generateToken(usuario);
 
-    await historialRepository
-  .registrarAcceso(
-    usuario.id,
-    ESTADO_ACCESO.EXITOSO,
-    ip,
-    userAgent
-  );
+  await historialRepository.registrarAcceso(usuario.id, ESTADO_ACCESO.EXITOSO, ip, userAgent);
 
   return {
-
     token,
 
-    usuario:{
+    usuario: {
       id: usuario.id,
       nombre: usuario.nombre,
       rol: usuario.rol,
-      codigo_universitario:
-        usuario.codigo_universitario
-    }
-
+      codigo_universitario: usuario.codigo_universitario,
+    },
   };
-
 }
 
 /* Register */
@@ -113,13 +61,13 @@ const REQUIRED_FIELDS = [
   { key: 'licencia_fecha_vencimiento', label: 'Vencimiento de licencia' },
   { key: 'placa', label: 'Placa' },
   { key: 'modelo', label: 'Modelo' },
-  { key: 'tipo_vehiculo_id', label: 'Tipo de vehículo' }
+  { key: 'tipo_vehiculo_id', label: 'Tipo de vehículo' },
 ];
 
 const PLACA_REGEX = {
   [TIPO_VEHICULO.AUTO]: /^[A-Za-z]{3}[-\s]?\d{3}$/,
   [TIPO_VEHICULO.MOTO]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
-  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/
+  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
 };
 
 function normalizarPlaca(tipo, placa) {
@@ -130,10 +78,7 @@ function normalizarPlaca(tipo, placa) {
   return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
 }
 
-async function register(
-  body
-){
-
+async function register(body) {
   for (const { key, label } of REQUIRED_FIELDS) {
     if (!body[key] || (typeof body[key] === 'string' && body[key].trim() === '')) {
       throw new Error(`El campo "${label}" es obligatorio`);
@@ -174,152 +119,94 @@ async function register(
 
   const placaNormalizada = normalizarPlaca(tipoVehiculo, body.placa);
 
-  const codigo =
-    body.codigo_universitario
-      .trim()
-      .toUpperCase();
+  const codigo = body.codigo_universitario.trim().toUpperCase();
 
-  let rol =
-    ROLES.ESTUDIANTE;
+  let rol = ROLES.ESTUDIANTE;
 
-  if(
-    codigo.startsWith('C')
-  ){
-
-    rol =
-      ROLES.DOCENTE;
-
+  if (codigo.startsWith('C')) {
+    rol = ROLES.DOCENTE;
   }
 
-  const usuarioExiste =
-    await usuarioRepository
-      .findByCodigo(
-        codigo
-      );
+  const usuarioExiste = await usuarioRepository.findByCodigo(codigo);
 
-  if(usuarioExiste){
-
-    throw new Error(
-      'El usuario ya existe'
-    );
-
+  if (usuarioExiste) {
+    throw new Error('El usuario ya existe');
   }
 
-  const correoExiste =
-    await usuarioRepository
-      .findByEmail(
-        body.correo_institucional.trim()
-      );
+  const correoExiste = await usuarioRepository.findByEmail(body.correo_institucional.trim());
 
   if (correoExiste) {
     throw new Error('El correo ya está registrado');
   }
 
-  const licenciaExiste =
-    await usuarioRepository
-      .findByLicense(
-        body.nro_licencia.trim()
-      );
+  const licenciaExiste = await usuarioRepository.findByLicense(body.nro_licencia.trim());
 
   if (licenciaExiste) {
     throw new Error('La licencia ya está registrada');
   }
 
-  const vehiculoExiste =
-    await vehiculoRepository
-      .findByPlaca(
-        placaNormalizada
-      );
+  const vehiculoExiste = await vehiculoRepository.findByPlaca(placaNormalizada);
 
-  if(vehiculoExiste){
-
-    throw new Error(
-      'La placa ya existe'
-    );
-
+  if (vehiculoExiste) {
+    throw new Error('La placa ya existe');
   }
 
-  const hash =
-    await bcrypt.hash(
-      body.password,
-      10
-    );
+  const hash = await bcrypt.hash(body.password, 10);
 
-  const usuario =
-    await usuarioRepository
-      .create({
+  const usuario = await usuarioRepository.create({
+    codigo_universitario: codigo,
 
-        codigo_universitario:
-          codigo,
+    nombre: body.nombre.trim(),
 
-        nombre:
-          body.nombre.trim(),
+    password_hash: hash,
 
-        password_hash:
-          hash,
+    telefono: body.telefono || null,
 
-        telefono:
-          body.telefono || null,
+    dni: body.dni || null,
 
-        dni:
-          body.dni || null,
+    fecha_nacimiento: body.fecha_nacimiento,
 
-        fecha_nacimiento:
-          body.fecha_nacimiento,
+    correo_institucional: body.correo_institucional.trim(),
 
-        correo_institucional:
-          body.correo_institucional.trim(),
+    nro_licencia: body.nro_licencia.trim(),
 
-        nro_licencia:
-          body.nro_licencia.trim(),
+    licencia_fecha_vencimiento: body.licencia_fecha_vencimiento,
 
-        licencia_fecha_vencimiento:
-          body.licencia_fecha_vencimiento,
+    codigo_conadis: body.codigo_conadis || null,
 
-        codigo_conadis:
-          body.codigo_conadis || null,
+    rol,
+  });
 
-        rol
+  await vehiculoRepository.createVehicle({
+    usuario_id: usuario.id,
 
-      });
+    tipo_vehiculo_id: body.tipo_vehiculo_id,
 
-  await vehiculoRepository
-    .createVehicle({
+    placa: placaNormalizada,
 
-      usuario_id:
-        usuario.id,
-
-      tipo_vehiculo_id:
-        body.tipo_vehiculo_id,
-
-      placa:
-        placaNormalizada,
-
-      modelo:
-        body.modelo.trim()
-
-    });
+    modelo: body.modelo.trim(),
+  });
 
   return {
-    mensaje:
-      'Usuario registrado'
+    mensaje: 'Usuario registrado',
   };
-
 }
 
 async function obtenerUsuario(id) {
   const usuario = await usuarioRepository.findById(id);
-  if (!usuario) throw new Error('Usuario no encontrado');
+  if (!usuario) {
+    throw new Error('Usuario no encontrado');
+  }
   return {
     id: usuario.id,
     nombre: usuario.nombre,
     rol: usuario.rol,
-    codigo_universitario: usuario.codigo_universitario
+    codigo_universitario: usuario.codigo_universitario,
   };
 }
 
 module.exports = {
   login,
   register,
-  obtenerUsuario
+  obtenerUsuario,
 };

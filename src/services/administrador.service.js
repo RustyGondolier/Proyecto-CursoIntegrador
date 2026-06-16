@@ -1,9 +1,7 @@
 const logger = require('../config/logger');
 const adminRepository = require('../repositories/administrador.repository');
 const notificacionService = require('./notificacion.service');
-const {
-  ESTADO_CUENTA, TIPO_ACCION_ADMIN, TIPO_NOTIFICACION
-} = require('../config/constants');
+const { ESTADO_CUENTA, TIPO_ACCION_ADMIN, TIPO_NOTIFICACION } = require('../config/constants');
 
 async function getDashboard() {
   const data = await adminRepository.getDashboardData();
@@ -15,7 +13,7 @@ async function getDashboard() {
     prioritarios_count: Number(data.prioritarios_count),
     infracciones_mes: Number(data.infracciones_mes),
     acciones_recientes: acciones,
-    pendientes_recientes: pendientes.slice(0, 5)
+    pendientes_recientes: pendientes.slice(0, 5),
   };
 }
 
@@ -66,7 +64,7 @@ async function aprobarPerfil(adminId, userId) {
     administrador_id: adminId,
     usuario_afectado_id: userId,
     tipo: TIPO_ACCION_ADMIN.VERIFICACION,
-    descripcion: 'Perfil aprobado'
+    descripcion: 'Perfil aprobado',
   });
 
   try {
@@ -74,11 +72,15 @@ async function aprobarPerfil(adminId, userId) {
       usuario_id: userId,
       tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Perfil verificado',
-      mensaje: 'Tu perfil ha sido verificado correctamente. Ya puedes solicitar plazas de estacionamiento.',
-      url_destino: '/usuario/dashboard/dashboard.html'
+      mensaje:
+        'Tu perfil ha sido verificado correctamente. Ya puedes solicitar plazas de estacionamiento.',
+      url_destino: '/usuario/dashboard/dashboard.html',
     });
   } catch (err) {
-    logger.warn('Error al notificar aprobación de perfil', { error: err.message, usuario_id: userId });
+    logger.warn('Error al notificar aprobación de perfil', {
+      error: err.message,
+      usuario_id: userId,
+    });
   }
 
   return { mensaje: 'Perfil aprobado exitosamente', usuario: actualizado };
@@ -103,7 +105,11 @@ async function suspenderCuenta(adminId, userId, motivo) {
     throw error;
   }
 
-  const actualizado = await adminRepository.updateEstadoCuenta(userId, ESTADO_CUENTA.SUSPENDIDA, motivo.trim());
+  const actualizado = await adminRepository.updateEstadoCuenta(
+    userId,
+    ESTADO_CUENTA.SUSPENDIDA,
+    motivo.trim(),
+  );
   if (!actualizado) {
     const error = new Error('Error al suspender la cuenta');
     error.status = 500;
@@ -114,7 +120,7 @@ async function suspenderCuenta(adminId, userId, motivo) {
     administrador_id: adminId,
     usuario_afectado_id: userId,
     tipo: TIPO_ACCION_ADMIN.SUSPENSION,
-    descripcion: motivo.trim()
+    descripcion: motivo.trim(),
   });
 
   try {
@@ -123,10 +129,13 @@ async function suspenderCuenta(adminId, userId, motivo) {
       tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Cuenta suspendida',
       mensaje: `Tu cuenta ha sido suspendida. Motivo: ${motivo.trim()}. Revisa tu correo institucional para más información.`,
-      url_destino: '/usuario/perfil/perfil.html'
+      url_destino: '/usuario/perfil/perfil.html',
     });
   } catch (err) {
-    logger.warn('Error al notificar suspensión de cuenta', { error: err.message, usuario_id: userId });
+    logger.warn('Error al notificar suspensión de cuenta', {
+      error: err.message,
+      usuario_id: userId,
+    });
   }
 
   return { mensaje: 'Cuenta suspendida exitosamente', usuario: actualizado };
@@ -156,7 +165,7 @@ async function reactivarCuenta(adminId, userId) {
     administrador_id: adminId,
     usuario_afectado_id: userId,
     tipo: TIPO_ACCION_ADMIN.REACTIVACION,
-    descripcion: 'Cuenta reactivada'
+    descripcion: 'Cuenta reactivada',
   });
 
   try {
@@ -164,11 +173,15 @@ async function reactivarCuenta(adminId, userId) {
       usuario_id: userId,
       tipo_codigo: TIPO_NOTIFICACION.SISTEMA,
       titulo: 'Cuenta reactivada',
-      mensaje: 'Tu cuenta ha sido reactivada. Ya puedes solicitar plazas de estacionamiento nuevamente.',
-      url_destino: '/usuario/dashboard/dashboard.html'
+      mensaje:
+        'Tu cuenta ha sido reactivada. Ya puedes solicitar plazas de estacionamiento nuevamente.',
+      url_destino: '/usuario/dashboard/dashboard.html',
     });
   } catch (err) {
-    logger.warn('Error al notificar reactivación de cuenta', { error: err.message, usuario_id: userId });
+    logger.warn('Error al notificar reactivación de cuenta', {
+      error: err.message,
+      usuario_id: userId,
+    });
   }
 
   return { mensaje: 'Cuenta reactivada exitosamente', usuario: actualizado };
@@ -206,10 +219,13 @@ async function resolverReporte(adminId, reporteId) {
       tipo_codigo: TIPO_NOTIFICACION.REPORTE,
       titulo: 'Reporte prioritario resuelto',
       mensaje: `Tu reporte prioritario #REP-${String(reporteId).padStart(5, '0')} ha sido resuelto por el administrador.`,
-      url_destino: `/usuario/reportes/reportes.html`
+      url_destino: `/usuario/reportes/reportes.html`,
     });
   } catch (err) {
-    logger.warn('Error al notificar resolución de reporte', { error: err.message, reporte_id: reporteId });
+    logger.warn('Error al notificar resolución de reporte', {
+      error: err.message,
+      reporte_id: reporteId,
+    });
   }
 
   return { mensaje: 'Reporte resuelto exitosamente', reporte };
@@ -231,5 +247,5 @@ module.exports = {
   obtenerInfraccion,
   listarReportesPrioritarios,
   resolverReporte,
-  listarAcciones
+  listarAcciones,
 };

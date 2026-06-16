@@ -10,7 +10,10 @@ async function asignarPlaza(req, res) {
     const data = await supervisorService.asignarPlaza(solicitud_id, plaza_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    logger.error('Error asignarPlaza: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
+    logger.error('Error asignarPlaza: ' + err.message, {
+      stack: err.stack,
+      solicitud_id: req.body.solicitud_id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -34,7 +37,10 @@ async function buscar(req, res) {
     const data = await supervisorService.buscarPorPlaca(placa);
     res.json(data);
   } catch (err) {
-    logger.error('Error al buscar por placa: ' + err.message, { stack: err.stack, placa: req.query.placa });
+    logger.error('Error al buscar por placa: ' + err.message, {
+      stack: err.stack,
+      placa: req.query.placa,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -48,7 +54,10 @@ async function buscarSolicitud(req, res) {
     const data = await supervisorService.buscarPorSolicitudId(id);
     res.json(data);
   } catch (err) {
-    logger.error('Error al buscar solicitud: ' + err.message, { stack: err.stack, solicitud_id: req.params.id });
+    logger.error('Error al buscar solicitud: ' + err.message, {
+      stack: err.stack,
+      solicitud_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -59,7 +68,10 @@ async function plazasDisponibles(req, res) {
     if (!estacionamiento_id || !categoria_plaza) {
       return res.status(400).json({ error: 'estacionamiento_id y categoria_plaza son requeridos' });
     }
-    const data = await supervisorService.obtenerPlazasDisponibles(estacionamiento_id, categoria_plaza);
+    const data = await supervisorService.obtenerPlazasDisponibles(
+      estacionamiento_id,
+      categoria_plaza,
+    );
     res.json(data);
   } catch (err) {
     logger.error('Error al obtener plazas: ' + err.message, { stack: err.stack });
@@ -76,7 +88,10 @@ async function confirmarIngreso(req, res) {
     const data = await supervisorService.confirmarIngreso(solicitud_id, plaza_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    logger.error('Error confirmarIngreso: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
+    logger.error('Error confirmarIngreso: ' + err.message, {
+      stack: err.stack,
+      solicitud_id: req.body.solicitud_id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -90,7 +105,10 @@ async function registrarSalida(req, res) {
     const data = await supervisorService.registrarSalida(solicitud_id, req.usuario.id);
     res.json(data);
   } catch (err) {
-    logger.error('Error registrarSalida: ' + err.message, { stack: err.stack, solicitud_id: req.body.solicitud_id });
+    logger.error('Error registrarSalida: ' + err.message, {
+      stack: err.stack,
+      solicitud_id: req.body.solicitud_id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -99,9 +117,15 @@ async function buscarIdentificador(req, res) {
   try {
     const { estacionamiento_id, tipo_vehiculo, codigo } = req.query;
     if (!estacionamiento_id || !tipo_vehiculo || !codigo) {
-      return res.status(400).json({ error: 'estacionamiento_id, tipo_vehiculo y codigo son requeridos' });
+      return res
+        .status(400)
+        .json({ error: 'estacionamiento_id, tipo_vehiculo y codigo son requeridos' });
     }
-    const data = await supervisorService.buscarPorIdentificador(estacionamiento_id, tipo_vehiculo, codigo);
+    const data = await supervisorService.buscarPorIdentificador(
+      estacionamiento_id,
+      tipo_vehiculo,
+      codigo,
+    );
     res.json(data);
   } catch (err) {
     logger.error('Error buscarIdentificador: ' + err.message, { stack: err.stack });
@@ -109,4 +133,13 @@ async function buscarIdentificador(req, res) {
   }
 }
 
-module.exports = { asignarPlaza, dashboard, buscar, buscarSolicitud, plazasDisponibles, confirmarIngreso, registrarSalida, buscarIdentificador };
+module.exports = {
+  asignarPlaza,
+  dashboard,
+  buscar,
+  buscarSolicitud,
+  plazasDisponibles,
+  confirmarIngreso,
+  registrarSalida,
+  buscarIdentificador,
+};

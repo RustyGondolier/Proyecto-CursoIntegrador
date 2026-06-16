@@ -23,9 +23,7 @@ describe('RF03 - Gestion de perfil [CUS03]', () => {
 
   // Visualizar perfil
   test('obtener perfil propio', async () => {
-    const res = await request(app)
-      .get('/api/usuarios/me')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/usuarios/me').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(res.body.nombre).toBe(usuario.nombre);
     expect(res.body.codigo_universitario).toBe(usuario.codigo_universitario);
@@ -96,8 +94,7 @@ describe('RF03 - Gestion de perfil [CUS03]', () => {
 
   // E2: Sin autenticacion
   test('E2: devuelve 401 sin token', async () => {
-    const res = await request(app)
-      .get('/api/usuarios/me');
+    const res = await request(app).get('/api/usuarios/me');
     expect(res.status).toBe(401);
   });
 });
@@ -118,9 +115,7 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
 
   // Listar vehiculos (vacio)
   test('listar vehiculos del usuario (inicialmente vacio)', async () => {
-    const res = await request(app)
-      .get('/api/usuarios/me/vehiculos')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/usuarios/me/vehiculos').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBe(0);
@@ -135,7 +130,7 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
       .send({
         tipo_vehiculo_id: 'auto',
         placa: `XYZ-${suffix}`,
-        modelo: 'Hatchback'
+        modelo: 'Hatchback',
       });
     expect(res.status).toBe(201);
     expect(Array.isArray(res.body)).toBe(true);
@@ -144,14 +139,11 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
 
   // E1: Placa con formato invalido
   test('E1: rechaza vehiculo con placa formato invalido', async () => {
-    const res = await request(app)
-      .post('/api/usuarios/me/vehiculos')
-      .set(authCookie(token))
-      .send({
-        tipo_vehiculo_id: 'auto',
-        placa: '12345',
-        modelo: 'Test'
-      });
+    const res = await request(app).post('/api/usuarios/me/vehiculos').set(authCookie(token)).send({
+      tipo_vehiculo_id: 'auto',
+      placa: '12345',
+      modelo: 'Test',
+    });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/formato/i);
   });
@@ -182,9 +174,7 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
       .set(authCookie(token))
       .send({ tipo_vehiculo_id: 'auto', placa: `VER-${suffix}`, modelo: 'Test' });
 
-    const perfil = await request(app)
-      .get('/api/usuarios/me')
-      .set(authCookie(token));
+    const perfil = await request(app).get('/api/usuarios/me').set(authCookie(token));
     expect(perfil.body.requiere_reverificacion).toBe(true);
     expect(perfil.body.verificado).toBe(false);
   });
@@ -211,7 +201,7 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
   // Actualizar vehiculo que no pertenece al usuario
   test('rechaza actualizar vehiculo de otro usuario', async () => {
     const otro = await createTestUser({
-      codigo_universitario: `U${Date.now()}OTRO`
+      codigo_universitario: `U${Date.now()}OTRO`,
     });
     const suffix = String(Date.now()).slice(-3);
     const crear = await request(app)
@@ -245,7 +235,7 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
   // Activar vehiculo
   test('activar vehiculo como principal', async () => {
     const userData = await createTestUser({
-      codigo_universitario: `U${Date.now()}ACT`
+      codigo_universitario: `U${Date.now()}ACT`,
     });
     const userToken = userData.token;
 
@@ -268,10 +258,8 @@ describe('RF05 - Gestion de vehiculo [CUS05]', () => {
       .set(authCookie(userToken));
     expect(res.status).toBe(200);
 
-    const lista = await request(app)
-      .get('/api/usuarios/me/vehiculos')
-      .set(authCookie(userToken));
-    const activo = lista.body.find(v => v.activo === true);
+    const lista = await request(app).get('/api/usuarios/me/vehiculos').set(authCookie(userToken));
+    const activo = lista.body.find((v) => v.activo === true);
     expect(activo).toBeDefined();
     expect(activo.id).toBe(idA);
   });
@@ -291,52 +279,40 @@ describe('RF03 - Cambio de contrasena', () => {
 
   // Cambio exitoso
   test('cambiar contrasena exitosamente', async () => {
-    const res = await request(app)
-      .put('/api/usuarios/me/password')
-      .set(authCookie(token))
-      .send({
-        actual: 'password123',
-        nueva: 'nuevaClave456',
-        confirmar: 'nuevaClave456'
-      });
+    const res = await request(app).put('/api/usuarios/me/password').set(authCookie(token)).send({
+      actual: 'password123',
+      nueva: 'nuevaClave456',
+      confirmar: 'nuevaClave456',
+    });
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toMatch(/actualizada/i);
   });
 
   // Contrasena actual incorrecta
   test('rechaza cambio con contrasena actual incorrecta', async () => {
-    const res = await request(app)
-      .put('/api/usuarios/me/password')
-      .set(authCookie(token))
-      .send({
-        actual: 'incorrecta',
-        nueva: 'nuevaClave456',
-        confirmar: 'nuevaClave456'
-      });
+    const res = await request(app).put('/api/usuarios/me/password').set(authCookie(token)).send({
+      actual: 'incorrecta',
+      nueva: 'nuevaClave456',
+      confirmar: 'nuevaClave456',
+    });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/actual no es correcta/i);
   });
 
   // Nueva y confirmar no coinciden
   test('rechaza cambio si nueva y confirmar no coinciden', async () => {
-    const res = await request(app)
-      .put('/api/usuarios/me/password')
-      .set(authCookie(token))
-      .send({
-        actual: 'password123',
-        nueva: 'nuevaClave456',
-        confirmar: 'distinta'
-      });
+    const res = await request(app).put('/api/usuarios/me/password').set(authCookie(token)).send({
+      actual: 'password123',
+      nueva: 'nuevaClave456',
+      confirmar: 'distinta',
+    });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/no coinciden/i);
   });
 
   // Campos requeridos faltantes
   test('rechaza cambio sin todos los campos', async () => {
-    const res = await request(app)
-      .put('/api/usuarios/me/password')
-      .set(authCookie(token))
-      .send({});
+    const res = await request(app).put('/api/usuarios/me/password').set(authCookie(token)).send({});
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/requeridos/i);
   });

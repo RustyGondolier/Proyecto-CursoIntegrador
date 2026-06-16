@@ -24,7 +24,7 @@ async function registrar({ placa, tipo_infraccion_id, descripcion, supervisor_id
      FROM vehiculos v
      WHERE v.placa = $1 AND v.activo = true
      LIMIT 1`,
-    [placa.trim().toUpperCase()]
+    [placa.trim().toUpperCase()],
   );
 
   if (!vehiculo.rows[0]) {
@@ -40,7 +40,7 @@ async function registrar({ placa, tipo_infraccion_id, descripcion, supervisor_id
      FROM solicitudes_estacionamiento
      WHERE usuario_id = $1 AND estado IN ($2, $3)
      LIMIT 1`,
-    [vehiculoData.usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO]
+    [vehiculoData.usuario_id, ESTADO_SOLICITUD.PENDIENTE, ESTADO_SOLICITUD.INGRESADO],
   );
 
   const solicitudData = solicitud.rows[0] || null;
@@ -52,7 +52,7 @@ async function registrar({ placa, tipo_infraccion_id, descripcion, supervisor_id
     solicitud_id: solicitudData?.id ?? null,
     supervisor_id,
     tipo_infraccion_id,
-    descripcion: descripcion ? descripcion.trim() : null
+    descripcion: descripcion ? descripcion.trim() : null,
   });
 }
 
@@ -74,5 +74,5 @@ module.exports = {
   obtenerTipos,
   registrar,
   listar,
-  obtenerPorId
+  obtenerPorId,
 };

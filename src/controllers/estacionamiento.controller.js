@@ -1,34 +1,18 @@
-const logger =
-  require('../config/logger');
-const estacionamientoService =
-  require(
-    '../services/estacionamiento.service'
-  );
+const logger = require('../config/logger');
+const estacionamientoService = require('../services/estacionamiento.service');
 
-async function ocupacion(
-  req,
-  res
-){
-
-  try{
-
-    const data =
-      await estacionamientoService
-        .obtenerOcupacion();
+async function ocupacion(req, res) {
+  try {
+    const data = await estacionamientoService.obtenerOcupacion();
 
     res.json(data);
-
-  }catch(err){
-
+  } catch (err) {
     logger.error('Error al obtener ocupación: ' + err.message, { stack: err.stack });
 
     res.status(500).json({
-      error:
-        'Error interno'
+      error: 'Error interno',
     });
-
   }
-
 }
 
 async function listar(req, res) {
@@ -47,7 +31,10 @@ async function listarPlazas(req, res) {
     const data = await estacionamientoService.obtenerPlazas(id);
     res.json(data);
   } catch (err) {
-    logger.error('Error al listar plazas: ' + err.message, { stack: err.stack, estacionamiento_id: req.params.id });
+    logger.error('Error al listar plazas: ' + err.message, {
+      stack: err.stack,
+      estacionamiento_id: req.params.id,
+    });
     res.status(500).json({ error: 'Error interno' });
   }
 }
@@ -55,5 +42,5 @@ async function listarPlazas(req, res) {
 module.exports = {
   ocupacion,
   listar,
-  listarPlazas
+  listarPlazas,
 };

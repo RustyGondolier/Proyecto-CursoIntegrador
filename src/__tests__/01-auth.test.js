@@ -23,23 +23,19 @@ describe('RF01 - Registro de usuario [CUS01]', () => {
     licencia_fecha_vencimiento: '2030-12-31',
     placa: `ABC-${String(Date.now()).slice(-3)}`,
     modelo: 'Sedan',
-    tipo_vehiculo_id: 'auto'
+    tipo_vehiculo_id: 'auto',
   });
 
   // Escenario exitoso
   test('registro exitoso con todos los campos validos', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(baseUser());
+    const res = await request(app).post('/api/auth/register').send(baseUser());
     expect(res.status).toBe(201);
     expect(res.body.mensaje).toBe('Usuario registrado');
   });
 
   // E1: Campos obligatorios vacios
   test('E1: rechaza registro con campos obligatorios vacios', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({});
+    const res = await request(app).post('/api/auth/register').send({});
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
   });
@@ -55,33 +51,39 @@ describe('RF01 - Registro de usuario [CUS01]', () => {
 
   // Correo no institucional
   test('rechaza registro con correo no UTP', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      ...baseUser(),
-      correo_institucional: 'juan@gmail.com',
-      codigo_universitario: `U${Date.now()}X`
-    });
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...baseUser(),
+        correo_institucional: 'juan@gmail.com',
+        codigo_universitario: `U${Date.now()}X`,
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/institucional/i);
   });
 
   // E3: Licencia vencida
   test('E3: rechaza registro con licencia vencida', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      ...baseUser(),
-      licencia_fecha_vencimiento: '2020-01-01',
-      codigo_universitario: `U${Date.now()}Y`
-    });
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...baseUser(),
+        licencia_fecha_vencimiento: '2020-01-01',
+        codigo_universitario: `U${Date.now()}Y`,
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/vencida/i);
   });
 
   // Placa con formato invalido
   test('rechaza registro con placa formato invalido', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      ...baseUser(),
-      placa: '12345',
-      codigo_universitario: `U${Date.now()}Z`
-    });
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...baseUser(),
+        placa: '12345',
+        codigo_universitario: `U${Date.now()}Z`,
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/formato/i);
   });
@@ -90,22 +92,26 @@ describe('RF01 - Registro de usuario [CUS01]', () => {
   test('rechaza registro con placa ya registrada por otro usuario', async () => {
     const userA = baseUser();
     await request(app).post('/api/auth/register').send(userA);
-    const res = await request(app).post('/api/auth/register').send({
-      ...baseUser(),
-      codigo_universitario: `U${Date.now()}B`,
-      placa: userA.placa
-    });
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...baseUser(),
+        codigo_universitario: `U${Date.now()}B`,
+        placa: userA.placa,
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/ya existe/i);
   });
 
   // Contrasena corta
   test('rechaza registro con password menor a 6 caracteres', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      ...baseUser(),
-      password: '123',
-      codigo_universitario: `U${Date.now()}C`
-    });
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        ...baseUser(),
+        password: '123',
+        codigo_universitario: `U${Date.now()}C`,
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/6 caracteres/i);
   });
@@ -120,14 +126,12 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
   // Escenario exitoso
   test('login exitoso con credenciales validas', async () => {
     const { usuario } = await createTestUser({
-      codigo_universitario: `U${Date.now()}LOGIN`
+      codigo_universitario: `U${Date.now()}LOGIN`,
     });
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        codigo_universitario: usuario.codigo_universitario,
-        password: 'password123'
-      });
+    const res = await request(app).post('/api/auth/login').send({
+      codigo_universitario: usuario.codigo_universitario,
+      password: 'password123',
+    });
     expect(res.status).toBe(200);
     expect(res.body.usuario).toBeDefined();
     expect(res.body.usuario.rol).toBe('estudiante');
@@ -139,7 +143,7 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
   // E1: Contrasena incorrecta
   test('E1: rechaza login con contrasena incorrecta', async () => {
     const { usuario } = await createTestUser({
-      codigo_universitario: `U${Date.now()}E1PW`
+      codigo_universitario: `U${Date.now()}E1PW`,
     });
     const res = await request(app)
       .post('/api/auth/login')
@@ -162,14 +166,12 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
     const { usuario } = await createTestUser({
       estado_cuenta: 'suspendida',
       motivo_suspension: 'Documentacion incorrecta',
-      codigo_universitario: `U${Date.now()}SUS`
+      codigo_universitario: `U${Date.now()}SUS`,
     });
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        codigo_universitario: usuario.codigo_universitario,
-        password: 'password123'
-      });
+    const res = await request(app).post('/api/auth/login').send({
+      codigo_universitario: usuario.codigo_universitario,
+      password: 'password123',
+    });
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/suspendida/i);
   });
@@ -178,11 +180,9 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
   test('login devuelve el rol correcto del usuario autenticado', async () => {
     const { token } = await createTestUser({
       rol: 'administrador',
-      codigo_universitario: `U${Date.now()}ADM`
+      codigo_universitario: `U${Date.now()}ADM`,
     });
-    const res = await request(app)
-      .get('/api/auth/me')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/auth/me').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(res.body.usuario.rol).toBe('administrador');
   });
@@ -194,8 +194,7 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
 // ────────────────────────────────────────────────────────────
 describe('RF04 - Cierre de sesion [CUS04]', () => {
   test('logout exitoso limpia la cookie', async () => {
-    const res = await request(app)
-      .post('/api/auth/logout');
+    const res = await request(app).post('/api/auth/logout');
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toBeDefined();
     expect(res.headers['set-cookie']).toBeDefined();

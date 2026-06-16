@@ -25,69 +25,69 @@
  */
 
 const ROLES = Object.freeze({
-  ESTUDIANTE: 'estudiante',       // NO CAMBIAR — usuarios.rol
-  DOCENTE: 'docente',             // NO CAMBIAR
-  SUPERVISOR: 'supervisor',       // NO CAMBIAR
+  ESTUDIANTE: 'estudiante', // NO CAMBIAR — usuarios.rol
+  DOCENTE: 'docente', // NO CAMBIAR
+  SUPERVISOR: 'supervisor', // NO CAMBIAR
   ADMINISTRADOR: 'administrador', // NO CAMBIAR
-  DIRECCION: 'direccion'         // NO CAMBIAR
+  DIRECCION: 'direccion', // NO CAMBIAR
 });
 
 const ESTADO_SOLICITUD = Object.freeze({
-  PENDIENTE: 'pendiente',   // NO CAMBIAR — solicitudes_estacionamiento.estado
-  INGRESADO: 'ingresado',   // NO CAMBIAR
+  PENDIENTE: 'pendiente', // NO CAMBIAR — solicitudes_estacionamiento.estado
+  INGRESADO: 'ingresado', // NO CAMBIAR
   FINALIZADO: 'finalizado', // NO CAMBIAR
-  CANCELADO: 'cancelado',   // NO CAMBIAR
-  EXPIRADO: 'expirado'      // NO CAMBIAR
+  CANCELADO: 'cancelado', // NO CAMBIAR
+  EXPIRADO: 'expirado', // NO CAMBIAR
 });
 
 const ESTADO_CUENTA = Object.freeze({
-  ACTIVA: 'activa',           // NO CAMBIAR — usuarios.estado_cuenta
-  SUSPENDIDA: 'suspendida'    // NO CAMBIAR
+  ACTIVA: 'activa', // NO CAMBIAR — usuarios.estado_cuenta
+  SUSPENDIDA: 'suspendida', // NO CAMBIAR
 });
 
 const ESTADO_PLAZA = Object.freeze({
-  DISPONIBLE: 'disponible',   // NO CAMBIAR — plazas.estado
-  OCUPADA: 'ocupada',         // NO CAMBIAR
-  BLOQUEADA: 'bloqueada',     // NO CAMBIAR — existe en CHECK de BD
-  MANTENIMIENTO: 'mantenimiento' // NO CAMBIAR — existe en CHECK de BD
+  DISPONIBLE: 'disponible', // NO CAMBIAR — plazas.estado
+  OCUPADA: 'ocupada', // NO CAMBIAR
+  BLOQUEADA: 'bloqueada', // NO CAMBIAR — existe en CHECK de BD
+  MANTENIMIENTO: 'mantenimiento', // NO CAMBIAR — existe en CHECK de BD
 });
 
 // estados_reporte.id (entero, usado en UPDATE/WHERE)
 const ESTADO_REPORTE_ID = Object.freeze({
-  ENVIADO: 1,                 // NO CAMBIAR — estados_reporte.id
-  EN_REVISION: 2,             // NO CAMBIAR
-  RESUELTO: 3,                // NO CAMBIAR
-  PRIORITARIO: 4              // NO CAMBIAR
+  ENVIADO: 1, // NO CAMBIAR — estados_reporte.id
+  EN_REVISION: 2, // NO CAMBIAR
+  RESUELTO: 3, // NO CAMBIAR
+  PRIORITARIO: 4, // NO CAMBIAR
 });
 
 // estados_reporte.codigo (string, usado en JOINs)
 const ESTADO_REPORTE_CODIGO = Object.freeze({
-  ENVIADO: 'enviado',             // NO CAMBIAR — estados_reporte.codigo
-  EN_REVISION: 'en_revision',     // NO CAMBIAR
-  RESUELTO: 'resuelto',           // NO CAMBIAR
-  PRIORITARIO: 'prioritario'      // NO CAMBIAR
+  ENVIADO: 'enviado', // NO CAMBIAR — estados_reporte.codigo
+  EN_REVISION: 'en_revision', // NO CAMBIAR
+  RESUELTO: 'resuelto', // NO CAMBIAR
+  PRIORITARIO: 'prioritario', // NO CAMBIAR
 });
 
 const ESTADO_ACCESO = Object.freeze({
   FALLIDO: 'fallido',
-  EXITOSO: 'exitoso'
+  EXITOSO: 'exitoso',
 });
 
 const TIPO_VEHICULO = Object.freeze({
   AUTO: 'auto',
   MOTO: 'moto',
-  MOTOTAXI: 'mototaxi'
+  MOTOTAXI: 'mototaxi',
 });
 
 const TIPO_ACCION_ADMIN = Object.freeze({
   VERIFICACION: 'verificacion',
   SUSPENSION: 'suspension',
-  REACTIVACION: 'reactivacion'
+  REACTIVACION: 'reactivacion',
 });
 
 const TIPO_NOTIFICACION = Object.freeze({
   SISTEMA: 'sistema',
-  REPORTE: 'reporte'
+  REPORTE: 'reporte',
 });
 
 // Única fuente de verdad — lee del .env con fallback seguro
@@ -96,8 +96,15 @@ const TIEMPO_LIMITE_INGRESO_MIN = parseInt(process.env.TIEMPO_LIMITE_INGRESO_MIN
 
 // Congelado para impedir mutación accidental: constants.ROLES = {} desde otro módulo
 module.exports = Object.freeze({
-  ROLES, ESTADO_SOLICITUD, ESTADO_CUENTA, ESTADO_PLAZA,
-  ESTADO_REPORTE_ID, ESTADO_REPORTE_CODIGO, ESTADO_ACCESO,
-  TIPO_VEHICULO, TIPO_ACCION_ADMIN, TIPO_NOTIFICACION,
-  TIEMPO_LIMITE_INGRESO_MIN
+  ROLES,
+  ESTADO_SOLICITUD,
+  ESTADO_CUENTA,
+  ESTADO_PLAZA,
+  ESTADO_REPORTE_ID,
+  ESTADO_REPORTE_CODIGO,
+  ESTADO_ACCESO,
+  TIPO_VEHICULO,
+  TIPO_ACCION_ADMIN,
+  TIPO_NOTIFICACION,
+  TIEMPO_LIMITE_INGRESO_MIN,
 });

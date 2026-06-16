@@ -7,10 +7,7 @@
 const request = require('supertest');
 const app = require('../app');
 const pool = require('../../db');
-const {
-  createTestUser, createTestVehicle, createTestSolicitud,
-  authCookie
-} = require('./helpers');
+const { createTestUser, createTestVehicle, createTestSolicitud, authCookie } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
 // RF19 — Reporte de incidencias (usuario)
@@ -20,7 +17,9 @@ describe('RF19 - Reporte de incidencias [CUS19]', () => {
   let userToken, usuario, vehiculo, solicitud;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
     const data = await createTestUser({ verificado: true });
     userToken = data.token;
     usuario = data.usuario;
@@ -43,10 +42,7 @@ describe('RF19 - Reporte de incidencias [CUS19]', () => {
 
   // Escenario de excepcion (E1): descripcion vacia
   test('E1: rechaza reporte sin descripcion', async () => {
-    const res = await request(app)
-      .post('/api/reportes/')
-      .set(authCookie(userToken))
-      .send({});
+    const res = await request(app).post('/api/reportes/').set(authCookie(userToken)).send({});
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/descripcion/i);
   });
@@ -65,7 +61,7 @@ describe('RF19 - Reporte de incidencias [CUS19]', () => {
   test('rechaza reporte sin solicitud activa', async () => {
     const userSinSol = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}SIN`
+      codigo_universitario: `U${Date.now()}SIN`,
     });
     await createTestVehicle(userSinSol.usuario.id);
 
@@ -79,17 +75,13 @@ describe('RF19 - Reporte de incidencias [CUS19]', () => {
 
   // Escenario de excepcion (E1): sin autenticacion
   test('401 sin autenticacion al crear reporte', async () => {
-    const res = await request(app)
-      .post('/api/reportes/')
-      .send({ descripcion: 'Test' });
+    const res = await request(app).post('/api/reportes/').send({ descripcion: 'Test' });
     expect(res.status).toBe(401);
   });
 
   // Escenario exitoso: listar reportes del usuario autenticado
   test('listar mis reportes', async () => {
-    const res = await request(app)
-      .get('/api/reportes/')
-      .set(authCookie(userToken));
+    const res = await request(app).get('/api/reportes/').set(authCookie(userToken));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(1);
@@ -105,11 +97,13 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
   let userToken, usuario, vehiculo, reporteId;
 
   beforeAll(async () => {
-    await pool.query(`UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'finalizado' WHERE estado IN ('pendiente', 'ingresado')`,
+    );
 
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP`
+      codigo_universitario: `U${Date.now()}SUP`,
     });
     supToken = sup.token;
     supervisor = sup.usuario;
@@ -117,7 +111,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
     // Crear usuario con solicitud activa + reporte
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USR`
+      codigo_universitario: `U${Date.now()}USR`,
     });
     userToken = user.token;
     usuario = user.usuario;
@@ -134,9 +128,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
 
   // Escenario exitoso: supervisor lista todos los reportes
   test('listar todos los reportes como supervisor', async () => {
-    const res = await request(app)
-      .get('/api/reportes/todos')
-      .set(authCookie(supToken));
+    const res = await request(app).get('/api/reportes/todos').set(authCookie(supToken));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(1);
@@ -144,9 +136,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
 
   // Escenario exitoso: ver detalle completo de un reporte
   test('obtener detalle de reporte', async () => {
-    const res = await request(app)
-      .get(`/api/reportes/${reporteId}`)
-      .set(authCookie(supToken));
+    const res = await request(app).get(`/api/reportes/${reporteId}`).set(authCookie(supToken));
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('id');
     expect(res.body).toHaveProperty('usuario_nombre');
@@ -165,9 +155,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
 
   // Escenario de excepcion (E1): reporte con id inexistente
   test('E1: 404 al obtener reporte inexistente', async () => {
-    const res = await request(app)
-      .get('/api/reportes/99999')
-      .set(authCookie(supToken));
+    const res = await request(app).get('/api/reportes/99999').set(authCookie(supToken));
     expect(res.status).toBe(404);
   });
 
@@ -195,7 +183,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
   test('marcar reporte como prioritario', async () => {
     const userPri = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}PRI`
+      codigo_universitario: `U${Date.now()}PRI`,
     });
     const vhPri = await createTestVehicle(userPri.usuario.id);
     await createTestSolicitud(userPri.usuario.id, vhPri.id);
@@ -209,7 +197,9 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
     const res = await request(app)
       .put(`/api/reportes/${nuevoId}/prioritario`)
       .set(authCookie(supToken))
-      .send({ razon: 'El problema afecta a varios usuarios y requiere intervencion administrativa' });
+      .send({
+        razon: 'El problema afecta a varios usuarios y requiere intervencion administrativa',
+      });
     expect(res.status).toBe(200);
     expect(res.body.estado_id).toBe(4); // prioritario
     expect(res.body.es_prioritario).toBe(true);
@@ -227,9 +217,7 @@ describe('RF13 - Gestion de reportes [CUS13]', () => {
 
   // Escenario de excepcion (E1): estudiante no accede a ruta de supervisor
   test('403: estudiante no accede a listar todos los reportes', async () => {
-    const res = await request(app)
-      .get('/api/reportes/todos')
-      .set(authCookie(userToken));
+    const res = await request(app).get('/api/reportes/todos').set(authCookie(userToken));
     expect(res.status).toBe(403);
     expect(res.body.error).toMatch(/denegado/i);
   });

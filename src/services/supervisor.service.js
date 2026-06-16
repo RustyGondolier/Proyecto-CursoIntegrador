@@ -21,7 +21,7 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
 
   const plaza = await pool.query(
     `SELECT p.*, b.estacionamiento_id FROM plazas p JOIN bloques b ON b.id = p.bloque_id WHERE p.id = $1`,
-    [plazaId]
+    [plazaId],
   );
   if (!plaza.rows[0]) {
     const error = new Error('Plaza no encontrada');
@@ -37,7 +37,9 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
   await solicitudRepository.assignPlaza(solicitudId, plazaId);
   await plazaRepository.updateEstado(plazaId, ESTADO_PLAZA.OCUPADA);
 
-  try { getIO().emit('ocupacion:updated'); } catch (err) {
+  try {
+    getIO().emit('ocupacion:updated');
+  } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al asignar plaza', { error: err.message });
   }
 
@@ -45,10 +47,13 @@ async function asignarPlaza(solicitudId, plazaId, supervisorId) {
     getIO().to(`user:${solicitud.usuario_id}`).emit('plaza:asignada', {
       solicitud_id: solicitudId,
       plaza_id: plazaId,
-      plaza_codigo: plaza.rows[0].codigo
+      plaza_codigo: plaza.rows[0].codigo,
     });
   } catch (err) {
-    logger.warn('Error al emitir plaza:asignada', { error: err.message, usuario_id: solicitud.usuario_id });
+    logger.warn('Error al emitir plaza:asignada', {
+      error: err.message,
+      usuario_id: solicitud.usuario_id,
+    });
   }
 
   return { mensaje: 'Plaza asignada exitosamente' };
@@ -58,7 +63,7 @@ async function getDashboard() {
   const [dashboard, pendientesList, movimientos] = await Promise.all([
     supervisorRepository.getDashboardData(),
     supervisorRepository.getSolicitudesPendientes(),
-    supervisorRepository.getUltimosMovimientos()
+    supervisorRepository.getUltimosMovimientos(),
   ]);
   return {
     pendientes_count: dashboard.pendientes_count,
@@ -67,16 +72,20 @@ async function getDashboard() {
     incidencias_pendientes: dashboard.incidencias_pendientes,
     ocupacion_porcentaje: dashboard.ocupacion_porcentaje,
     pendientes: pendientesList,
-    movimientos
+    movimientos,
   };
 }
 
 function normalizarPlaca(placa) {
   const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
   const matchAuto = limpia.match(/^([A-Z]{3})(\d{3})$/);
-  if (matchAuto) return `${matchAuto[1]}-${matchAuto[2]}`;
+  if (matchAuto) {
+    return `${matchAuto[1]}-${matchAuto[2]}`;
+  }
   const matchMoto = limpia.match(/^([A-Z]{2})(\d{4})$/);
-  if (matchMoto) return `${matchMoto[1]}-${matchMoto[2]}`;
+  if (matchMoto) {
+    return `${matchMoto[1]}-${matchMoto[2]}`;
+  }
   return limpia;
 }
 
@@ -108,7 +117,7 @@ async function obtenerPlazasDisponibles(estacionamientoId, categoriaPlaza) {
 async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
   const plaza = await pool.query(
     `SELECT p.*, p.numero_plaza, b.letra_bloque, b.estacionamiento_id FROM plazas p JOIN bloques b ON b.id = p.bloque_id WHERE p.id = $1`,
-    [plazaId]
+    [plazaId],
   );
   if (!plaza.rows[0]) {
     const error = new Error('Plaza no encontrada');
@@ -122,7 +131,12 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
   }
 
   const identificador = `${plaza.rows[0].letra_bloque}-${String(plaza.rows[0].numero_plaza).padStart(2, '0')}`;
-  const solicitud = await supervisorRepository.confirmarIngreso(solicitudId, plazaId, supervisorId, identificador);
+  const solicitud = await supervisorRepository.confirmarIngreso(
+    solicitudId,
+    plazaId,
+    supervisorId,
+    identificador,
+  );
   if (!solicitud) {
     const error = new Error('Solicitud no encontrada o ya no está pendiente');
     error.status = 404;
@@ -131,7 +145,9 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
 
   await plazaRepository.updateEstado(plazaId, ESTADO_PLAZA.OCUPADA);
 
-  try { getIO().emit('ocupacion:updated'); } catch (err) {
+  try {
+    getIO().emit('ocupacion:updated');
+  } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al confirmar ingreso', { error: err.message });
   }
 
@@ -139,15 +155,18 @@ async function confirmarIngreso(solicitudId, plazaId, supervisorId) {
     getIO().to(`user:${solicitud.usuario_id}`).emit('plaza:asignada', {
       solicitud_id: solicitudId,
       plaza_id: plazaId,
-      plaza_codigo: plaza.rows[0].codigo
+      plaza_codigo: plaza.rows[0].codigo,
     });
   } catch (err) {
-    logger.warn('Error al emitir plaza:asignada al confirmar ingreso', { error: err.message, usuario_id: solicitud.usuario_id });
+    logger.warn('Error al emitir plaza:asignada al confirmar ingreso', {
+      error: err.message,
+      usuario_id: solicitud.usuario_id,
+    });
   }
 
   return {
     mensaje: 'Ingreso confirmado exitosamente',
-    solicitud
+    solicitud,
   };
 }
 
@@ -175,22 +194,27 @@ async function registrarSalida(solicitudId, supervisorId) {
     await plazaRepository.updateEstado(solicitud.plaza_asignada_id, ESTADO_PLAZA.DISPONIBLE);
   }
 
-  try { getIO().emit('ocupacion:updated'); } catch (err) {
+  try {
+    getIO().emit('ocupacion:updated');
+  } catch (err) {
     logger.warn('Error al emitir ocupacion:updated al registrar salida', { error: err.message });
   }
 
   try {
     getIO().to(`user:${solicitud.usuario_id}`).emit('salida:registrada', {
       solicitud_id: solicitudId,
-      mensaje: 'Su salida ha sido registrada'
+      mensaje: 'Su salida ha sido registrada',
     });
   } catch (err) {
-    logger.warn('Error al emitir salida:registrada', { error: err.message, usuario_id: solicitud.usuario_id });
+    logger.warn('Error al emitir salida:registrada', {
+      error: err.message,
+      usuario_id: solicitud.usuario_id,
+    });
   }
 
   return {
     mensaje: 'Salida registrada exitosamente',
-    solicitud: updated
+    solicitud: updated,
   };
 }
 
@@ -205,7 +229,10 @@ async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, codigo) {
   const numeroPlaza = parseInt(match[2], 10);
 
   const resultado = await supervisorRepository.buscarPorIdentificador(
-    estacionamientoId, tipoVehiculo, letraBloque, numeroPlaza
+    estacionamientoId,
+    tipoVehiculo,
+    letraBloque,
+    numeroPlaza,
   );
   if (!resultado) {
     const error = new Error('No se encontró ninguna solicitud activa con ese código');
@@ -215,4 +242,13 @@ async function buscarPorIdentificador(estacionamientoId, tipoVehiculo, codigo) {
   return resultado;
 }
 
-module.exports = { asignarPlaza, getDashboard, buscarPorPlaca, buscarPorSolicitudId, obtenerPlazasDisponibles, confirmarIngreso, registrarSalida, buscarPorIdentificador };
+module.exports = {
+  asignarPlaza,
+  getDashboard,
+  buscarPorPlaca,
+  buscarPorSolicitudId,
+  obtenerPlazasDisponibles,
+  confirmarIngreso,
+  registrarSalida,
+  buscarPorIdentificador,
+};

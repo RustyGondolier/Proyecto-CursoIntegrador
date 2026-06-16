@@ -14,7 +14,7 @@ async function getTiempoPermanencia(fechaInicio, fechaFin) {
        AND hora_ingreso < ($2::timestamp + INTERVAL '1 day')
      GROUP BY DATE(hora_ingreso)
      ORDER BY dia`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
   return result.rows;
 }
@@ -29,7 +29,7 @@ async function getSolicitudesPorHora(fechaInicio, fechaFin) {
        AND hora_solicitud < ($2::timestamp + INTERVAL '1 day')
      GROUP BY hora
      ORDER BY hora`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
   return result.rows;
 }
@@ -49,7 +49,7 @@ async function getOcupacionPorDia(fechaInicio, fechaFin) {
        AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
      GROUP BY e.nombre, DATE(s.hora_ingreso)
      ORDER BY dia, e.nombre`,
-    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO],
   );
   return result.rows;
 }
@@ -69,7 +69,7 @@ async function getOcupacionPorSemana(fechaInicio, fechaFin) {
         AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
       GROUP BY e.nombre, TO_CHAR(s.hora_ingreso, 'IYYY-IW')
       ORDER BY semana, e.nombre`,
-    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO],
   );
   return result.rows;
 }
@@ -89,7 +89,7 @@ async function getOcupacionPorHora(fechaInicio, fechaFin) {
         AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
       GROUP BY e.nombre, EXTRACT(HOUR FROM s.hora_ingreso)
       ORDER BY hora, e.nombre`,
-    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO],
   );
   return result.rows;
 }
@@ -106,7 +106,7 @@ async function getReportesInfo(fechaInicio, fechaFin) {
        AND r.creado_en < ($2::timestamp + INTERVAL '1 day')
      GROUP BY er.id, er.codigo, er.descripcion
      ORDER BY er.id`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
 
   const porTipo = await pool.query(
@@ -120,12 +120,12 @@ async function getReportesInfo(fechaInicio, fechaFin) {
        AND i.creado_en < ($2::timestamp + INTERVAL '1 day')
      GROUP BY ti.id, ti.codigo, ti.descripcion
      ORDER BY total DESC`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
 
   return {
     por_estado: porEstado.rows,
-    por_tipo: porTipo.rows
+    por_tipo: porTipo.rows,
   };
 }
 
@@ -136,7 +136,7 @@ async function getSolicitudesExport(fechaInicio, fechaFin) {
      WHERE hora_solicitud >= $1::timestamp
        AND hora_solicitud < ($2::timestamp + INTERVAL '1 day')
      ORDER BY hora_solicitud`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
   return result.rows;
 }
@@ -152,7 +152,7 @@ async function getOcupacionExport(fechaInicio, fechaFin) {
         AND s.hora_ingreso >= $1::timestamp
         AND s.hora_ingreso < ($2::timestamp + INTERVAL '1 day')
       ORDER BY s.hora_ingreso`,
-    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO]
+    [fechaInicio, fechaFin, ESTADO_SOLICITUD.INGRESADO, ESTADO_SOLICITUD.FINALIZADO],
   );
   return result.rows;
 }
@@ -169,7 +169,7 @@ async function getResumen(fechaInicio, fechaFin) {
         WHERE creado_en >= $1::timestamp AND creado_en < ($2::timestamp + INTERVAL '1 day')) AS total_infracciones,
        (SELECT COUNT(*) FROM reportes_incidencias
         WHERE creado_en >= $1::timestamp AND creado_en < ($2::timestamp + INTERVAL '1 day')) AS total_reportes`,
-    [fechaInicio, fechaFin]
+    [fechaInicio, fechaFin],
   );
   return result.rows[0];
 }
@@ -183,5 +183,5 @@ module.exports = {
   getOcupacionPorHora,
   getOcupacionExport,
   getReportesInfo,
-  getResumen
+  getResumen,
 };

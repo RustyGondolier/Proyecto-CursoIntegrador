@@ -1,49 +1,34 @@
-const pool =
-  require('../../db');
+const pool = require('../../db');
 
-async function findByCodigo(
-  codigo
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function findByCodigo(codigo) {
+  const resultado = await pool.query(
+    `
       SELECT *
       FROM usuarios
       WHERE codigo_universitario = $1
       `,
-      [codigo]
-    );
+    [codigo],
+  );
 
   return resultado.rows[0];
-
 }
 
-async function findById(
-  id
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function findById(id) {
+  const resultado = await pool.query(
+    `
       SELECT *
       FROM usuarios
       WHERE id = $1
       `,
-      [id]
-    );
+    [id],
+  );
 
   return resultado.rows[0];
-
 }
 
-async function create(
-  datos
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function create(datos) {
+  const resultado = await pool.query(
+    `
       INSERT INTO usuarios(
         codigo_universitario,
         nombre,
@@ -63,30 +48,25 @@ async function create(
       )
       RETURNING *
       `,
-      [
-        datos.codigo_universitario,
-        datos.nombre,
-        datos.password_hash,
-        datos.telefono,
-        datos.dni,
-        datos.fecha_nacimiento,
-        datos.correo_institucional,
-        datos.nro_licencia,
-        datos.licencia_fecha_vencimiento,
-        datos.codigo_conadis,
-        datos.rol
-      ]
-    );
+    [
+      datos.codigo_universitario,
+      datos.nombre,
+      datos.password_hash,
+      datos.telefono,
+      datos.dni,
+      datos.fecha_nacimiento,
+      datos.correo_institucional,
+      datos.nro_licencia,
+      datos.licencia_fecha_vencimiento,
+      datos.codigo_conadis,
+      datos.rol,
+    ],
+  );
 
   return resultado.rows[0];
-
 }
 
-async function updateProfile(
-  id,
-  datos
-){
-
+async function updateProfile(id, datos) {
   await pool.query(
     `
     UPDATE usuarios
@@ -108,19 +88,14 @@ async function updateProfile(
       datos.licencia_fecha_vencimiento ?? null,
       datos.dni ?? null,
       datos.nro_licencia ?? null,
-      id
-    ]
+      id,
+    ],
   );
-
 }
 
-async function getProfileWithVehicles(
-  userId
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function getProfileWithVehicles(userId) {
+  const resultado = await pool.query(
+    `
       SELECT
         u.id,
         u.codigo_universitario,
@@ -153,116 +128,86 @@ async function getProfileWithVehicles(
       WHERE u.id = $1
       GROUP BY u.id
       `,
-      [userId]
-    );
+    [userId],
+  );
 
   return resultado.rows[0] || null;
-
 }
 
 /* Comprobacion si existe el usuario - Para register */
 
-async function existsByCode(
-  codigo
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function existsByCode(codigo) {
+  const resultado = await pool.query(
+    `
       SELECT id
       FROM usuarios
       WHERE codigo_universitario = $1
       `,
-      [codigo]
-    );
+    [codigo],
+  );
 
   return resultado.rows.length > 0;
-
 }
 
-async function findByEmail(
-  correo
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function findByEmail(correo) {
+  const resultado = await pool.query(
+    `
       SELECT id
       FROM usuarios
       WHERE correo_institucional = $1
       `,
-      [correo]
-    );
+    [correo],
+  );
 
   return resultado.rows[0] || null;
-
 }
 
-async function findByLicense(
-  licencia
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function findByLicense(licencia) {
+  const resultado = await pool.query(
+    `
       SELECT id
       FROM usuarios
       WHERE nro_licencia = $1
       `,
-      [licencia]
-    );
+    [licencia],
+  );
 
   return resultado.rows[0] || null;
-
 }
 
-async function resetVerification(
-  userId
-){
-
+async function resetVerification(userId) {
   await pool.query(
     `
     UPDATE usuarios
     SET verificado = false, requiere_reverificacion = true
     WHERE id = $1
     `,
-    [userId]
+    [userId],
   );
-
 }
 
-async function getPasswordHash(
-  userId
-){
-
-  const resultado =
-    await pool.query(
-      `
+async function getPasswordHash(userId) {
+  const resultado = await pool.query(
+    `
       SELECT password_hash
       FROM usuarios
       WHERE id = $1
       `,
-      [userId]
-    );
+    [userId],
+  );
 
   return resultado.rows[0]?.password_hash || null;
-
 }
 
-async function updatePassword(
-  userId,
-  passwordHash
-){
-
+async function updatePassword(userId, passwordHash) {
   await pool.query(
     `
     UPDATE usuarios
     SET password_hash = $1
     WHERE id = $2
     `,
-    [passwordHash, userId]
+    [passwordHash, userId],
   );
-
 }
 
 module.exports = {
@@ -276,5 +221,5 @@ module.exports = {
   findByLicense,
   resetVerification,
   getPasswordHash,
-  updatePassword
+  updatePassword,
 };

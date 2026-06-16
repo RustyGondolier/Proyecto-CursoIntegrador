@@ -8,7 +8,7 @@ async function getDashboard(fechaInicio, fechaFin) {
     ocupacionPorDia,
     ocupacionPorSemana,
     ocupacionPorHora,
-    reportes
+    reportes,
   ] = await Promise.all([
     direccionRepository.getResumen(fechaInicio, fechaFin),
     direccionRepository.getTiempoPermanencia(fechaInicio, fechaFin),
@@ -16,7 +16,7 @@ async function getDashboard(fechaInicio, fechaFin) {
     direccionRepository.getOcupacionPorDia(fechaInicio, fechaFin),
     direccionRepository.getOcupacionPorSemana(fechaInicio, fechaFin),
     direccionRepository.getOcupacionPorHora(fechaInicio, fechaFin),
-    direccionRepository.getReportesInfo(fechaInicio, fechaFin)
+    direccionRepository.getReportesInfo(fechaInicio, fechaFin),
   ]);
 
   return {
@@ -24,16 +24,16 @@ async function getDashboard(fechaInicio, fechaFin) {
       total_solicitudes: Number(resumen.total_solicitudes),
       total_ingresos: Number(resumen.total_ingresos),
       total_infracciones: Number(resumen.total_infracciones),
-      total_reportes: Number(resumen.total_reportes)
+      total_reportes: Number(resumen.total_reportes),
     },
     permanencia,
     solicitudes_por_hora: solicitudesPorHora,
     ocupacion: {
       por_dia: ocupacionPorDia,
       por_semana: ocupacionPorSemana,
-      por_hora: ocupacionPorHora
+      por_hora: ocupacionPorHora,
     },
-    reportes
+    reportes,
   };
 }
 
@@ -48,5 +48,5 @@ async function getOcupacionExport(fechaInicio, fechaFin) {
 module.exports = {
   getDashboard,
   getSolicitudesExport,
-  getOcupacionExport
+  getOcupacionExport,
 };

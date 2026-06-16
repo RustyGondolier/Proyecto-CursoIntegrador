@@ -21,12 +21,15 @@ async function crear(req, res) {
 
     const data = await reporteService.crear({
       usuario_id: req.usuario.id,
-      descripcion
+      descripcion,
     });
 
     res.status(201).json(data);
   } catch (err) {
-    logger.error('Error al crear reporte: ' + err.message, { stack: err.stack, usuario_id: req.usuario?.id });
+    logger.error('Error al crear reporte: ' + err.message, {
+      stack: err.stack,
+      usuario_id: req.usuario?.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error al crear el reporte' });
   }
 }
@@ -47,11 +50,14 @@ async function marcarEnRevision(req, res) {
     const { id } = req.params;
     const data = await reporteService.marcarEnRevision({
       id: Number(id),
-      supervisor_id: req.usuario.id
+      supervisor_id: req.usuario.id,
     });
     res.json(data);
   } catch (err) {
-    logger.error('Error al actualizar reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
+    logger.error('Error al actualizar reporte: ' + err.message, {
+      stack: err.stack,
+      reporte_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error al actualizar el reporte' });
   }
 }
@@ -62,7 +68,10 @@ async function obtener(req, res) {
     const reporte = await reporteService.obtenerDetalle(Number(id));
     res.json(reporte);
   } catch (err) {
-    logger.error('Error al obtener reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
+    logger.error('Error al obtener reporte: ' + err.message, {
+      stack: err.stack,
+      reporte_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error al obtener el reporte' });
   }
 }
@@ -79,12 +88,15 @@ async function responder(req, res) {
     const data = await reporteService.responder({
       id: Number(id),
       supervisor_id: req.usuario.id,
-      respuesta
+      respuesta,
     });
 
     res.json(data);
   } catch (err) {
-    logger.error('Error al responder reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
+    logger.error('Error al responder reporte: ' + err.message, {
+      stack: err.stack,
+      reporte_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error al responder el reporte' });
   }
 }
@@ -101,13 +113,18 @@ async function marcarPrioritario(req, res) {
     const data = await reporteService.marcarPrioritario({
       id: Number(id),
       supervisor_id: req.usuario.id,
-      razon
+      razon,
     });
 
     res.json(data);
   } catch (err) {
-    logger.error('Error al marcar prioritario: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
-    res.status(err.status || 500).json({ error: err.message || 'Error al marcar como prioritario' });
+    logger.error('Error al marcar prioritario: ' + err.message, {
+      stack: err.stack,
+      reporte_id: req.params.id,
+    });
+    res
+      .status(err.status || 500)
+      .json({ error: err.message || 'Error al marcar como prioritario' });
   }
 }
 
@@ -118,5 +135,5 @@ module.exports = {
   obtener,
   crear,
   responder,
-  marcarPrioritario
+  marcarPrioritario,
 };

@@ -1,12 +1,9 @@
-const pool =
-  require('../../db');
+const pool = require('../../db');
 const { ESTADO_PLAZA, ESTADO_SOLICITUD, TIPO_VEHICULO } = require('../config/constants');
 
-async function getOcupacion(){
-
-  const resultado =
-    await pool.query(
-      `
+async function getOcupacion() {
+  const resultado = await pool.query(
+    `
       SELECT
 
         e.id,
@@ -72,21 +69,15 @@ async function getOcupacion(){
 
       ORDER BY e.id
       `,
-    [
-      TIPO_VEHICULO.AUTO,
-      ESTADO_PLAZA.OCUPADA,
-      ESTADO_SOLICITUD.PENDIENTE,
-      TIPO_VEHICULO.MOTO
-    ]
+    [TIPO_VEHICULO.AUTO, ESTADO_PLAZA.OCUPADA, ESTADO_SOLICITUD.PENDIENTE, TIPO_VEHICULO.MOTO],
   );
 
   return resultado.rows;
-
 }
 
 async function getAll() {
   const result = await pool.query(
-    'SELECT id, nombre, ubicacion FROM estacionamientos WHERE activo = true ORDER BY id'
+    'SELECT id, nombre, ubicacion FROM estacionamientos WHERE activo = true ORDER BY id',
   );
   return result.rows;
 }
@@ -99,7 +90,7 @@ async function getPlazasByEstacionamiento(estacionamientoId) {
      JOIN bloques b ON b.id = p.bloque_id
      WHERE b.estacionamiento_id = $1
      ORDER BY b.id, p.numero_plaza`,
-    [estacionamientoId]
+    [estacionamientoId],
   );
   return result.rows;
 }
@@ -107,5 +98,5 @@ async function getPlazasByEstacionamiento(estacionamientoId) {
 module.exports = {
   getOcupacion,
   getAll,
-  getPlazasByEstacionamiento
+  getPlazasByEstacionamiento,
 };

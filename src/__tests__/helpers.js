@@ -17,7 +17,7 @@ const { generateToken } = require('../utils/jwt');
 // Pool compartido para helpers que necesitan consultar BD directamente
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
 // ────────────────────────────────────────────────────────────
@@ -25,11 +25,9 @@ const pool = new Pool({
 // RF01, RF02, RF03, RF05, RF07, RF08, RF15, RF16, RF19, RF20
 // ────────────────────────────────────────────────────────────
 async function createTestUser(overrides = {}) {
-  const suffix = Date.now().toString(36) +
-    Math.random().toString(36).slice(2, 6);
+  const suffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-  const password_hash =
-    await bcrypt.hash('password123', 4);
+  const password_hash = await bcrypt.hash('password123', 4);
 
   const defaults = {
     codigo_universitario: `U${suffix}`,
@@ -43,7 +41,7 @@ async function createTestUser(overrides = {}) {
     estado_cuenta: 'activa',
     verificado: true,
     requiere_reverificacion: false,
-    ...overrides
+    ...overrides,
   };
 
   const keys = Object.keys(defaults);
@@ -54,7 +52,7 @@ async function createTestUser(overrides = {}) {
     `INSERT INTO usuarios (${keys.join(', ')})
      VALUES (${placeholders})
      RETURNING *`,
-    values
+    values,
   );
 
   const usuario = result.rows[0];
@@ -76,14 +74,13 @@ async function createTestVehicle(usuarioId, overrides = {}) {
     placa: `ABC-${suffix}`,
     modelo: 'Sedan Test',
     activo: true,
-    ...overrides
+    ...overrides,
   };
 
   if (typeof data.tipo_vehiculo_id === 'string') {
-    const lookup = await pool.query(
-      'SELECT id FROM tipos_vehiculo WHERE codigo = $1',
-      [data.tipo_vehiculo_id]
-    );
+    const lookup = await pool.query('SELECT id FROM tipos_vehiculo WHERE codigo = $1', [
+      data.tipo_vehiculo_id,
+    ]);
     data.tipo_vehiculo_id = lookup.rows[0]?.id || 1;
   }
 
@@ -92,13 +89,7 @@ async function createTestVehicle(usuarioId, overrides = {}) {
        (usuario_id, tipo_vehiculo_id, placa, modelo, activo)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [
-      data.usuario_id,
-      data.tipo_vehiculo_id,
-      data.placa,
-      data.modelo,
-      data.activo
-    ]
+    [data.usuario_id, data.tipo_vehiculo_id, data.placa, data.modelo, data.activo],
   );
 
   return result.rows[0];
@@ -108,13 +99,8 @@ async function createTestVehicle(usuarioId, overrides = {}) {
 // createTestSolicitud
 // RF07, RF08, RF10, RF11, RF19, RF20
 // ────────────────────────────────────────────────────────────
-async function createTestSolicitud(
-  usuarioId,
-  vehiculoId,
-  overrides = {}
-) {
-  const hora_limite =
-    new Date(Date.now() + 30 * 60 * 1000).toISOString();
+async function createTestSolicitud(usuarioId, vehiculoId, overrides = {}) {
+  const hora_limite = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
   const defaults = {
     usuario_id: usuarioId,
@@ -122,7 +108,7 @@ async function createTestSolicitud(
     estacionamiento_id: 1,
     hora_limite_ingreso: hora_limite,
     estado: 'pendiente',
-    ...overrides
+    ...overrides,
   };
 
   const result = await pool.query(
@@ -136,8 +122,8 @@ async function createTestSolicitud(
       defaults.vehiculo_id,
       defaults.estacionamiento_id,
       defaults.hora_limite_ingreso,
-      defaults.estado
-    ]
+      defaults.estado,
+    ],
   );
 
   return result.rows[0];
@@ -148,14 +134,9 @@ async function createTestSolicitud(
 // Flujo completo: solicitud → asignar plaza → confirmar ingreso
 // RF10, RF11, RF20
 // ────────────────────────────────────────────────────────────
-async function createTestIngreso(
-  usuarioId,
-  vehiculoId,
-  supervisorId
-) {
+async function createTestIngreso(usuarioId, vehiculoId, supervisorId) {
   // 1. Crear solicitud pendiente
-  const solicitud =
-    await createTestSolicitud(usuarioId, vehiculoId);
+  const solicitud = await createTestSolicitud(usuarioId, vehiculoId);
 
   // 2. Tomar una plaza disponible del estacionamiento 1
   const plaza = await pool.query(
@@ -166,13 +147,11 @@ async function createTestIngreso(
          WHERE estacionamiento_id = $1
        )
      LIMIT 1`,
-    [solicitud.estacionamiento_id]
+    [solicitud.estacionamiento_id],
   );
 
   if (plaza.rows.length === 0) {
-    throw new Error(
-      'No hay plazas disponibles para createTestIngreso'
-    );
+    throw new Error('No hay plazas disponibles para createTestIngreso');
   }
 
   const plazaId = plaza.rows[0].id;
@@ -186,26 +165,18 @@ async function createTestIngreso(
          estado = 'ingresado',
          identificador_codigo = $3
      WHERE id = $4`,
-    [
-      plazaId,
-      supervisorId,
-      `ID-${solicitud.id}`,
-      solicitud.id
-    ]
+    [plazaId, supervisorId, `ID-${solicitud.id}`, solicitud.id],
   );
 
   // 4. Marcar plaza como ocupada
-  await pool.query(
-    `UPDATE plazas SET estado = 'ocupada' WHERE id = $1`,
-    [plazaId]
-  );
+  await pool.query(`UPDATE plazas SET estado = 'ocupada' WHERE id = $1`, [plazaId]);
 
   return {
     ...solicitud,
     plaza_asignada_id: plazaId,
     plaza_codigo: plaza.rows[0].codigo,
     supervisor_ingreso_id: supervisorId,
-    identificador_codigo: `ID-${solicitud.id}`
+    identificador_codigo: `ID-${solicitud.id}`,
   };
 }
 
@@ -223,10 +194,7 @@ function authCookie(token) {
 // Marca N plazas como ocupadas para simular estacionamiento
 // RF06, RF07 (estacionamiento lleno)
 // ────────────────────────────────────────────────────────────
-async function seedPlazasOcupadas(
-  estacionamientoId,
-  cantidad
-) {
+async function seedPlazasOcupadas(estacionamientoId, cantidad) {
   await pool.query(
     `UPDATE plazas SET estado = 'ocupada'
      WHERE id IN (
@@ -235,7 +203,7 @@ async function seedPlazasOcupadas(
        WHERE b.estacionamiento_id = $1
        LIMIT $2
      )`,
-    [estacionamientoId, cantidad]
+    [estacionamientoId, cantidad],
   );
 }
 
@@ -254,5 +222,5 @@ module.exports = {
   createTestIngreso,
   authCookie,
   seedPlazasOcupadas,
-  closeHelpersPool
+  closeHelpersPool,
 };

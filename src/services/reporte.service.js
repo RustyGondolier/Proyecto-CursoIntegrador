@@ -20,17 +20,22 @@ async function marcarEnRevision({ id, supervisor_id }) {
     error.status = 404;
     throw error;
   }
-  if (reporte.estado_id !== ESTADO_REPORTE_ID.ENVIADO) return reporte;
+  if (reporte.estado_id !== ESTADO_REPORTE_ID.ENVIADO) {
+    return reporte;
+  }
 
   const actualizado = await reporteRepository.marcarEnRevision({ id, supervisor_id });
 
   try {
     getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
       reporte_id: id,
-      estado_id: ESTADO_REPORTE_ID.EN_REVISION
+      estado_id: ESTADO_REPORTE_ID.EN_REVISION,
     });
   } catch (err) {
-    logger.warn('Error al emitir reporte:actualizado (en revisión)', { error: err.message, reporte_id: id });
+    logger.warn('Error al emitir reporte:actualizado (en revisión)', {
+      error: err.message,
+      reporte_id: id,
+    });
   }
 
   return actualizado;
@@ -65,7 +70,7 @@ async function crear({ usuario_id, descripcion }) {
     estacionamiento_id: activa.estacionamiento_id,
     solicitud_id: activa.id,
     plaza_id: activa.plaza_asignada_id,
-    descripcion: descripcion.trim()
+    descripcion: descripcion.trim(),
   });
 
   try {
@@ -73,7 +78,7 @@ async function crear({ usuario_id, descripcion }) {
       tipo_codigo: TIPO_NOTIFICACION.REPORTE,
       titulo: 'Nuevo reporte de incidencia',
       mensaje: `Un usuario ha reportado una incidencia. Revisa los reportes pendientes.`,
-      url_destino: `/supervisor/incidencias/incidencias.html`
+      url_destino: `/supervisor/incidencias/incidencias.html`,
     });
   } catch (err) {
     logger.warn('Error al notificar supervisores sobre nuevo reporte', { error: err.message });
@@ -100,7 +105,7 @@ async function responder({ id, supervisor_id, respuesta }) {
     id,
     estado_id: ESTADO_REPORTE_ID.RESUELTO,
     supervisor_id,
-    respuesta_supervisor: respuesta.trim()
+    respuesta_supervisor: respuesta.trim(),
   });
 
   if (!actualizado) {
@@ -115,7 +120,7 @@ async function responder({ id, supervisor_id, respuesta }) {
       tipo_codigo: TIPO_NOTIFICACION.REPORTE,
       titulo: 'Reporte resuelto',
       mensaje: `Tu reporte #REP-${String(id).padStart(5, '0')} ha sido resuelto por un supervisor.`,
-      url_destino: `/usuario/reportes/reportes.html`
+      url_destino: `/usuario/reportes/reportes.html`,
     });
   } catch (err) {
     logger.warn('Error al notificar respuesta de reporte', { error: err.message, reporte_id: id });
@@ -124,10 +129,13 @@ async function responder({ id, supervisor_id, respuesta }) {
   try {
     getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
       reporte_id: id,
-      estado_id: ESTADO_REPORTE_ID.RESUELTO
+      estado_id: ESTADO_REPORTE_ID.RESUELTO,
     });
   } catch (err) {
-    logger.warn('Error al emitir reporte:actualizado (resuelto)', { error: err.message, reporte_id: id });
+    logger.warn('Error al emitir reporte:actualizado (resuelto)', {
+      error: err.message,
+      reporte_id: id,
+    });
   }
 
   return actualizado;
@@ -150,7 +158,7 @@ async function marcarPrioritario({ id, supervisor_id, razon }) {
   const actualizado = await reporteRepository.marcarPrioritario({
     id,
     supervisor_id,
-    razon_prioridad: razon.trim()
+    razon_prioridad: razon.trim(),
   });
 
   if (!actualizado) {
@@ -164,19 +172,25 @@ async function marcarPrioritario({ id, supervisor_id, razon }) {
       tipo_codigo: TIPO_NOTIFICACION.REPORTE,
       titulo: 'Reporte prioritario',
       mensaje: `El reporte #REP-${String(id).padStart(5, '0')} ha sido marcado como prioritario por un supervisor. Razón: ${razon.trim()}`,
-      url_destino: `/administrador/incidencias/incidencias.html`
+      url_destino: `/administrador/incidencias/incidencias.html`,
     });
   } catch (err) {
-    logger.warn('Error al notificar administradores sobre reporte prioritario', { error: err.message, reporte_id: id });
+    logger.warn('Error al notificar administradores sobre reporte prioritario', {
+      error: err.message,
+      reporte_id: id,
+    });
   }
 
   try {
     getIO().to(`user:${reporte.usuario_id}`).emit('reporte:actualizado', {
       reporte_id: id,
-      estado_id: ESTADO_REPORTE_ID.PRIORITARIO
+      estado_id: ESTADO_REPORTE_ID.PRIORITARIO,
     });
   } catch (err) {
-    logger.warn('Error al emitir reporte:actualizado (prioritario)', { error: err.message, reporte_id: id });
+    logger.warn('Error al emitir reporte:actualizado (prioritario)', {
+      error: err.message,
+      reporte_id: id,
+    });
   }
 
   return actualizado;
@@ -189,5 +203,5 @@ module.exports = {
   obtenerDetalle,
   crear,
   responder,
-  marcarPrioritario
+  marcarPrioritario,
 };

@@ -24,7 +24,13 @@ async function listarPendientes(req, res) {
 async function listarUsuarios(req, res) {
   try {
     const { search, rol, estado, fecha_desde, fecha_hasta } = req.query;
-    const data = await adminService.listarUsuarios({ search, rol, estado, fecha_desde, fecha_hasta });
+    const data = await adminService.listarUsuarios({
+      search,
+      rol,
+      estado,
+      fecha_desde,
+      fecha_hasta,
+    });
     res.json(data);
   } catch (err) {
     logger.error('Error al obtener usuarios: ' + err.message, { stack: err.stack });
@@ -41,7 +47,10 @@ async function obtenerUsuario(req, res) {
     const data = await adminService.obtenerUsuario(Number(id));
     res.json(data);
   } catch (err) {
-    logger.error('Error al obtener usuario: ' + err.message, { stack: err.stack, usuario_id: req.params.id });
+    logger.error('Error al obtener usuario: ' + err.message, {
+      stack: err.stack,
+      usuario_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -55,7 +64,10 @@ async function aprobarPerfil(req, res) {
     const data = await adminService.aprobarPerfil(req.usuario.id, Number(id));
     res.json(data);
   } catch (err) {
-    logger.error('Error al aprobar perfil: ' + err.message, { stack: err.stack, target_usuario_id: req.params.id });
+    logger.error('Error al aprobar perfil: ' + err.message, {
+      stack: err.stack,
+      target_usuario_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -70,7 +82,10 @@ async function suspenderCuenta(req, res) {
     const data = await adminService.suspenderCuenta(req.usuario.id, Number(id), motivo);
     res.json(data);
   } catch (err) {
-    logger.error('Error al suspender cuenta: ' + err.message, { stack: err.stack, target_usuario_id: req.params.id });
+    logger.error('Error al suspender cuenta: ' + err.message, {
+      stack: err.stack,
+      target_usuario_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -84,7 +99,10 @@ async function reactivarCuenta(req, res) {
     const data = await adminService.reactivarCuenta(req.usuario.id, Number(id));
     res.json(data);
   } catch (err) {
-    logger.error('Error al reactivar cuenta: ' + err.message, { stack: err.stack, target_usuario_id: req.params.id });
+    logger.error('Error al reactivar cuenta: ' + err.message, {
+      stack: err.stack,
+      target_usuario_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -97,7 +115,7 @@ async function listarInfracciones(req, res) {
       usuario_search,
       fecha_desde,
       fecha_hasta,
-      usuario_estado
+      usuario_estado,
     });
     res.json(data);
   } catch (err) {
@@ -115,7 +133,10 @@ async function obtenerInfraccion(req, res) {
     const data = await adminService.obtenerInfraccion(Number(id));
     res.json(data);
   } catch (err) {
-    logger.error('Error al obtener infracción: ' + err.message, { stack: err.stack, infraccion_id: req.params.id });
+    logger.error('Error al obtener infracción: ' + err.message, {
+      stack: err.stack,
+      infraccion_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -139,7 +160,10 @@ async function resolverReporte(req, res) {
     const data = await adminService.resolverReporte(req.usuario.id, Number(id));
     res.json(data);
   } catch (err) {
-    logger.error('Error al resolver reporte: ' + err.message, { stack: err.stack, reporte_id: req.params.id });
+    logger.error('Error al resolver reporte: ' + err.message, {
+      stack: err.stack,
+      reporte_id: req.params.id,
+    });
     res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
@@ -166,5 +190,5 @@ module.exports = {
   obtenerInfraccion,
   listarReportesPrioritarios,
   resolverReporte,
-  listarAcciones
+  listarAcciones,
 };

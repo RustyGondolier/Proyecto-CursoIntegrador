@@ -1,31 +1,21 @@
-const pool =
-  require('../../db');
+const pool = require('../../db');
 
-async function findUserByCode(
-  codigo
-){
-
-  const result =
-    await pool.query(
-      `
+async function findUserByCode(codigo) {
+  const result = await pool.query(
+    `
       SELECT *
       FROM usuarios
       WHERE codigo_universitario=$1
       `,
-      [codigo]
-    );
+    [codigo],
+  );
 
   return result.rows[0];
-
 }
 
-async function getProfile(
-  userId
-){
-
-  const result =
-    await pool.query(
-      `
+async function getProfile(userId) {
+  const result = await pool.query(
+    `
       SELECT
         u.*,
         v.placa,
@@ -37,14 +27,13 @@ async function getProfile(
 
       WHERE u.id=$1
       `,
-      [userId]
-    );
+    [userId],
+  );
 
   return result.rows[0];
-
 }
 
 module.exports = {
   findUserByCode,
-  getProfile
+  getProfile,
 };

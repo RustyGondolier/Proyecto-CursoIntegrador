@@ -8,8 +8,11 @@ const request = require('supertest');
 const app = require('../app');
 const pool = require('../../db');
 const {
-  createTestUser, createTestVehicle, createTestSolicitud,
-  createTestIngreso, authCookie
+  createTestUser,
+  createTestVehicle,
+  createTestSolicitud,
+  createTestIngreso,
+  authCookie,
 } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
@@ -30,14 +33,11 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
 
   // Escenario exitoso: crear solicitud con ubicacion dentro del campus
   test('crear solicitud exitosa dentro del radio 2.5 km', async () => {
-    const res = await request(app)
-      .post('/api/solicitudes/crear')
-      .set(authCookie(token))
-      .send({
-        estacionamiento_id: 1,
-        lat: -12.1939,
-        lng: -76.9715
-      });
+    const res = await request(app).post('/api/solicitudes/crear').set(authCookie(token)).send({
+      estacionamiento_id: 1,
+      lat: -12.1939,
+      lng: -76.9715,
+    });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body.estado).toBe('pendiente');
@@ -45,18 +45,13 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
 
   // Escenario de excepcion (E1): ubicacion fuera del radio del campus
   test('E1: rechaza solicitud fuera del radio de la sede', async () => {
-    await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(token));
+    await request(app).post('/api/solicitudes/cancelar').set(authCookie(token));
 
-    const res = await request(app)
-      .post('/api/solicitudes/crear')
-      .set(authCookie(token))
-      .send({
-        estacionamiento_id: 1,
-        lat: -12.1000,
-        lng: -77.0000
-      });
+    const res = await request(app).post('/api/solicitudes/crear').set(authCookie(token)).send({
+      estacionamiento_id: 1,
+      lat: -12.1,
+      lng: -77.0,
+    });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/campus/i);
   });
@@ -80,7 +75,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
   test('rechaza solicitud sin vehiculo registrado', async () => {
     const userNoVh = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}NV`
+      codigo_universitario: `U${Date.now()}NV`,
     });
 
     const res = await request(app)
@@ -89,7 +84,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
       .send({
         estacionamiento_id: 1,
         lat: -12.1939,
-        lng: -76.9715
+        lng: -76.9715,
       });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/veh[ií]culo/i);
@@ -99,7 +94,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
   test('rechaza solicitud con perfil no verificado', async () => {
     const userNoVer = await createTestUser({
       verificado: false,
-      codigo_universitario: `U${Date.now()}NVER`
+      codigo_universitario: `U${Date.now()}NVER`,
     });
     await createTestVehicle(userNoVer.usuario.id);
 
@@ -109,7 +104,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
       .send({
         estacionamiento_id: 1,
         lat: -12.1939,
-        lng: -76.9715
+        lng: -76.9715,
       });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/verificad/i);
@@ -119,12 +114,12 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
   test('E4: rechaza solicitud si estacionamiento esta lleno', async () => {
     await pool.query(
       `UPDATE plazas SET estado = 'ocupada'
-       WHERE bloque_id IN (SELECT id FROM bloques WHERE estacionamiento_id = 1)`
+       WHERE bloque_id IN (SELECT id FROM bloques WHERE estacionamiento_id = 1)`,
     );
 
     const userLleno = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}LLENO`
+      codigo_universitario: `U${Date.now()}LLENO`,
     });
     await createTestVehicle(userLleno.usuario.id);
 
@@ -134,7 +129,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
       .send({
         estacionamiento_id: 1,
         lat: -12.1939,
-        lng: -76.9715
+        lng: -76.9715,
       });
     expect(res.status).toBe(409);
     expect(res.body.error).toMatch(/disponible/i);
@@ -165,9 +160,7 @@ describe('RF08 - Cancelacion de solicitud [CUS08]', () => {
       .set(authCookie(token))
       .send({ estacionamiento_id: 1, lat: -12.1939, lng: -76.9715 });
 
-    const res = await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(token));
+    const res = await request(app).post('/api/solicitudes/cancelar').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(res.body.mensaje).toMatch(/cancelada/i);
   });
@@ -176,28 +169,24 @@ describe('RF08 - Cancelacion de solicitud [CUS08]', () => {
   test('E1: no permite cancelar si supervisor ya confirmo ingreso', async () => {
     const sup = await createTestUser({
       rol: 'supervisor',
-      codigo_universitario: `U${Date.now()}SUP`
+      codigo_universitario: `U${Date.now()}SUP`,
     });
     const user = await createTestUser({
       verificado: true,
-      codigo_universitario: `U${Date.now()}USER`
+      codigo_universitario: `U${Date.now()}USER`,
     });
     const vh = await createTestVehicle(user.usuario.id);
 
     await createTestIngreso(user.usuario.id, vh.id, sup.usuario.id);
 
-    const res = await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(user.token));
+    const res = await request(app).post('/api/solicitudes/cancelar').set(authCookie(user.token));
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/supervisor/i);
   });
 
   // Escenario de excepcion: cancelar sin tener una solicitud activa
   test('rechaza cancelar sin solicitud activa', async () => {
-    const res = await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(token));
+    const res = await request(app).post('/api/solicitudes/cancelar').set(authCookie(token));
     expect(res.status).toBe(404);
     expect(res.body.error).toMatch(/activa/i);
   });
@@ -219,9 +208,7 @@ describe('RF20 - Historial de accesos [CUS20]', () => {
 
   // Escenario de excepcion (E1): historial vacio para usuario sin actividad
   test('E1: permite consultar historial sin registros', async () => {
-    const res = await request(app)
-      .get('/api/solicitudes/historial')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/solicitudes/historial').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
@@ -235,13 +222,9 @@ describe('RF20 - Historial de accesos [CUS20]', () => {
       .set(authCookie(token))
       .send({ estacionamiento_id: 1, lat: -12.1939, lng: -76.9715 });
 
-    await request(app)
-      .post('/api/solicitudes/cancelar')
-      .set(authCookie(token));
+    await request(app).post('/api/solicitudes/cancelar').set(authCookie(token));
 
-    const res = await request(app)
-      .get('/api/solicitudes/historial')
-      .set(authCookie(token));
+    const res = await request(app).get('/api/solicitudes/historial').set(authCookie(token));
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(1);

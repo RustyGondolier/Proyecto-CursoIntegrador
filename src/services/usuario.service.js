@@ -1,11 +1,8 @@
-const bcrypt =
-  require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
-const usuarioRepository =
-  require('../repositories/usuario.repository');
+const usuarioRepository = require('../repositories/usuario.repository');
 
-const vehiculoRepository =
-  require('../repositories/vehiculo.repository');
+const vehiculoRepository = require('../repositories/vehiculo.repository');
 
 const { TIPO_VEHICULO } = require('../config/constants');
 
@@ -13,115 +10,78 @@ const { TIPO_VEHICULO } = require('../config/constants');
    PERFIL
    ===================================================== */
 
-async function getProfile(
-  userId
-){
+async function getProfile(userId) {
+  const perfil = await usuarioRepository.getProfileWithVehicles(userId);
 
-  const perfil =
-    await usuarioRepository
-      .getProfileWithVehicles(
-        userId
-      );
-
-  if(!perfil){
-    throw new Error(
-      'Usuario no encontrado'
-    );
+  if (!perfil) {
+    throw new Error('Usuario no encontrado');
   }
 
   // Remover datos sensibles
   delete perfil.password_hash;
 
   return perfil;
-
 }
 
-async function updateProfile(
-  userId,
-  body
-){
-
+async function updateProfile(userId, body) {
   const datos = {};
 
-  if(
-    body.nombre !== undefined
-  ){
-    if(body.nombre.trim().length < 2){
+  if (body.nombre !== undefined) {
+    if (body.nombre.trim().length < 2) {
       const error = new Error('El nombre debe tener al menos 2 caracteres');
       error.status = 400;
       throw error;
     }
-    datos.nombre =
-      body.nombre.trim();
+    datos.nombre = body.nombre.trim();
   }
 
-  if(
-    body.telefono !== undefined
-  ){
-    datos.telefono =
-      body.telefono;
+  if (body.telefono !== undefined) {
+    datos.telefono = body.telefono;
   }
 
-  if(
-    body.correo_institucional !== undefined
-  ){
+  if (body.correo_institucional !== undefined) {
     const emailRegex = /^[^\s@]+@utp\.edu\.pe$/i;
-    if(!emailRegex.test(body.correo_institucional.trim())){
+    if (!emailRegex.test(body.correo_institucional.trim())) {
       const error = new Error('El correo debe ser institucional (@utp.edu.pe)');
       error.status = 400;
       throw error;
     }
-    datos.correo_institucional =
-      body.correo_institucional.trim();
+    datos.correo_institucional = body.correo_institucional.trim();
   }
 
-  if(
-    body.dni !== undefined
-  ){
-    if(!/^\d{8}$/.test(body.dni.trim())){
+  if (body.dni !== undefined) {
+    if (!/^\d{8}$/.test(body.dni.trim())) {
       const error = new Error('El DNI debe tener 8 dígitos');
       error.status = 400;
       throw error;
     }
-    datos.dni =
-      body.dni.trim();
+    datos.dni = body.dni.trim();
   }
 
-  if(
-    body.nro_licencia !== undefined
-  ){
-    if(body.nro_licencia.trim().length < 3){
+  if (body.nro_licencia !== undefined) {
+    if (body.nro_licencia.trim().length < 3) {
       const error = new Error('El número de licencia no es válido');
       error.status = 400;
       throw error;
     }
-    datos.nro_licencia =
-      body.nro_licencia.trim();
+    datos.nro_licencia = body.nro_licencia.trim();
   }
 
-  if(
-    body.licencia_fecha_vencimiento !== undefined
-  ){
+  if (body.licencia_fecha_vencimiento !== undefined) {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fechaVence = new Date(body.licencia_fecha_vencimiento + 'T00:00:00');
-    if(fechaVence < hoy){
+    if (fechaVence < hoy) {
       const error = new Error('La licencia está vencida');
       error.status = 400;
       throw error;
     }
-    datos.licencia_fecha_vencimiento =
-      body.licencia_fecha_vencimiento;
+    datos.licencia_fecha_vencimiento = body.licencia_fecha_vencimiento;
   }
 
-  await usuarioRepository
-    .updateProfile(
-      userId,
-      datos
-    );
+  await usuarioRepository.updateProfile(userId, datos);
 
   return getProfile(userId);
-
 }
 
 /* =====================================================
@@ -131,7 +91,7 @@ async function updateProfile(
 const PLACA_REGEX = {
   [TIPO_VEHICULO.AUTO]: /^[A-Za-z]{3}[-\s]?\d{3}$/,
   [TIPO_VEHICULO.MOTO]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
-  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/
+  [TIPO_VEHICULO.MOTOTAXI]: /^[A-Za-z]{2}[-\s]?\d{4}$/,
 };
 
 function normalizarPlaca(tipo, placa) {
@@ -142,20 +102,11 @@ function normalizarPlaca(tipo, placa) {
   return limpia.replace(/^([A-Z]{2})(\d{4})$/, '$1-$2');
 }
 
-async function getVehicles(
-  userId
-){
-
-  return vehiculoRepository
-    .getUserVehicles(userId);
-
+async function getVehicles(userId) {
+  return vehiculoRepository.getUserVehicles(userId);
 }
 
-async function createVehicle(
-  userId,
-  body
-){
-
+async function createVehicle(userId, body) {
   const tipo = body.tipo_vehiculo_id;
   const regex = PLACA_REGEX[tipo];
   if (!regex || !regex.test(body.placa.trim())) {
@@ -167,74 +118,41 @@ async function createVehicle(
 
   const placaNormalizada = normalizarPlaca(tipo, body.placa);
 
-  const existente =
-    await vehiculoRepository
-      .existsByPlate(
-        placaNormalizada
-      );
+  const existente = await vehiculoRepository.existsByPlate(placaNormalizada);
 
-  if(existente){
-    throw new Error(
-      'La placa ya está registrada'
-    );
+  if (existente) {
+    throw new Error('La placa ya está registrada');
   }
 
-  const vehiculo =
-    await vehiculoRepository
-      .createVehicle({
+  const vehiculo = await vehiculoRepository.createVehicle({
+    usuario_id: userId,
 
-        usuario_id: userId,
+    tipo_vehiculo_id: tipo,
 
-        tipo_vehiculo_id: tipo,
+    placa: placaNormalizada,
 
-        placa:
-          placaNormalizada,
-
-        modelo:
-          body.modelo
-
-      });
+    modelo: body.modelo,
+  });
 
   // Primer vehículo → activo automático
-  const total =
-    await vehiculoRepository
-      .getUserVehicles(userId);
+  const total = await vehiculoRepository.getUserVehicles(userId);
 
-  if(total.length === 1){
-
-    await vehiculoRepository
-      .setActive(vehiculo.id);
-
+  if (total.length === 1) {
+    await vehiculoRepository.setActive(vehiculo.id);
   }
 
-  await usuarioRepository
-    .resetVerification(userId);
+  await usuarioRepository.resetVerification(userId);
 
   return getVehicles(userId);
-
 }
 
-async function updateVehicle(
-  userId,
-  vehicleId,
-  body
-){
+async function updateVehicle(userId, vehicleId, body) {
+  const vehiculos = await vehiculoRepository.getUserVehicles(userId);
 
-  const vehiculos =
-    await vehiculoRepository
-      .getUserVehicles(userId);
+  const pertenece = vehiculos.some((v) => String(v.id) === String(vehicleId));
 
-  const pertenece =
-    vehiculos.some(
-      v => String(v.id) === String(vehicleId)
-    );
-
-  if(!pertenece){
-
-    throw new Error(
-      'El vehículo no pertenece al usuario'
-    );
-
+  if (!pertenece) {
+    throw new Error('El vehículo no pertenece al usuario');
   }
 
   if (body.placa !== undefined) {
@@ -257,159 +175,89 @@ async function updateVehicle(
     body.placa = placaNormalizada;
   }
 
-  await vehiculoRepository
-    .updateVehicle(
-      vehicleId,
-      {
+  await vehiculoRepository.updateVehicle(vehicleId, {
+    placa: body.placa?.toUpperCase(),
 
-        placa:
-          body.placa?.toUpperCase(),
+    modelo: body.modelo,
 
-        modelo:
-          body.modelo,
+    tipo_vehiculo_id: body.tipo_vehiculo_id,
+  });
 
-        tipo_vehiculo_id:
-          body.tipo_vehiculo_id
-
-      }
-    );
-
-  await usuarioRepository
-    .resetVerification(userId);
+  await usuarioRepository.resetVerification(userId);
 
   return getVehicles(userId);
-
 }
 
-async function deleteVehicle(
-  userId,
-  vehicleId
-){
+async function deleteVehicle(userId, vehicleId) {
+  const vehiculos = await vehiculoRepository.getUserVehicles(userId);
 
-  const vehiculos =
-    await vehiculoRepository
-      .getUserVehicles(userId);
+  const pertenece = vehiculos.some((v) => String(v.id) === String(vehicleId));
 
-  const pertenece =
-    vehiculos.some(
-      v => String(v.id) === String(vehicleId)
-    );
-
-  if(!pertenece){
-
-    throw new Error(
-      'El vehículo no pertenece al usuario'
-    );
-
+  if (!pertenece) {
+    throw new Error('El vehículo no pertenece al usuario');
   }
 
-  await vehiculoRepository
-    .deleteVehicle(vehicleId);
+  await vehiculoRepository.deleteVehicle(vehicleId);
 
-  await usuarioRepository
-    .resetVerification(userId);
+  await usuarioRepository.resetVerification(userId);
 
   return getVehicles(userId);
-
 }
 
-async function setActiveVehicle(
-  userId,
-  vehicleId
-){
+async function setActiveVehicle(userId, vehicleId) {
+  const vehiculos = await vehiculoRepository.getUserVehicles(userId);
 
-  const vehiculos =
-    await vehiculoRepository
-      .getUserVehicles(userId);
+  const pertenece = vehiculos.some((v) => String(v.id) === String(vehicleId));
 
-  const pertenece =
-    vehiculos.some(
-      v => String(v.id) === String(vehicleId)
-    );
-
-  if(!pertenece){
-
-    throw new Error(
-      'El vehículo no pertenece al usuario'
-    );
-
+  if (!pertenece) {
+    throw new Error('El vehículo no pertenece al usuario');
   }
 
-  await vehiculoRepository
-    .deactivateAll(userId);
+  await vehiculoRepository.deactivateAll(userId);
 
-  await vehiculoRepository
-    .setActive(vehicleId);
+  await vehiculoRepository.setActive(vehicleId);
 
   return getVehicles(userId);
-
 }
 
 /* =====================================================
    CONTRASEÑA
    ===================================================== */
 
-async function changePassword(
-  userId,
-  body
-){
-
+async function changePassword(userId, body) {
   const { actual, nueva, confirmar } = body;
 
-  if(!actual || !nueva || !confirmar){
-    throw new Error(
-      'Todos los campos son requeridos'
-    );
+  if (!actual || !nueva || !confirmar) {
+    throw new Error('Todos los campos son requeridos');
   }
 
-  if(nueva !== confirmar){
-    throw new Error(
-      'La nueva contraseña y la confirmación no coinciden'
-    );
+  if (nueva !== confirmar) {
+    throw new Error('La nueva contraseña y la confirmación no coinciden');
   }
 
-  if(nueva.length < 6){
-    throw new Error(
-      'La nueva contraseña debe tener al menos 6 caracteres'
-    );
+  if (nueva.length < 6) {
+    throw new Error('La nueva contraseña debe tener al menos 6 caracteres');
   }
 
-  const currentHash =
-    await usuarioRepository
-      .getPasswordHash(userId);
+  const currentHash = await usuarioRepository.getPasswordHash(userId);
 
-  if(!currentHash){
-    throw new Error(
-      'Usuario no encontrado'
-    );
+  if (!currentHash) {
+    throw new Error('Usuario no encontrado');
   }
 
-  const valida =
-    await bcrypt.compare(
-      actual,
-      currentHash
-    );
+  const valida = await bcrypt.compare(actual, currentHash);
 
-  if(!valida){
-    throw new Error(
-      'La contraseña actual no es correcta'
-    );
+  if (!valida) {
+    throw new Error('La contraseña actual no es correcta');
   }
 
-  const newHash =
-    await bcrypt.hash(nueva, 10);
+  const newHash = await bcrypt.hash(nueva, 10);
 
-  await usuarioRepository
-    .updatePassword(
-      userId,
-      newHash
-    );
+  await usuarioRepository.updatePassword(userId, newHash);
 
   return {
-    mensaje:
-      'Contraseña actualizada correctamente'
+    mensaje: 'Contraseña actualizada correctamente',
   };
-
 }
 
 module.exports = {
@@ -420,5 +268,5 @@ module.exports = {
   updateVehicle,
   deleteVehicle,
   setActiveVehicle,
-  changePassword
+  changePassword,
 };
