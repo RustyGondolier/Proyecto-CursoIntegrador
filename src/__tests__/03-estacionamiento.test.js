@@ -5,6 +5,7 @@
 
 const request = require('supertest');
 const app = require('../app');
+const pool = require('../../db');
 const { createTestUser, authCookie, seedPlazasOcupadas } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
@@ -16,10 +17,15 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
   let token;
 
   beforeAll(async () => {
+    await pool.query(`UPDATE plazas SET estado = 'disponible'`);
+    await pool.query(
+      `UPDATE solicitudes_estacionamiento SET estado = 'cancelado' WHERE estado = 'pendiente'`
+    );
     const data = await createTestUser();
     token = data.token;
   });
 
+  // Escenario exitoso: obtener ocupacion de las 2 cocheras con sus contadores
   test('obtener ocupacion de todas las cocheras', async () => {
     const res = await request(app)
       .get('/api/estacionamientos/ocupacion')
@@ -38,6 +44,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
     });
   });
 
+  // Escenario de verificacion: ocupados no debe superar el total de plazas
   test('contadores coherentes (ocupados no excede total)', async () => {
     const res = await request(app)
       .get('/api/estacionamientos/ocupacion')
@@ -52,6 +59,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
     });
   });
 
+  // Escenario de verificacion: contadores no deben ser negativos
   test('contadores nunca son negativos', async () => {
     const res = await request(app)
       .get('/api/estacionamientos/ocupacion')
@@ -64,6 +72,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
     });
   });
 
+  // Escenario exitoso: seedPlazasOcupadas se refleja en los contadores
   test('contadores reflejan plazas ocupadas en BD', async () => {
     await seedPlazasOcupadas(1, 3);
 
@@ -77,6 +86,7 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
     expect(Number(est1.autos_ocupados)).toBe(3);
   });
 
+  // Escenario exitoso: listar todos los estacionamientos registrados
   test('listar estacionamientos disponibles', async () => {
     const res = await request(app)
       .get('/api/estacionamientos/')
@@ -86,9 +96,14 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
     expect(res.body.length).toBeGreaterThanOrEqual(2);
   });
 
+  // Escenario de excepcion (E1): sin token de autenticacion
   test('E1: devuelve 401 sin autenticacion', async () => {
     const res = await request(app)
       .get('/api/estacionamientos/ocupacion');
     expect(res.status).toBe(401);
+  });
+
+  afterAll(async () => {
+    await pool.end();
   });
 });

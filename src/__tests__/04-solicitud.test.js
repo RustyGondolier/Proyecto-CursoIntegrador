@@ -28,6 +28,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     vehiculo = await createTestVehicle(usuario.id);
   });
 
+  // Escenario exitoso: crear solicitud con ubicacion dentro del campus
   test('crear solicitud exitosa dentro del radio 2.5 km', async () => {
     const res = await request(app)
       .post('/api/solicitudes/crear')
@@ -42,6 +43,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     expect(res.body.estado).toBe('pendiente');
   });
 
+  // Escenario de excepcion (E1): ubicacion fuera del radio del campus
   test('E1: rechaza solicitud fuera del radio de la sede', async () => {
     await request(app)
       .post('/api/solicitudes/cancelar')
@@ -59,6 +61,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     expect(res.body.error).toMatch(/campus/i);
   });
 
+  // Escenario de excepcion (E2): solicitud duplicada mientras una esta activa
   test('E2: rechaza solicitud si ya hay una activa', async () => {
     await request(app)
       .post('/api/solicitudes/crear')
@@ -73,6 +76,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     expect(res.body.error).toMatch(/activa/i);
   });
 
+  // Escenario de excepcion: usuario sin vehiculos registrados
   test('rechaza solicitud sin vehiculo registrado', async () => {
     const userNoVh = await createTestUser({
       verificado: true,
@@ -91,6 +95,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     expect(res.body.error).toMatch(/veh[ií]culo/i);
   });
 
+  // Escenario de excepcion: perfil del usuario no verificado
   test('rechaza solicitud con perfil no verificado', async () => {
     const userNoVer = await createTestUser({
       verificado: false,
@@ -110,6 +115,7 @@ describe('RF07 - Solicitud de acceso [CUS07]', () => {
     expect(res.body.error).toMatch(/verificad/i);
   });
 
+  // Escenario de excepcion (E4): todas las plazas ocupadas
   test('E4: rechaza solicitud si estacionamiento esta lleno', async () => {
     await pool.query(
       `UPDATE plazas SET estado = 'ocupada'
@@ -152,6 +158,7 @@ describe('RF08 - Cancelacion de solicitud [CUS08]', () => {
     vehiculo = await createTestVehicle(usuario.id);
   });
 
+  // Escenario exitoso: cancelar solicitud en estado pendiente
   test('cancelar solicitud activa exitosamente', async () => {
     await request(app)
       .post('/api/solicitudes/crear')
@@ -165,6 +172,7 @@ describe('RF08 - Cancelacion de solicitud [CUS08]', () => {
     expect(res.body.mensaje).toMatch(/cancelada/i);
   });
 
+  // Escenario de excepcion (E1): cancelar solicitud con ingreso confirmado
   test('E1: no permite cancelar si supervisor ya confirmo ingreso', async () => {
     const sup = await createTestUser({
       rol: 'supervisor',
@@ -185,6 +193,7 @@ describe('RF08 - Cancelacion de solicitud [CUS08]', () => {
     expect(res.body.error).toMatch(/supervisor/i);
   });
 
+  // Escenario de excepcion: cancelar sin tener una solicitud activa
   test('rechaza cancelar sin solicitud activa', async () => {
     const res = await request(app)
       .post('/api/solicitudes/cancelar')
@@ -208,6 +217,7 @@ describe('RF20 - Historial de accesos [CUS20]', () => {
     usuario = data.usuario;
   });
 
+  // Escenario de excepcion (E1): historial vacio para usuario sin actividad
   test('E1: permite consultar historial sin registros', async () => {
     const res = await request(app)
       .get('/api/solicitudes/historial')
@@ -216,6 +226,7 @@ describe('RF20 - Historial de accesos [CUS20]', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
+  // Escenario exitoso: historial refleja solicitudes creadas y canceladas
   test('historial incluye solicitudes realizadas', async () => {
     const vh = await createTestVehicle(usuario.id);
 
