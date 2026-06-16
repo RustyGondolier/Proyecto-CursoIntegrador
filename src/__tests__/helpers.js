@@ -72,12 +72,20 @@ async function createTestVehicle(usuarioId, overrides = {}) {
 
   const data = {
     usuario_id: usuarioId,
-    tipo_vehiculo_id: 'auto',
+    tipo_vehiculo_id: 1,
     placa: `ABC-${suffix}`,
     modelo: 'Sedan Test',
     activo: true,
     ...overrides
   };
+
+  if (typeof data.tipo_vehiculo_id === 'string') {
+    const lookup = await pool.query(
+      'SELECT id FROM tipos_vehiculo WHERE codigo = $1',
+      [data.tipo_vehiculo_id]
+    );
+    data.tipo_vehiculo_id = lookup.rows[0]?.id || 1;
+  }
 
   const result = await pool.query(
     `INSERT INTO vehiculos

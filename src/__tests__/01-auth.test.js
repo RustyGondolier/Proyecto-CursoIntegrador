@@ -5,7 +5,6 @@
 
 const request = require('supertest');
 const app = require('../app');
-const { pool } = require('../../db');
 const { createTestUser, authCookie } = require('./helpers');
 
 // ────────────────────────────────────────────────────────────
@@ -118,16 +117,6 @@ describe('RF01 - Registro de usuario [CUS01]', () => {
 //        contrasena. Redirige al dashboard segun rol.
 // ────────────────────────────────────────────────────────────
 describe('RF02 - Inicio de sesion [CUS02]', () => {
-  let credenciales;
-
-  beforeAll(async () => {
-    const { usuario } = await createTestUser();
-    credenciales = {
-      codigo_universitario: usuario.codigo_universitario,
-      password: 'password123'
-    };
-  });
-
   // Escenario exitoso
   test('login exitoso con credenciales validas', async () => {
     const { usuario } = await createTestUser({
@@ -149,9 +138,12 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
 
   // E1: Contrasena incorrecta
   test('E1: rechaza login con contrasena incorrecta', async () => {
+    const { usuario } = await createTestUser({
+      codigo_universitario: `U${Date.now()}E1PW`
+    });
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ ...credenciales, password: 'incorrecta' });
+      .send({ codigo_universitario: usuario.codigo_universitario, password: 'incorrecta' });
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/credenciales/i);
   });
@@ -182,7 +174,7 @@ describe('RF02 - Inicio de sesion [CUS02]', () => {
     expect(res.body.error).toMatch(/suspendida/i);
   });
 
-  // Redireccion por rol — GET /api/auth/me devuelve el rol correcto
+  // Rol correcto en GET /api/auth/me
   test('login devuelve el rol correcto del usuario autenticado', async () => {
     const { token } = await createTestUser({
       rol: 'administrador',

@@ -27,6 +27,9 @@ module.exports = {
     '**/src/__tests__/**/*.test.js'
   ],
 
+  // Ejecucion secuencial (comparten BD de pruebas)
+  maxWorkers: 1,
+
   // Verbosidad
   verbose: true,
 
