@@ -148,6 +148,9 @@ CREATE TABLE solicitudes_estacionamiento (
 CREATE UNIQUE INDEX una_solicitud_activa ON solicitudes_estacionamiento(usuario_id) 
 WHERE estado IN ('pendiente','ingresado');
 
+CREATE INDEX idx_solicitudes_usuario ON solicitudes_estacionamiento(usuario_id);
+CREATE INDEX idx_solicitudes_estado ON solicitudes_estacionamiento(estado);
+
 -- 11. VERIFICACIONES DE UBICACION
 CREATE TABLE verificaciones_ubicacion (
     id SERIAL PRIMARY KEY,
@@ -187,6 +190,8 @@ CREATE TABLE infracciones (
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE INDEX idx_infracciones_usuario ON infracciones(usuario_id);
+
 -- 14. ESTADOS DE REPORTE
 CREATE TABLE estados_reporte (
     id SERIAL PRIMARY KEY,
@@ -214,6 +219,8 @@ CREATE TABLE reportes_incidencias (
     creado_en TIMESTAMPTZ DEFAULT NOW(),
     actualizado_en TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX idx_reportes_usuario ON reportes_incidencias(usuario_id);
 
 -- 16. FAQ
 CREATE TABLE faq_categorias (
@@ -253,6 +260,8 @@ CREATE TABLE notificaciones (
     url_destino VARCHAR(255),
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX idx_notificaciones_usuario ON notificaciones(usuario_id);
 
 -- 19. ACCIONES ADMINISTRATIVAS
 CREATE TABLE acciones_administrativas (
