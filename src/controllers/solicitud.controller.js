@@ -53,7 +53,16 @@ async function cancelar(req, res) {
 
 async function getHistorial(req, res) {
   try {
-    const data = await solicitudService.obtenerHistorial(req.usuario.id);
+    const { fecha_inicio, fecha_fin } = req.query;
+
+    if (fecha_inicio && !/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
+      return res.status(400).json({ error: 'Formato de fecha_inicio inválido. Use YYYY-MM-DD' });
+    }
+    if (fecha_fin && !/^\d{4}-\d{2}-\d{2}$/.test(fecha_fin)) {
+      return res.status(400).json({ error: 'Formato de fecha_fin inválido. Use YYYY-MM-DD' });
+    }
+
+    const data = await solicitudService.obtenerHistorial(req.usuario.id, { fecha_inicio, fecha_fin });
     res.json(data);
   } catch (err) {
     logger.error('Error al cargar historial: ' + err.message, {

@@ -75,6 +75,16 @@ async function getOcupacion() {
   return resultado.rows;
 }
 
+async function getById(id) {
+  const result = await pool.query(
+    `SELECT id, nombre, ubicacion, activo
+     FROM estacionamientos
+     WHERE id = $1`,
+    [id],
+  );
+  return result.rows[0] || null;
+}
+
 async function getAll() {
   const result = await pool.query(
     'SELECT id, nombre, ubicacion FROM estacionamientos WHERE activo = true ORDER BY id',
@@ -97,6 +107,7 @@ async function getPlazasByEstacionamiento(estacionamientoId) {
 
 module.exports = {
   getOcupacion,
+  getById,
   getAll,
   getPlazasByEstacionamiento,
 };

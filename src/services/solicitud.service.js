@@ -207,8 +207,8 @@ function formatearSolicitud(solicitud) {
   };
 }
 
-async function obtenerHistorial(usuarioId) {
-  const registros = await solicitudRepository.findHistorialByUser(usuarioId);
+async function obtenerHistorial(usuarioId, filtros = {}) {
+  const registros = await solicitudRepository.findHistorialByUser(usuarioId, filtros);
   return registros.map((r) => ({
     id: r.id,
     estacionamiento: r.estacionamiento_nombre,

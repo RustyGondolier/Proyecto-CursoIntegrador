@@ -35,7 +35,21 @@ async function listarPlazas(req, res) {
       stack: err.stack,
       estacionamiento_id: req.params.id,
     });
-    res.status(500).json({ error: 'Error interno' });
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  }
+}
+
+async function obtenerMapa(req, res) {
+  try {
+    const { id } = req.params;
+    const data = await estacionamientoService.obtenerMapa(id);
+    res.json(data);
+  } catch (err) {
+    logger.error('Error al obtener mapa: ' + err.message, {
+      stack: err.stack,
+      estacionamiento_id: req.params.id,
+    });
+    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
   }
 }
 
@@ -43,4 +57,5 @@ module.exports = {
   ocupacion,
   listar,
   listarPlazas,
+  obtenerMapa,
 };

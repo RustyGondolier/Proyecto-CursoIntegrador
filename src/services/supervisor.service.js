@@ -90,6 +90,13 @@ function normalizarPlaca(placa) {
 }
 
 async function buscarPorPlaca(placa) {
+  const limpia = placa.trim().toUpperCase().replace(/[\s-]/g, '');
+  const valida = /^[A-Z]{2,3}\d{3,4}$/.test(limpia);
+  if (!valida) {
+    const error = new Error('Formato de placa inválido');
+    error.status = 400;
+    throw error;
+  }
   const placaNormalizada = normalizarPlaca(placa);
   const resultado = await supervisorRepository.buscarPorPlaca(placaNormalizada);
   if (!resultado) {

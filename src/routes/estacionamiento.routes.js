@@ -12,4 +12,6 @@ router.get('/ocupacion', authJWT, controller.ocupacion);
 
 router.get('/:id/plazas', authJWT, controller.listarPlazas);
 
+router.get('/:id/mapa', authJWT, controller.obtenerMapa);
+
 module.exports = router;

@@ -201,6 +201,7 @@ async function seedPlazasOcupadas(estacionamientoId, cantidad) {
        SELECT p.id FROM plazas p
        JOIN bloques b ON b.id = p.bloque_id
        WHERE b.estacionamiento_id = $1
+       ORDER BY p.id
        LIMIT $2
      )`,
     [estacionamientoId, cantidad],
