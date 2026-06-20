@@ -50,8 +50,7 @@ function bindSidebar(){
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       if (!confirm('¿Cerrar sesión?')) return;
-      localStorage.clear();
-      window.location.href = '/';
+      logout();
     });
   }
 }

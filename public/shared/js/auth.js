@@ -158,29 +158,30 @@ LOGOUT
 =================================
 */
 
-function logout(){
+async function logout(){
 
-  fetch(
-    '/api/auth/logout',
-    {
-      method:'POST',
-      credentials:'include'
-    }
-  ).finally(
-    () => {
+  try {
 
-      localStorage.removeItem(
-        'usuario'
-      );
+    const res = await fetch(
+      '/api/auth/logout',
+      {
+        method:'POST',
+        credentials:'include'
+      }
+    );
 
-      localStorage.removeItem(
-        'loggedIn'
-      );
+    if(!res.ok) throw new Error();
 
-      window.location.href =
-        '/auth/login.html';
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('loggedIn');
+    window.location.href = '/auth/login.html';
 
-    }
-  );
+  } catch {
+
+    alert(
+      'Ocurrió un error al cerrar sesión. Intente nuevamente.'
+    );
+
+  }
 
 }
