@@ -199,7 +199,11 @@ async function handleResolver(id) {
     showSuccessToast('Reporte resuelto exitosamente');
     await loadReportes();
   } catch (e) {
-    showErrorToast(e.message || 'Error al resolver el reporte');
+    const esRed = e instanceof TypeError;
+    const mensaje = esRed
+      ? 'No se puede conectar con el servidor. Intente nuevamente.'
+      : (e.message || 'Error al resolver el reporte');
+    showErrorToast(mensaje);
     btn.disabled = false;
     btn.textContent = 'Marcar como resuelto';
   }

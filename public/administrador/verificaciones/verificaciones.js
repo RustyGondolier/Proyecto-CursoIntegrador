@@ -251,7 +251,11 @@ async function handleAprobar(id) {
     closeDetailModal();
     await loadPendientes();
   } catch (e) {
-    showErrorToast(e.message || 'Error al aprobar el perfil');
+    const esRed = e instanceof TypeError;
+    const mensaje = esRed
+      ? 'No se puede conectar con el servidor. Intente nuevamente.'
+      : (e.message || 'Error al aprobar el perfil');
+    showErrorToast(mensaje);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Aprobar perfil';
@@ -280,9 +284,13 @@ async function handleSuspender(id) {
     closeDetailModal();
     await loadPendientes();
   } catch (e) {
-    errBox.textContent = e.message || 'Error al suspender la cuenta';
+    const esRed = e instanceof TypeError;
+    const mensaje = esRed
+      ? 'No se puede conectar con el servidor. Intente nuevamente.'
+      : (e.message || 'Error al suspender la cuenta');
+    errBox.textContent = mensaje;
     errBox.style.display = 'block';
-    showErrorToast('Error al suspender la cuenta');
+    showErrorToast(mensaje);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Suspender cuenta';

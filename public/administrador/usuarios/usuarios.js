@@ -177,9 +177,13 @@ async function handleSuspender(id) {
     showSuccessToast('Cuenta suspendida exitosamente');
     await loadUsuarios(getCurrentFilters());
   } catch (e) {
-    errBox.textContent = e.message || 'Error al suspender la cuenta';
+    const esRed = e instanceof TypeError;
+    const mensaje = esRed
+      ? 'No se puede conectar con el servidor. Intente nuevamente.'
+      : (e.message || 'Error al suspender la cuenta');
+    errBox.textContent = mensaje;
     errBox.style.display = 'block';
-    showErrorToast('Error al suspender la cuenta');
+    showErrorToast(mensaje);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Suspender cuenta';
@@ -201,9 +205,13 @@ async function handleReactivar(id) {
     showSuccessToast('Cuenta reactivada exitosamente');
     await loadUsuarios(getCurrentFilters());
   } catch (e) {
-    errBox.textContent = e.message || 'Error al reactivar la cuenta';
+    const esRed = e instanceof TypeError;
+    const mensaje = esRed
+      ? 'No se puede conectar con el servidor. Intente nuevamente.'
+      : (e.message || 'Error al reactivar la cuenta');
+    errBox.textContent = mensaje;
     errBox.style.display = 'block';
-    showErrorToast('Error al reactivar la cuenta');
+    showErrorToast(mensaje);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Reactivar cuenta';

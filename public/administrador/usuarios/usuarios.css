@@ -384,7 +384,7 @@
   border-radius: var(--radius-sm);
   font-size: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 1000;
+  z-index: 3000;
   animation: usrFadeInUp 0.3s ease;
 }
 
@@ -454,5 +454,16 @@
 
   .usr-date-input {
     min-width: 0;
+  }
+
+  .usr-toast, .usr-toast.usr-toast-error {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 0;
+    padding: 16px 20px;
+    font-size: 15px;
+    text-align: center;
   }
 }
