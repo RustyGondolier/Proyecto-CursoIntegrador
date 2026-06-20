@@ -86,7 +86,21 @@ describe('RF17 - Gestion de infracciones [CUS17]', () => {
     expect(res.body).toHaveProperty('pendientes_recientes');
   });
 
-  test('CP03: error al cargar historial de infracciones (E2)', async () => {
+  test('CP03a: E2 - error del servidor al listar infracciones', async () => {
+    // ARRANGE
+    // Forzar error de BD con un parámetro de fecha inválido
+
+    // ACT
+    const res = await request(app)
+      .get('/api/administrador/infracciones?fecha_desde=fecha-invalida')
+      .set(authCookie(adminToken));
+
+    // ASSERT
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  test('CP03b: E2 - error al cargar detalle de infraccion inexistente', async () => {
     // ARRANGE
     const id = 99999;
 
