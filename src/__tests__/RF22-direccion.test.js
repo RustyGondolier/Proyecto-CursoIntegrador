@@ -74,7 +74,7 @@ describe('RF22 - Dashboard de metricas [CUS22]', () => {
     expect(res.body.error).toMatch(/fecha_inicio/i);
   });
 
-  test('periodo sin registros devuelve dashboard con ceros', async () => {
+  test('CP02: E1 - periodo sin registros devuelve dashboard con ceros', async () => {
     // ARRANGE
     const query = { fecha_inicio: '2020-01-01', fecha_fin: '2020-01-02' };
 
@@ -122,7 +122,7 @@ describe('RF22 - Dashboard de metricas [CUS22]', () => {
     expect(res.headers['content-type']).toMatch(/spreadsheet|octet/);
   });
 
-  test('E2: error al generar dashboard con filtros invalidos', async () => {
+  test('CP03: E2 - error al generar dashboard con filtros invalidos', async () => {
     // ARRANGE
     const query = { fecha_inicio: '01-01-2026', fecha_fin: '31-12-2026' };
 
