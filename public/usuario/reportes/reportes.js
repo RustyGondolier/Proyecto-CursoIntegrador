@@ -154,7 +154,10 @@ function bindNewReportForm() {
         document.getElementById('reportesColList').style.display = 'block';
       }
     } catch (e) {
-      errBox.textContent = e.message || 'No se pudo enviar el reporte.';
+      const esRed = e instanceof TypeError;
+      errBox.textContent = esRed
+        ? 'No se puede conectar con el servidor. Verifica tu conexión e intenta nuevamente.'
+        : (e.message || 'Error al enviar el reporte');
       errBox.style.display = 'block';
     } finally {
       submitBtn.disabled = false;

@@ -61,7 +61,7 @@ describe('RF19 - Reporte de incidencias [CUS19]', () => {
     expect(res.body.error).toMatch(/10 caracteres/i);
   });
 
-  test('E2: error al enviar reporte con datos invalidos', async () => {
+  test('CP03: E2 - error al enviar reporte con datos invalidos', async () => {
     // ARRANGE
     const datos = { descripcion: null };
 
