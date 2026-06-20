@@ -5,7 +5,7 @@ function authJWT(req, res, next) {
 
   if (!token) {
     return res.status(401).json({
-      error: 'Token requerido',
+      error: 'Su sesión ha expirado. Debe iniciar sesión nuevamente.',
     });
   }
 
@@ -17,7 +17,7 @@ function authJWT(req, res, next) {
     next();
   } catch (err) {
     return res.status(403).json({
-      error: 'Token inválido',
+      error: 'Su sesión ha expirado. Debe iniciar sesión nuevamente.',
     });
   }
 }

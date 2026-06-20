@@ -64,7 +64,7 @@ describe('RF21 - Seccion de ayuda y preguntas frecuentes [CUS21]', () => {
 
       // ASSERT
       expect(res.status).toBe(403);
-      expect(res.body.error).toMatch(/Token/);
+      expect(res.body.error).toMatch(/sesión ha expirado/i);
     });
   });
 
@@ -122,7 +122,7 @@ describe('RF21 - Seccion de ayuda y preguntas frecuentes [CUS21]', () => {
 
       // ASSERT
       expect(res.status).toBe(403);
-      expect(res.body.error).toMatch(/Token/);
+      expect(res.body.error).toMatch(/sesión ha expirado/i);
     });
 
     test('todas las categorias retornan preguntas correctamente', async () => {
