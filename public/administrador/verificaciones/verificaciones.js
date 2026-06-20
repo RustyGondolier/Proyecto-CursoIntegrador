@@ -336,4 +336,21 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/*
+ * testSuspender — SOLO PARA EVALUACION (RF16 CP03)
+ * Fuerza error "cuenta ya suspendida" desde consola.
+ * Modo de uso: testSuspender(ID_USUARIO)
+ */
+window.testSuspender = async function(userId) {
+  try {
+    await suspenderUsuario(userId, 'testing');
+  } catch (e) {
+    showErrorToast(
+      e instanceof TypeError
+        ? 'No se puede conectar con el servidor. Intente nuevamente.'
+        : (e.message || 'Error al suspender la cuenta')
+    );
+  }
+};
+
 init();
