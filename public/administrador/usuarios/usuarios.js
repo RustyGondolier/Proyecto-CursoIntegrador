@@ -105,8 +105,10 @@ function closeReactivarModal() {
 }
 
 function bindModals() {
-  document.querySelectorAll('[data-close-modal]').forEach(function(el) {
-    el.addEventListener('click', closeAllModals);
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-close-modal]')) {
+      closeAllModals();
+    }
   });
 
   document.addEventListener('keydown', function(e) {
