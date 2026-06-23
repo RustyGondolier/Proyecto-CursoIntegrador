@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+const { DURACION_SESION } = require('../config/constants');
+
 function generateToken(usuario) {
   return jwt.sign(
     {
@@ -9,7 +11,7 @@ function generateToken(usuario) {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: '8h',
+      expiresIn: DURACION_SESION[usuario.rol] || '8h',
     },
   );
 }

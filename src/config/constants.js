@@ -90,6 +90,14 @@ const TIPO_NOTIFICACION = Object.freeze({
   REPORTE: 'reporte',
 });
 
+const DURACION_SESION = Object.freeze({
+  [ROLES.ESTUDIANTE]: '1h',
+  [ROLES.DOCENTE]: '1h',
+  [ROLES.SUPERVISOR]: '8h',
+  [ROLES.ADMINISTRADOR]: '8h',
+  [ROLES.DIRECCION]: '8h',
+});
+
 // Única fuente de verdad — lee del .env con fallback seguro
 // Usa ?? en vez de || para no ignorar 0 (aunque 0 min no tiene sentido de negocio)
 const TIEMPO_LIMITE_INGRESO_MIN = parseInt(process.env.TIEMPO_LIMITE_INGRESO_MIN ?? '30', 10);
@@ -106,5 +114,6 @@ module.exports = Object.freeze({
   TIPO_VEHICULO,
   TIPO_ACCION_ADMIN,
   TIPO_NOTIFICACION,
+  DURACION_SESION,
   TIEMPO_LIMITE_INGRESO_MIN,
 });
