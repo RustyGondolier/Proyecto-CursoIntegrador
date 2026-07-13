@@ -93,6 +93,37 @@ describe('RF10 - Registro de ingreso [CUS10]', () => {
     // ASSERT
     expect(res.status).toBe(401);
   });
+
+  test('E3: rechaza ingreso si solicitud expiro por temporizador', async () => {
+    // ARRANGE
+    const userExp = await createTestUser({
+      verificado: true,
+      codigo_universitario: `U${Date.now()}EXP`,
+    });
+    const vhExp = await createTestVehicle(userExp.usuario.id);
+    const fechaExpirada = new Date(Date.now() - 60000).toISOString();
+    const solicitud = await createTestSolicitud(userExp.usuario.id, vhExp.id, {
+      hora_limite_ingreso: fechaExpirada,
+    });
+    const plaza = await pool.query(
+      `SELECT id FROM plazas WHERE estado = 'disponible' LIMIT 1`,
+    );
+
+    // Trigger lazy expiration: marca solicitud como 'expirado'
+    await request(app)
+      .get('/api/solicitudes/activa')
+      .set(authCookie(userExp.token));
+
+    // ACT - supervisor intenta confirmar el ingreso de la solicitud ya expirada
+    const res = await request(app)
+      .post('/api/supervisor/confirmar-ingreso')
+      .set(authCookie(supToken))
+      .send({ solicitud_id: solicitud.id, plaza_id: plaza.rows[0].id });
+
+    // ASSERT
+    expect(res.status).toBe(404);
+    expect(res.body.error).toMatch(/no encontrada|pendiente/i);
+  });
 });
 
 afterAll(async () => {

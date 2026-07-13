@@ -22,15 +22,16 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
   });
 
   test('CP02: error al obtener estado actualizado (E1)', async () => {
-    // ARRANGE
-    // Simular un error forzando un parametro invalido en la consulta
+    // ARRANGE - poblar cache con una consulta exitosa primero
+    await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
 
-    // ACT
-    const res = await request(app).get('/api/estacionamientos/ocupacion?error=true').set(authCookie(token));
+    // ACT - forzar error en el backend
+    const res = await request(app).get('/api/estacionamientos/ocupacion?force_error=1').set(authCookie(token));
 
     // ASSERT
     expect(res.status).toBe(200);
-    expect(res.body).toBeDefined();
+    expect(res.body.advertencia).toMatch(/no se pudo obtener|actualizada/i);
+    expect(Array.isArray(res.body.datos)).toBe(true);
   });
 
   test('obtener ocupacion de todas las cocheras', async () => {
@@ -124,6 +125,22 @@ describe('RF06 - Dashboard contadores [CUS06]', () => {
 
     // ASSERT
     expect(res.status).toBe(401);
+  });
+
+  test('E2: dashboard refleja estacionamiento completamente ocupado', async () => {
+    // ARRANGE - ocupar todas las plazas del estacionamiento 1 (8 auto + 8 moto)
+    await seedPlazasOcupadas(1, 16);
+
+    // ACT
+    const res = await request(app).get('/api/estacionamientos/ocupacion').set(authCookie(token));
+
+    // ASSERT
+    expect(res.status).toBe(200);
+
+    const est1 = res.body.find((e) => e.nombre === 'Estacionamiento 1');
+    expect(est1).toBeDefined();
+    expect(Number(est1.autos_ocupados)).toBe(Number(est1.autos_total));
+    expect(Number(est1.motos_ocupadas)).toBe(Number(est1.motos_total));
   });
 
   afterAll(async () => {

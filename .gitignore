@@ -8,3 +8,4 @@ migrate-timestamptz.sql
 seed-historial-test.sql
 coverage/
 *.log
+docs/

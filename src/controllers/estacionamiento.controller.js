@@ -1,16 +1,25 @@
 const logger = require('../config/logger');
 const estacionamientoService = require('../services/estacionamiento.service');
 
+let ocupacionCache = [];
+
 async function ocupacion(req, res) {
   try {
+    if (req.query.force_error) {
+      throw new Error('Error forzado para pruebas');
+    }
+
     const data = await estacionamientoService.obtenerOcupacion();
+
+    ocupacionCache = data;
 
     res.json(data);
   } catch (err) {
     logger.error('Error al obtener ocupación: ' + err.message, { stack: err.stack });
 
-    res.status(500).json({
-      error: 'Error interno',
+    res.json({
+      datos: ocupacionCache,
+      advertencia: 'No se pudo obtener la información actualizada. Mostrando datos anteriores.',
     });
   }
 }

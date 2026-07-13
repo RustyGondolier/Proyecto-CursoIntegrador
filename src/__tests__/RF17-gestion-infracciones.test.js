@@ -111,6 +111,37 @@ describe('RF17 - Gestion de infracciones [CUS17]', () => {
     expect(res.status).toBe(404);
     expect(res.body.error).toBeDefined();
   });
+
+  test('CP01c: administrador suspende cuenta del usuario infractor', async () => {
+    // ARRANGE
+    // usuario creado en beforeAll con infraccion asociada
+
+    // ACT
+    const res = await request(app)
+      .put(`/api/administrador/usuarios/${usuario.id}/suspender`)
+      .set(authCookie(adminToken))
+      .send({ motivo: 'Infraccion recurrente: vehiculo mal estacionado' });
+
+    // ASSERT
+    expect(res.status).toBe(200);
+    expect(res.body.mensaje).toMatch(/suspendida/i);
+    expect(res.body.usuario.estado_cuenta).toBe('suspendida');
+  });
+
+  test('E1: lista vacia de infracciones con filtro sin resultados', async () => {
+    // ARRANGE
+    // Filtrar por fecha anterior a las infracciones existentes
+
+    // ACT
+    const res = await request(app)
+      .get('/api/administrador/infracciones?fecha_hasta=2000-01-01')
+      .set(authCookie(adminToken));
+
+    // ASSERT
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBe(0);
+  });
 });
 
 afterAll(async () => {

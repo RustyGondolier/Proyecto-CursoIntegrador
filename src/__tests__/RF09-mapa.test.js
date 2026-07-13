@@ -17,8 +17,13 @@ describe('RF09 - Visualizacion del mapa del estacionamiento [CUS09]', () => {
 
   describe('GET /api/estacionamientos/:id/plazas', () => {
     test('CP01: listar plazas de estacionamiento existente', async () => {
+      // ARRANGE
+      // El estacionamiento 1 existe en la BD (insertado en setup.js)
+
+      // ACT
       const res = await request(app).get('/api/estacionamientos/1/plazas').set(authCookie(token));
 
+      // ASSERT
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeGreaterThan(0);
@@ -32,8 +37,13 @@ describe('RF09 - Visualizacion del mapa del estacionamiento [CUS09]', () => {
     });
 
     test('CP01: plazas incluyen tipo de vehiculo del bloque', async () => {
+      // ARRANGE
+      // El estacionamiento 1 tiene bloques con tipo_vehiculo definido
+
+      // ACT
       const res = await request(app).get('/api/estacionamientos/1/plazas').set(authCookie(token));
 
+      // ASSERT
       expect(res.status).toBe(200);
       res.body.forEach((plaza) => {
         expect(plaza).toHaveProperty('tipo_vehiculo');
@@ -41,22 +51,37 @@ describe('RF09 - Visualizacion del mapa del estacionamiento [CUS09]', () => {
     });
 
     test('E1: 401 sin autenticacion al listar plazas', async () => {
+      // ARRANGE
+      // No se envia cookie de autenticacion
+
+      // ACT
       const res = await request(app).get('/api/estacionamientos/1/plazas');
 
+      // ASSERT
       expect(res.status).toBe(401);
     });
 
     test('E1: 404 para estacionamiento inexistente', async () => {
+      // ARRANGE
+      // El estacionamiento 99999 no existe en la BD
+
+      // ACT
       const res = await request(app).get('/api/estacionamientos/99999/plazas').set(authCookie(token));
 
+      // ASSERT
       expect(res.status).toBe(404);
     });
   });
 
   describe('GET /api/estacionamientos/:id/mapa — endpoint dedicado del mapa', () => {
     test('CP01: endpoint mapa retorna configuracion del estacionamiento', async () => {
+      // ARRANGE
+      // El estacionamiento 1 tiene mapa configurado en la BD
+
+      // ACT
       const res = await request(app).get('/api/estacionamientos/1/mapa').set(authCookie(token));
 
+      // ASSERT
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('svg_url');
       expect(res.body).toHaveProperty('plazas');
