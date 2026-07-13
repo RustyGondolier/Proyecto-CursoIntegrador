@@ -20,7 +20,8 @@ Sistema web para la gestión y control de estacionamientos en la Universidad Tec
 8. [Funcionalidades implementadas](#8-funcionalidades-implementadas)
 9. [Limitaciones y aspectos no implementados](#9-limitaciones-y-aspectos-no-implementados)
 10. [Instalación y configuración](#10-instalación-y-configuración)
-11. [Conclusiones y trabajo futuro](#11-conclusiones-y-trabajo-futuro)
+11. [Despliegue](#11-despliegue)
+12. [Conclusiones](#12-conclusiones)
 
 ---
 
@@ -157,7 +158,7 @@ Socket.IO se utiliza para:
 ## 5. Tecnologías y justificación
 
 | Capa | Tecnología | Versión | Justificación |
-|---|---|---|---|---|
+|---|---|---|---|
 | Backend | Node.js | ≥18 | Entorno JavaScript del lado del servidor, mismo lenguaje que el frontend, ideal para prototipado rápido |
 | Framework web | Express | ^5.2.1 | Framework minimalista, flexible, ampliamente documentado |
 | Base de datos | PostgreSQL (Neon) | 16 | Base relacional con soporte transaccional, JSONB, ventanas. Neon ofrece serverless PostgreSQL |
@@ -340,11 +341,9 @@ Socket.IO se utiliza para:
 
 | Limitación | Descripción |
 |---|---|
-| **Sin tests automatizados** | No existe ningún test unitario, de integración o end-to-end |
-| **Sin linter ni formatter** | No hay ESLint ni Prettier; el estilo del código es inconsistente |
 | **Sin CI/CD** | No hay pipeline de integración o despliegue automatizado |
 | **Sin migraciones de BD** | Los cambios al esquema se aplican mediante scripts SQL manuales |
-| **Sin HTTPS** | El servidor no tiene configuración de TLS; depende del proxy (Heroku) |
+| **Sin HTTPS** | El servidor no tiene configuración de TLS; depende del proxy (Render) |
 | **Sin bundler en frontend** | El JavaScript y CSS se sirven como archivos sueltos sin empaquetar |
 | **Índices de BD incompletos** | Varias foreign keys en tablas grandes (`solicitudes_estacionamiento`, `infracciones`, `notificaciones`) carecen de índices |
 | **Validación ad-hoc** | No hay middleware de validación (express-validator, Joi, Zod); las validaciones están dispersas en los servicios |
@@ -410,27 +409,45 @@ pnpm run dev
 
 ---
 
-## 11. Conclusiones y trabajo futuro
+## 11. Despliegue
 
-### Conclusiones
+El sistema está desplegado en **Render** como Web Service, con base de datos **PostgreSQL serverless en Neon**.
+
+| Campo | Valor |
+|---|---|
+| Herramienta usada | Node.js + Express |
+| Plataforma | Render (Web Service) |
+| Repositorio | `https://github.com/RustyGondolier/Proyecto-CursoIntegrador` |
+| Rama de despliegue | `main` |
+| Comando build | `pnpm install` |
+| Comando de ejecución | `node src/server.js` |
+| Resultado generado | `node_modules/` |
+
+### Variables de entorno en Render
+
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | Conexión a PostgreSQL en Neon |
+| `JWT_SECRET` | Clave secreta para JWT |
+| `FRONTEND_URL` | URL del frontend para CORS |
+| `TIEMPO_LIMITE_INGRESO_MIN` | 30 |
+| `RATE_LIMIT_WINDOW_MIN` | 15 |
+| `RATE_LIMIT_GLOBAL_MAX` | 200 |
+| `RATE_LIMIT_LOGIN_MAX` | 10 |
+| `LOG_LEVEL` | info |
+
+### Base de datos
+
+La base de datos está alojada en **Neon** (PostgreSQL serverless). Se conecta mediante la variable `DATABASE_URL` configurada en Render. El esquema se define en `db/schema.sql` y los datos de prueba se siembran con `pnpm run seed`.
+
+---
+
+## 12. Conclusiones
 
 - Se implementaron **22 requerimientos funcionales** cubriendo el ciclo completo del estacionamiento: registro, solicitud con geolocalización, asignación, ingreso, salida, infracciones, reportes, dashboards y exportación de datos.
 - La arquitectura MVC con capas Service y Repository permitió separar responsabilidades, manteniendo los controladores delgados y la lógica de negocio centralizada.
 - PostgreSQL sobre Neon proporciona una base de datos relacional serverless sin necesidad de administrar servidores, con 20 tablas y 5 vistas analíticas.
 - Socket.IO habilita la actualización en tiempo real de contadores de ocupación y notificaciones sin recargar la página.
 - La geolocalización (fórmula Haversine) restringe las solicitudes a usuarios dentro del campus (radio configurable de 2500 m).
-- El sistema implementa medidas básicas de seguridad: autenticación JWT por roles (4 roles), Helmet, CORS y rate limiting.
-
-### Trabajo futuro
-
-- [x] **Centralizar constantes** del backend en `src/config/constants.js`
-- [ ] **Implementar validadores:** express-validator o Zod para validación de inputs
-- [ ] **Agregar tests:** Jest + Supertest para tests de integración de la API.
-- [x] **Mejorar seguridad:** migrar JWT de localStorage a httpOnly cookies.
-- [ ] **Agregar linter/formatter:** ESLint + Prettier con configuración estandarizada.
-- [ ] **Migraciones de BD:** usar Knex o similar para versionar el esquema.
-- [ ] **CI/CD:** GitHub Actions para correr tests y linter en cada push.
-- [ ] **Optimizar BD:** agregar índices a foreign keys más consultadas.
-- [ ] **Empaquetar frontend:** considerar Vite para bundling y minificación.
-- [x] **Mejorar manejo de errores:** reemplazar `catch (_) {}` con logging estructurado.
-- [ ] **TypeScript:** migrar el proyecto a TypeScript para mayor seguridad de tipos.
+- El sistema implementa medidas de seguridad: autenticación JWT por roles (4 roles), Helmet, CORS, rate limiting y cookies httpOnly para tokens.
+- El proyecto está desplegado en Render con base de datos en Neon, accesible desde cualquier dispositivo.
